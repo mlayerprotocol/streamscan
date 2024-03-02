@@ -1,0 +1,29 @@
+.ant-tabs-tab:first-child{
+    border-top-left-radius: 8px!important;
+    border-bottom-left-radius: 8px!important;
+  }
+  .ant-tabs-tab:nth-child(2) {
+    border-top-right-radius: 8px!important;
+    border-bottom-right-radius: 8px!important;
+  }
+  
+  .ant-tabs-nav-list, .ant-tabs-nav-list>.ant-tabs-tab{
+    flex-grow: 1!important;
+    justify-content: center;
+  }
+  
+  .ant-tabs-tab-active{
+    background-color: white!important;
+    
+  }
+  
+  .ant-tabs-tab-btn{
+    text-align: center;
+  }
+  .ant-tabs-tab-active>.ant-tabs-tab-btn{
+    color: black!important;
+  }
+  
+  .ant-tabs-nav{
+    margin-bottom: 64px!important;
+  }

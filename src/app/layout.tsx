@@ -1,8 +1,14 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { AntdRegistry } from "@ant-design/nextjs-registry";
+
+import localFont from "next/font/local";
+
+import { AppContextProvider, ThemeContextProvider } from "@/context";
 
 const inter = Inter({ subsets: ["latin"] });
+const myFont = localFont({ src: "../fonts/geist/GeistVariableVF.ttf" });
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -11,12 +17,18 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="en">
-      <body className={inter.className}>{children}</body>
+    <html lang="en" className="dark" >
+      <body className={`${myFont.className} `}>
+        <ThemeContextProvider>
+          <AppContextProvider>
+            <AntdRegistry>{children}</AntdRegistry>
+          </AppContextProvider>
+        </ThemeContextProvider>
+      </body>
     </html>
   );
 }
