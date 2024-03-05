@@ -1,5 +1,4 @@
 "use client";
-import { Counter, TokenCard } from "@/components";
 import { Button, Modal } from "antd";
 import Image from "next/image";
 import { useState } from "react";
