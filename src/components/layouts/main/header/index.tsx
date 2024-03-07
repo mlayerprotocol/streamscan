@@ -171,32 +171,21 @@ export const AppHeader = (props: AppHeaderProps) => {
                 <HeroIcons.ChevronDownIcon className="h-[20px] text-white" />
               </div>
             </Button>
-            {!userData?._id && (
-              <motion.div
-                initial={{ opacity: 0, x: -40 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -40 }}
-                onClick={() => {
-                  setShowModal((old) => !old);
-                }}
-                className="h-[50px] rounded-full bg-[#6A6A6A] flex justify-center items-center pl-1 pr-3 ml-2"
-              >
-                <Typography.Text className="ml-2 !text-white text-nowrap">
-                  Connect Wallet
-                </Typography.Text>
-              </motion.div>
-            )}
-            {userData?._id && (
-              <>
-                <Avatar
-                  size={32}
-                  className="!bg-[#CBD5E1]"
-                  src={userData.avatar}
-                  icon={<UserOutlined />}
-                />
-                <HeroIcons.ChevronDownIcon className="h-[20px] text-white" />
-              </>
-            )}
+
+            <motion.div
+              initial={{ opacity: 0, x: -40 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -40 }}
+              onClick={() => {
+                setShowModal((old) => !old);
+              }}
+              className="h-[50px] rounded-full bg-[#6A6A6A] flex justify-center items-center pl-1 pr-3 ml-2"
+            >
+              <Typography.Text className="ml-2 !text-white text-nowrap">
+                Connect Wallet
+              </Typography.Text>
+            </motion.div>
+
             <MainAuth
               isModalOpen={showModal}
               onCancel={() => {
@@ -291,11 +280,10 @@ export const AppHeader = (props: AppHeaderProps) => {
             <Link href={"/"}>Name Service</Link>
           </div>
         </div>
-        
       </header>
       <Button ghost className=" my-6  self-center w-2/3" type="primary">
-          <span>Ad Space</span>
-        </Button>
+        <span>Ad Space</span>
+      </Button>
     </>
   );
 };
