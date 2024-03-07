@@ -1,10 +1,71 @@
+'use client';
+
 import Image from 'next/image'
 import { Inter } from 'next/font/google'
 import styles from './page.module.css'
+import {SigningStargateClient} from "@cosmjs/stargate";
+import { Button } from 'antd';
 
 const inter = Inter({ subsets: ['latin'] })
 
+
 export default function Home() {
+  const initializeKeplr = async () => {
+    const { keplr } = window as any;
+    if (!keplr) {
+      alert("Please install keplr extension");
+    } else {
+     
+      //  await keplr.experimentalSuggestChain(this.getTestnetChainInfo())
+      // Create the signing client
+      const chainId = "cosmoshub-4";
+    const offlineSigner =
+        keplr.getOfflineSigner!(chainId)
+    // const signingClient = await SigningStargateClient.connectWithSigner(
+    //   "https://cosmos-rpc.publicnode.com:443",
+    //     offlineSigner,
+      // )
+    
+    const accounts = await offlineSigner.getAccounts();
+    console.log('ACCOUNTS', accounts)
+       const cosmJS = SigningStargateClient.connect(
+        "https://cosmos-rpc.publicnode.com:443",
+          accounts[0].address,
+         //  offlineSigner
+        );
+          
+    //   const chainId = "cosmoshub-4";
+
+    //   // Enabling before using the Keplr is recommended.
+    //   // This method will ask the user whether to allow access if they haven't visited this website.
+    //   // Also, it will request that the user unlock the wallet if the wallet is locked.
+    //   await (window as any).keplr.enable(chainId);
+
+    //   const offlineSigner = (window as any).keplr.getOfflineSigner(chainId);
+
+    //   // You can get the address/public keys by `getAccounts` method.
+    //   // It can return the array of address/public key.
+    //   // But, currently, Keplr extension manages only one address/public key pair.
+    //   // XXX: This line is needed to set the sender address for SigningCosmosClient.
+    //   const accounts = await offlineSigner.getAccounts();
+    //  // const cosmosjs = (await import('@cosmjs/stargate')).default;
+    //   // Initialize the gaia api with the offline signer that is injected by Keplr extension.
+    //   setTimeout(() => {
+    //     console.log('connecting....');
+    //    // const cosmJS = stargate.SigningStargateClient;
+    //    // const cosmJS = stargate.SigningStargateClient.connect(
+    //     //   "https://lcd-cosmoshub.keplr.app/rest",
+    //     //   accounts[0].address
+    //     //   // offlineSigner
+    //     // );
+          
+    //   }, 5000);
+    //   console.log({
+    //     accounts,
+    //     // cosmJS
+    //   });
+    }
+  };
   return (
     <main className={styles.main}>
       <div className={styles.description}>
@@ -32,6 +93,8 @@ export default function Home() {
       </div>
 
       <div className={styles.center}>
+      <Button onClick={()=>initializeKeplr()
+      } >Connect</Button>
         <Image
           className={styles.logo}
           src="/next.svg"
