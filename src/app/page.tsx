@@ -1,12 +1,12 @@
 'use client';
 
 import Image from 'next/image'
-import { Inter } from 'next/font/google'
+// import { Inter } from 'next/font/google'
 import styles from './page.module.css'
 import {SigningStargateClient} from "@cosmjs/stargate";
 import { Button } from 'antd';
 
-const inter = Inter({ subsets: ['latin'] })
+// const inter = Inter({ subsets: ['latin'] })
 
 
 export default function Home() {
@@ -28,11 +28,12 @@ export default function Home() {
     
     const accounts = await offlineSigner.getAccounts();
     console.log('ACCOUNTS', accounts)
-       const cosmJS = SigningStargateClient.connect(
+       const cosmJS =  await SigningStargateClient.connect(
         "https://cosmos-rpc.publicnode.com:443",
           accounts[0].address,
          //  offlineSigner
         );
+        console.log({ accounts, cosmJS})
           
     //   const chainId = "cosmoshub-4";
 
@@ -115,10 +116,10 @@ export default function Home() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          <h2 className={inter.className}>
+          <h2 className={''}>
             Docs <span>-&gt;</span>
           </h2>
-          <p className={inter.className}>
+          <p className={''}>
             Find in-depth information about Next.js features and API.
           </p>
         </a>
@@ -129,10 +130,10 @@ export default function Home() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          <h2 className={inter.className}>
+          <h2 className={''}>
             Templates <span>-&gt;</span>
           </h2>
-          <p className={inter.className}>Explore the Next.js 13 playground.</p>
+          <p className={''}>Explore the Next.js 13 playground.</p>
         </a>
 
         <a
@@ -141,10 +142,10 @@ export default function Home() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          <h2 className={inter.className}>
+          <h2 className={''}>
             Deploy <span>-&gt;</span>
           </h2>
-          <p className={inter.className}>
+          <p className={''}>
             Instantly deploy your Next.js site to a shareable URL with Vercel.
           </p>
         </a>
