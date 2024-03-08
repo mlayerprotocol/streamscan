@@ -16,19 +16,27 @@ import { MainAuth } from "@/components";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { useAppDispatch, useAppSelector } from "@/redux/app";
-import { AppContext } from "@/context";
-import { clearSessionStorage } from "@/utils";
+import { AppContext, WalletContext } from "@/context";
+import { clearSessionStorage, shorternAddress } from "@/utils";
 import { removeAuthData } from "@/redux/slices";
 import * as HeroIcons from "@heroicons/react/24/solid";
 // import { setToken } from "@/redux/slices";
+
+const MotionButton = motion(Button);
 
 interface AppHeaderProps {}
 export const AppHeader = (props: AppHeaderProps) => {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [showMobilMoney, setShowMobilMoney] = useState<boolean>(false);
   const { initialLoading } = useContext(AppContext);
+  const {
+    connectedWallet,
+    walletAccounts,
+    loadingWalletConnections,
+    initializeKeplr,
+    intializeMetamask,
+  } = useContext(WalletContext);
   const dispatch = useAppDispatch();
-  const userData = useAppSelector((state) => state.auth.data);
 
   const handleLogout = () => {
     console.log("logout");
@@ -38,66 +46,14 @@ export const AppHeader = (props: AppHeaderProps) => {
 
   const userProfileItem: MenuProps["items"] = [
     {
-      icon: (
-        <Avatar
-          size={30}
-          className="!bg-[#CBD5E1]"
-          src={userData?.avatar}
-          icon={<UserOutlined />}
-        />
-      ),
-      label: (
-        <span className="font-medium text-base ml-2">{userData?.username}</span>
-      ),
-      key: "0",
-    },
-    {
-      type: "divider",
-    },
-    {
-      icon: <HeroIcons.BriefcaseIcon className="ml-2 h-[20px]" />,
-      label: (
-        <Link href={"/assets"} className="font-medium text-base ml-2">
-          My Assets
-        </Link>
-      ),
-      key: "1.1",
-    },
-    {
-      icon: <HeroIcons.WalletIcon className="ml-2 h-[20px]" />,
-      label: (
-        <Link href={"/wallet"} className="font-medium text-base ml-2">
-          Wallet
-        </Link>
-      ),
-      key: "1",
-    },
-
-    {
-      icon: <HeroIcons.UserIcon className="ml-2 h-[20px]" />,
-      label: (
-        <Link href={"/profile"} className="font-medium text-base ml-2">
-          Profile
-        </Link>
-      ),
-      key: "2",
-    },
-    {
       icon: <HeroIcons.Cog8ToothIcon className="ml-2 h-[20px]" />,
-      label: <span className="font-medium text-base ml-2">Settings</span>,
+      label: <span className="font-medium text-base ml-2">Switch Wallet</span>,
       key: "3",
+      onClick: () => {
+        setShowModal((old) => !old);
+      },
     },
     {
-      icon: (
-        <Image
-          className="ml-2 h-[40px]"
-          src={`/icons/logout.svg`}
-          alt="Vercel Logo"
-          width={24}
-          height={24}
-          priority
-        />
-      ),
       label: (
         <span className="font-medium text-base ml-2 text-[#FDA29B]">
           Log Out
@@ -140,7 +96,7 @@ export const AppHeader = (props: AppHeaderProps) => {
                     <Avatar
                       size={32}
                       className="!bg-[#CBD5E1]"
-                      src={userData?.avatar}
+                      src={`/icons/${connectedWallet}.svg`}
                       icon={initialLoading ? <Spin /> : <UserOutlined />}
                     />
                   </motion.div>
@@ -172,19 +128,50 @@ export const AppHeader = (props: AppHeaderProps) => {
               </div>
             </Button>
 
-            <motion.div
-              initial={{ opacity: 0, x: -40 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -40 }}
-              onClick={() => {
-                setShowModal((old) => !old);
-              }}
-              className="h-[50px] rounded-full bg-[#6A6A6A] flex justify-center items-center pl-1 pr-3 ml-2"
-            >
-              <Typography.Text className="ml-2 !text-white text-nowrap">
-                Connect Wallet
-              </Typography.Text>
-            </motion.div>
+            {!connectedWallet && (
+              <MotionButton
+                shape="round"
+                initial={{ opacity: 0, x: -40 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -40 }}
+                onClick={() => {
+                  setShowModal((old) => !old);
+                }}
+                className="h-[50px] flex justify-center items-center pl-1 pr-3 ml-2"
+              >
+                <Typography.Text className="ml-2 !text-white text-nowrap">
+                  Connect Wallet
+                </Typography.Text>
+              </MotionButton>
+            )}
+
+            {connectedWallet && (
+              <Dropdown
+                menu={{ items: userProfileItem }}
+                placement="bottomLeft"
+              >
+                <motion.a
+                  initial={{ opacity: 0, x: -40 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -40 }}
+                  className="h-[50px] rounded-full bg-[#6A6A6A] flex gap-2 justify-center items-center px-2 ml-2"
+                >
+                  <>
+                    <Avatar
+                      size={32}
+                      className="!bg-[#CBD5E1]"
+                      src={`/icons/${connectedWallet}.svg`}
+                      icon={<UserOutlined />}
+                    />
+                    <span>
+                      {shorternAddress(
+                        walletAccounts[connectedWallet][0] ?? ""
+                      )}
+                    </span>
+                  </>
+                </motion.a>
+              </Dropdown>
+            )}
 
             <MainAuth
               isModalOpen={showModal}
@@ -221,8 +208,7 @@ export const AppHeader = (props: AppHeaderProps) => {
               <Link href={"/"} className="text-2xl text-white">
                 Wallet
               </Link>
-
-              {userData?._id && (
+              {connectedWallet && (
                 <>
                   <Link href={"/"} className="text-2xl text-white">
                     Settings
@@ -237,22 +223,16 @@ export const AppHeader = (props: AppHeaderProps) => {
                     className="ml-6 [&>*]:text-black"
                     type="primary"
                     shape="round"
-                    // onClick={() => {
-                    //   dispatch(
-                    //     setToken({
-                    //       remember_me: !remember_me,
-                    //       token: null,
-                    //       tokenType: null,
-                    //     })
-                    //   );
-                    // }}
+                    onClick={() => {
+                      setShowModal((old) => !old);
+                    }}
                   >
-                    Publish Comic
+                    Switch Wallet
                   </Button>
                 </>
               )}
 
-              {!userData?._id && (
+              {!connectedWallet && (
                 <div className="flex justify-end">
                   <div
                     onClick={() => {
