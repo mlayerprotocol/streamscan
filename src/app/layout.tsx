@@ -11,7 +11,6 @@ import {
   ThemeContextProvider,
   WalletContextProvider,
 } from "@/context";
-import { MetaMaskProvider } from "@metamask/sdk-react";
 
 const inter = Inter({ subsets: ["latin"] });
 const myFont = localFont({ src: "../fonts/geist/GeistVariableVF.ttf" });

@@ -50,22 +50,21 @@ export const WalletContextProvider = ({
       const accounts = await offlineSigner.getAccounts();
 
       // Initialize the gaia api with the offline signer that is injected by Keplr extension.
-      setTimeout(() => {
-        // const cosmJS = stargate.SigningStargateClient.connect(
-        //   "https://lcd-cosmoshub.keplr.app/rest",
-        //   accounts[0].address
-        //   // offlineSigner
-        // );
-      }, 5000);
+      // setTimeout(() => {
+      const cosmJS = await stargate.SigningStargateClient.connect(
+        "https://cosmos-rpc.publicnode.com:443",
+        // accounts[0].address
+        // offlineSigner
+      );
+      // }, 5000);
       console.log({
         accounts,
-        // cosmJS
+        cosmJS,
       });
     }
   };
   const intializeMetamask = async () => {
     try {
-      
       const accounts: any = await sdk?.connect();
       console.log({ e: "intializeMetamask", chainId, connected, accounts });
       setAccount(accounts?.[0] as string);
@@ -95,12 +94,6 @@ export const WalletContextProvider = ({
     </WalletContext.Provider>
   );
 };
-
-
-
-
-
-
 
 export const MetaWrapper = ({ children }: { children: ReactNode }) => {
   if (typeof window !== "undefined") {
