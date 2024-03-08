@@ -5,7 +5,13 @@ import { AntdRegistry } from "@ant-design/nextjs-registry";
 
 import localFont from "next/font/local";
 
-import { AppContextProvider, ThemeContextProvider } from "@/context";
+import {
+  AppContextProvider,
+  MetaWrapper,
+  ThemeContextProvider,
+  WalletContextProvider,
+} from "@/context";
+import { MetaMaskProvider } from "@metamask/sdk-react";
 
 const inter = Inter({ subsets: ["latin"] });
 const myFont = localFont({ src: "../fonts/geist/GeistVariableVF.ttf" });
@@ -21,11 +27,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark" >
+    <html lang="en" className="dark">
       <body className={`${myFont.className} `}>
         <ThemeContextProvider>
           <AppContextProvider>
-            <AntdRegistry>{children}</AntdRegistry>
+            <AntdRegistry>
+              <MetaWrapper>
+                <WalletContextProvider>{children}</WalletContextProvider>
+              </MetaWrapper>
+            </AntdRegistry>
           </AppContextProvider>
         </ThemeContextProvider>
       </body>

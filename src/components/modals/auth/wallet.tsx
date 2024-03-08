@@ -1,52 +1,18 @@
 "use client";
 import { Button } from "antd";
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import * as stargate from "@cosmjs/stargate";
+import { WalletContext } from "@/context";
 
 interface WalletConnectProps {
   onSelect?: (type: string, data?: any) => void;
 }
 export const WalletConnect = (props: WalletConnectProps) => {
   const { onSelect } = props;
-
-  const initializeKeplr = async () => {
-    if (!(window as any).keplr) {
-      alert("Please install keplr extension");
-    } else {
-      const chainId = "cosmoshub-4";
-
-      // Enabling before using the Keplr is recommended.
-      // This method will ask the user whether to allow access if they haven't visited this website.
-      // Also, it will request that the user unlock the wallet if the wallet is locked.
-      await (window as any).keplr.enable(chainId);
-
-      const offlineSigner = (window as any).keplr.getOfflineSigner(chainId);
-
-      // You can get the address/public keys by `getAccounts` method.
-      // It can return the array of address/public key.
-      // But, currently, Keplr extension manages only one address/public key pair.
-      // XXX: This line is needed to set the sender address for SigningCosmosClient.
-      const accounts = await offlineSigner.getAccounts();
-
-      // Initialize the gaia api with the offline signer that is injected by Keplr extension.
-      setTimeout(() => {
-        // const cosmJS = stargate.SigningStargateClient.connect(
-        //   "https://lcd-cosmoshub.keplr.app/rest",
-        //   accounts[0].address
-        //   // offlineSigner
-        // );
-      }, 5000);
-      console.log({
-        accounts,
-        // cosmJS
-      });
-    }
-  };
-  useEffect(() => {
-    // initializeMetaMask();
-  }, []);
+  const { initialLoading, initializeKeplr, intializeMetamask } =
+    useContext(WalletContext);
 
   return (
     <motion.div
@@ -58,7 +24,7 @@ export const WalletConnect = (props: WalletConnectProps) => {
     >
       <Button
         onClick={() => {
-          initializeKeplr();
+          initializeKeplr?.();
         }}
         shape="round"
         type="link"
@@ -76,6 +42,9 @@ export const WalletConnect = (props: WalletConnectProps) => {
         <span className="text-black">Keplr</span>
       </Button>
       <Button
+        onClick={() => {
+          intializeMetamask?.();
+        }}
         shape="round"
         type="link"
         className="!flex justify-start items-center !bg-white active:!bg-gray-500"
