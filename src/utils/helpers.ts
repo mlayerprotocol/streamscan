@@ -10,3 +10,9 @@ export const getBase64 = (img: RcFile, callback: (url: string) => void) => {
   reader.addEventListener("load", () => callback(reader.result as string));
   reader.readAsDataURL(img);
 };
+
+export const shorternAddress: (address: string) => string = (address) => {
+  return `${address.substring(0, 4)}***${address?.substring(
+    address.length - 4
+  )}`;
+};
