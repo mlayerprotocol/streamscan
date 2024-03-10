@@ -1,4 +1,5 @@
-export const THEME_STORAGE_KEY = "@@galaton-storage/theme";
+export const THEME_STORAGE_KEY = "@@mlayer-storage/theme";
+export const KEYPAIR_STORAGE_KEY = "@@mlayer-storage/keypair";
 
 export const BASE_URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}`;
 // export const HOST_URL = process.env.NEXT_PUBLIC_API_BASE_URL

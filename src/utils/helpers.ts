@@ -1,4 +1,5 @@
 import { RcFile } from "antd/es/upload";
+import { ethers } from "ethers";
 
 export function randomImageUrl(): string {
   return `https://source.unsplash.com/random?${
@@ -15,4 +16,15 @@ export const shorternAddress: (address: string) => string = (address) => {
   return `${address.substring(0, 4)}***${address?.substring(
     address.length - 4
   )}`;
+};
+
+export const generateKeyPairEcc: () => Record<string, string> = () => {
+  const wallet = ethers.Wallet.createRandom();
+
+  // Extract the private key, public key, and address
+  const privateKey = wallet.privateKey;
+  const publicKey = wallet.publicKey;
+  const address = wallet.address;
+
+  return { privateKey, publicKey, address };
 };

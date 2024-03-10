@@ -2,6 +2,7 @@
 import { createContext, ReactNode, useEffect, useState } from "react";
 import * as stargate from "@cosmjs/stargate";
 import { MetaMaskProvider, useSDK } from "@metamask/sdk-react";
+import { generateKeyPairEcc, KEYPAIR_STORAGE_KEY, Storage } from "@/utils";
 
 interface WalletContextValues {
   initialLoading: boolean;
@@ -36,9 +37,12 @@ export const WalletContextProvider = ({
   >({});
   const [connectedWallet, setConnectedWallet] = useState<string>();
   const { sdk, connected, connecting, provider, chainId } = useSDK();
+  const [cosmosSDK, setCosmosSDK] = useState<stargate.StargateClient>();
+  const [keyPair, setKeyPair] = useState<Record<string, any>>();
+  const [keplrSignature, setKeplrSignature] = useState<Record<string, any>>();
 
   const initializeKeplr = async () => {
-    if (!(window as any).keplr) {
+    if (!window.keplr) {
       alert("Please install keplr extension");
     } else {
       const chainId = "cosmoshub-4";
@@ -49,23 +53,31 @@ export const WalletContextProvider = ({
       setLoadingWalletConnections((old) => {
         return { ...old, keplr: true };
       });
-      await (window as any).keplr.enable(chainId);
+      await window.keplr.enable(chainId);
 
-      const offlineSigner = (window as any).keplr.getOfflineSigner(chainId);
+      const offlineSigner = window.keplr.getOfflineSigner(chainId);
 
       // You can get the address/public keys by `getAccounts` method.
       // It can return the array of address/public key.
       // But, currently, Keplr extension manages only one address/public key pair.
       // XXX: This line is needed to set the sender address for SigningCosmosClient.
       const accounts = await offlineSigner.getAccounts();
+      console.log({ accounts });
 
       // Initialize the gaia api with the offline signer that is injected by Keplr extension.
       // setTimeout(() => {
       const cosmJS = await stargate.SigningStargateClient.connect(
-        "https://cosmos-rpc.publicnode.com:443",
-        accounts[0].address
+        "https://cosmos-rpc.publicnode.com:443"
+        // accounts[0].address
         // offlineSigner
       );
+      const signature = await window.keplr.signArbitrary(
+        chainId,
+        accounts[0].address,
+        "Hello World"
+      );
+      setKeplrSignature(signature);
+      setCosmosSDK(cosmJS);
       setLoadingWalletConnections((old) => {
         return { ...old, keplr: false };
       });
@@ -99,9 +111,25 @@ export const WalletContextProvider = ({
       sdk.terminate();
     }
   };
+
   useEffect(() => {
-    // initializeMetaMask();
+    if (typeof window !== "undefined") {
+      const storage = new Storage(KEYPAIR_STORAGE_KEY);
+
+      if (keyPair) return;
+      if (storage.get()) {
+        setKeyPair(storage.get());
+        return;
+      }
+      const kp = generateKeyPairEcc();
+      setKeyPair(kp);
+      storage.set(kp);
+    }
   }, []);
+
+  useEffect(() => {
+    console.log({ keyPair, keplrSignature });
+  }, [keyPair, keplrSignature]);
 
   return (
     <WalletContext.Provider
