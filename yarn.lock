@@ -133,6 +133,19 @@
     elliptic "^6.5.4"
     libsodium-wrappers-sumo "^0.7.11"
 
+"@cosmjs/crypto@^0.32.3":
+  version "0.32.3"
+  resolved "https://registry.yarnpkg.com/@cosmjs/crypto/-/crypto-0.32.3.tgz#787f8e659709678722068ee1ddf379f65051a25e"
+  integrity sha512-niQOWJHUtlJm2GG4F00yGT7sGPKxfUwz+2qQ30uO/E3p58gOusTcH2qjiJNVxb8vScYJhFYFqpm/OA/mVqoUGQ==
+  dependencies:
+    "@cosmjs/encoding" "^0.32.3"
+    "@cosmjs/math" "^0.32.3"
+    "@cosmjs/utils" "^0.32.3"
+    "@noble/hashes" "^1"
+    bn.js "^5.2.0"
+    elliptic "^6.5.4"
+    libsodium-wrappers-sumo "^0.7.11"
+
 "@cosmjs/encoding@0.27.1":
   version "0.27.1"
   resolved "https://registry.yarnpkg.com/@cosmjs/encoding/-/encoding-0.27.1.tgz#3cd5bc0af743485eb2578cdb08cfa84c86d610e1"
@@ -146,6 +159,15 @@
   version "0.32.2"
   resolved "https://registry.yarnpkg.com/@cosmjs/encoding/-/encoding-0.32.2.tgz#8c5c64481a85cd570740c34dccce69d024a29805"
   integrity sha512-WX7m1wLpA9V/zH0zRcz4EmgZdAv1F44g4dbXOgNj1eXZw1PIGR12p58OEkLN51Ha3S4DKRtCv5CkhK1KHEvQtg==
+  dependencies:
+    base64-js "^1.3.0"
+    bech32 "^1.1.4"
+    readonly-date "^1.0.0"
+
+"@cosmjs/encoding@^0.32.3":
+  version "0.32.3"
+  resolved "https://registry.yarnpkg.com/@cosmjs/encoding/-/encoding-0.32.3.tgz#e245ff511fe4a0df7ba427b5187aab69e3468e5b"
+  integrity sha512-p4KF7hhv8jBQX3MkB3Defuhz/W0l3PwWVYU2vkVuBJ13bJcXyhU9nJjiMkaIv+XP+W2QgRceqNNgFUC5chNR7w==
   dependencies:
     base64-js "^1.3.0"
     bech32 "^1.1.4"
@@ -183,6 +205,13 @@
   version "0.32.2"
   resolved "https://registry.yarnpkg.com/@cosmjs/math/-/math-0.32.2.tgz#4522312769197e132679e4960862bcec0eed4cb8"
   integrity sha512-b8+ruAAY8aKtVKWSft2IvtCVCUH1LigIlf9ALIiY8n9jtM4kMASiaRbQ/27etnSAInV88IaezKK9rQZrtxTjcw==
+  dependencies:
+    bn.js "^5.2.0"
+
+"@cosmjs/math@^0.32.3":
+  version "0.32.3"
+  resolved "https://registry.yarnpkg.com/@cosmjs/math/-/math-0.32.3.tgz#16e4256f4da507b9352327da12ae64056a2ba6c9"
+  integrity sha512-amumUtZs8hCCnV+lSBaJIiZkGabQm22QGg/IotYrhcmoOEOjt82n7hMNlNXRs7V6WLMidGrGYcswB5zcmp0Meg==
   dependencies:
     bn.js "^5.2.0"
 
@@ -256,6 +285,11 @@
   version "0.32.2"
   resolved "https://registry.yarnpkg.com/@cosmjs/utils/-/utils-0.32.2.tgz#324304aa85bfa6f10561cc17781d824d02130897"
   integrity sha512-Gg5t+eR7vPJMAmhkFt6CZrzPd0EKpAslWwk5rFVYZpJsM8JG5KT9XQ99hgNM3Ov6ScNoIWbXkpX27F6A9cXR4Q==
+
+"@cosmjs/utils@^0.32.3":
+  version "0.32.3"
+  resolved "https://registry.yarnpkg.com/@cosmjs/utils/-/utils-0.32.3.tgz#5dcaee6dd7cc846cdc073e9a7a7f63242f5f7e31"
+  integrity sha512-WCZK4yksj2hBDz4w7xFZQTRZQ/RJhBX26uFHmmQFIcNUUVAihrLO+RerqJgk0dZqC42wstM9pEUQGtPmLcIYvg==
 
 "@ctrl/tinycolor@^3.6.1":
   version "3.6.1"
@@ -740,13 +774,15 @@
     semver "^7.3.8"
     superstruct "^1.0.3"
 
-"@mlayerprotocol/core@^1.0.101":
-  version "1.0.101"
-  resolved "https://registry.yarnpkg.com/@mlayerprotocol/core/-/core-1.0.101.tgz#f11c2871ff11ffa4d6aaca83729b6778d0df0d92"
-  integrity sha512-Eq0X/YmJoj0P0cP28SPd4j0lFKcKPwvo87CsT2CQbgYmkp7m7RX8PhPdZPVjjM0I9i25umDbAdiyd+h2JbfA7w==
+"@mlayerprotocol/core@^1.0.117":
+  version "1.0.117"
+  resolved "https://registry.yarnpkg.com/@mlayerprotocol/core/-/core-1.0.117.tgz#673cdb0b5774551a849533c686b8ad2091557f51"
+  integrity sha512-3b1dUmOzSIF5MzIMH8LR+vKTUZnGk8Dac1qMhE7xmL/ba4NjRxES7jU3URfli4ehSbFgpMK8KQfrhKk6uvz/7g==
   dependencies:
+    "@cosmjs/crypto" "^0.32.3"
     axios "^1.6.5"
     bech32 "^2.0.0"
+    buffer "^6.0.3"
     dotenv "^16.0.3"
     ethers "^6.10.0"
     jayson "^4.1.0"
@@ -1898,6 +1934,14 @@ buffer@^5.0.5, buffer@^5.5.0, buffer@^5.6.0:
   dependencies:
     base64-js "^1.3.1"
     ieee754 "^1.1.13"
+
+buffer@^6.0.3:
+  version "6.0.3"
+  resolved "https://registry.yarnpkg.com/buffer/-/buffer-6.0.3.tgz#2ace578459cc8fbe2a70aaa8f52ee63b6a74c6c6"
+  integrity sha512-FTiCpNxtwiZZHEZbcbTIcZjERVICn9yq/pDFkTl95/AxzD1naBctN7YO68riM/gLSDY7sdrMby8hofADYuuqOA==
+  dependencies:
+    base64-js "^1.3.1"
+    ieee754 "^1.2.1"
 
 bufferutil@^4.0.1, bufferutil@^4.0.8:
   version "4.0.8"
@@ -3752,7 +3796,7 @@ idna-uts46-hx@^2.3.1:
   dependencies:
     punycode "2.1.0"
 
-ieee754@^1.1.13:
+ieee754@^1.1.13, ieee754@^1.2.1:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/ieee754/-/ieee754-1.2.1.tgz#8eb7a10a63fff25d15a57b001586d177d1b0d352"
   integrity sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA==
@@ -4629,6 +4673,11 @@ mock-fs@^4.1.0:
   resolved "https://registry.yarnpkg.com/mock-fs/-/mock-fs-4.14.0.tgz#ce5124d2c601421255985e6e94da80a7357b1b18"
   integrity sha512-qYvlv/exQ4+svI3UOvPUpLDF0OMX5euvUH0Ny4N5QyRyhNdgAgUrVH3iUINSzEPLvx0kbo/Bp28GJKIqvE7URw==
 
+moment@^2.30.1:
+  version "2.30.1"
+  resolved "https://registry.yarnpkg.com/moment/-/moment-2.30.1.tgz#f8c91c07b7a786e30c59926df530b4eac96974ae"
+  integrity sha512-uEmtNhbDOrWPFS+hdjFCBfy9f2YoyzRpwcl+DqpC6taX21FzsTLQVbMV/W7PzNSX6x/bhC1zA3c2UQ5NzH6how==
+
 ms@2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.0.0.tgz#5608aeadfc00be6c2901df5f9861788de0d597c8"
@@ -4712,6 +4761,11 @@ negotiator@0.6.3:
   version "0.6.3"
   resolved "https://registry.yarnpkg.com/negotiator/-/negotiator-0.6.3.tgz#58e323a72fedc0d6f9cd4d31fe49f51479590ccd"
   integrity sha512-+EUsqGPLsM+j/zdChZjsnX51g4XrHFOIXwfnCVPGlQk/k5giakcKsuxCObBRu6DSm9opw/O6slWbJdghQM4bBg==
+
+net@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/net/-/net-1.0.2.tgz#d1757ec9a7fb2371d83cf4755ce3e27e10829388"
+  integrity sha512-kbhcj2SVVR4caaVnGLJKmlk2+f+oLkjqdKeQlmUtz6nGzOpbcobwVIeSURNgraV/v3tlmGIX82OcPCl0K6RbHQ==
 
 next-tick@^1.1.0:
   version "1.1.0"
@@ -6564,6 +6618,11 @@ timed-out@^4.0.1:
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/timed-out/-/timed-out-4.0.1.tgz#f32eacac5a175bea25d7fab565ab3ed8741ef56f"
   integrity sha512-G7r3AhovYtr5YKOWQkta8RKAPb+J9IsO4uVmzjl8AZwfhs8UcUwTiD6gcJYSgOtzyjvQKrKYn41syHbUWMkafA==
+
+tls@^0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/tls/-/tls-0.0.1.tgz#0ab2bf5968d71df2f8c0e1515d24a2240b98aac8"
+  integrity sha512-GzHpG+hwupY8VMR6rYsnAhTHqT/97zT45PG8WD5eTT1lq+dFE0nN+1PYpsoBcHJgSmTz5ceK2Cv88IkPmIPOtQ==
 
 to-regex-range@^5.0.1:
   version "5.0.1"
