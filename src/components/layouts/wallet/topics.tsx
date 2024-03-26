@@ -1,62 +1,45 @@
 "use client";
 import { displayVariants } from "@/utils";
 import * as HeroIcons from "@heroicons/react/24/solid";
-import React, { useState } from "react";
+import React, { useContext, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Button, Table, TableProps } from "antd";
 import { CreateTopic } from "@/components";
+import { WalletContext } from "@/context";
+import { TopicData } from "@/model/topic";
 
-const dataSource = [
-  {
-    key: "1",
-    address: "0x20929230920392039023",
-    role: "Admin",
-    title: "Test Topic",
-    public: "True",
-
-    subscribers: "10",
-    value: "23,002,092,2003",
-  },
-  {
-    key: "2",
-    address: "0x20929230920392039023",
-    role: "Admin",
-    title: "Another TOpic",
-    public: "False",
-    subscribers: "10",
-    value: "13,002,092,2003",
-  },
-];
-
-const columns: TableProps<any>["columns"] = [
+const columns: TableProps<TopicData>["columns"] = [
   {
     title: "Hash",
-    dataIndex: "address",
+    dataIndex: "h",
     key: "address",
   },
   {
     title: "Title",
-    dataIndex: "title",
-    key: "role",
+    dataIndex: "n",
+    key: "n",
   },
   {
     title: "Public",
-    dataIndex: "public",
-    key: "address",
+    dataIndex: "pub",
+    key: "pub",
+    render(value, record, index) {
+        return `${record.pub}`.toUpperCase();
+    },
   },
-  {
-    title: "Subscribers",
-    dataIndex: "subscribers",
-    key: "subscribers",
-  },
+  // {
+  //   title: "Subscribers",
+  //   dataIndex: "subscribers",
+  //   key: "subscribers",
+  // },
   {
     title: "MLT Balance",
-    dataIndex: "value",
-    key: "value",
+    dataIndex: "bal",
+    key: "bal",
   },
   {
     title: "",
-    dataIndex: "address",
+    dataIndex: "",
     key: "value",
     render: (text) => {
       return (
@@ -77,6 +60,11 @@ interface TopicsProps {
 }
 export const Topics = (props: TopicsProps) => {
   const [showModal, setShowModal] = useState<boolean>(false);
+  const { loaders, topicList } = useContext(WalletContext);
+
+  const dataSource = useMemo(() => {
+    return topicList?.data ?? [];
+  }, [topicList]);
   return (
     <motion.div
       className="inline-flex w-full flex-col gap-6"
@@ -94,6 +82,7 @@ export const Topics = (props: TopicsProps) => {
         the data/messages sent to that topic.
       </span>
       <Button
+        loading={loaders["createTopic"]}
         onClick={() => {
           setShowModal((old) => !old);
         }}

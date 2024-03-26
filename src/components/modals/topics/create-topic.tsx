@@ -7,20 +7,28 @@ import {
   InputNumber,
   Modal,
   Select,
+  notification,
 } from "antd";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 
 import { motion } from "framer-motion";
 import { useForm } from "antd/es/form/Form";
-import { displayVariants } from "@/utils";
+import { displayVariants, shorternAddress } from "@/utils";
+import { WalletContext } from "@/context";
 
 interface CreateTopicProps {
   isModalOpen?: boolean;
   onCancel?: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 }
 export const CreateTopic = (props: CreateTopicProps) => {
+  const { authenticationList, selectedAgent, createTopic, loaders, agents } =
+    useContext(WalletContext);
   const { isModalOpen = false, onCancel } = props;
   const [form] = useForm();
+
+  const _selectedAgent = authenticationList?.data.find(
+    (opt) => opt.agt == selectedAgent
+  )?.agt;
 
   return (
     <Modal
@@ -48,35 +56,53 @@ export const CreateTopic = (props: CreateTopicProps) => {
           <Form
             className="flex flex-col"
             name="basic"
+            layout="vertical"
             form={form}
-            initialValues={{ remember: true }}
+            initialValues={{ address: _selectedAgent }}
             onFinish={(data) => {
-              console.log({ data });
+              const agent: AddressData | undefined = agents.find(
+                (el) => el.address == data["address"]
+              );
+              if (!agent) {
+                notification.error({
+                  message: "Agent Private Key Not Accessable",
+                });
+                return;
+              }
+              const handle: string = data["handle"];
+              const name: string = data["name"];
+              const description: string = data["description"];
+              const ref: string = data["ref"];
+              const isPublic: boolean = data["public"] == true;
+
+              createTopic?.(agent, handle, name, description, ref, isPublic);
+              console.log({ data, agent });
               onCancel?.({} as any);
             }}
             // onFinishFailed={onFinishFailed}
             autoComplete="off"
           >
             <Form.Item
-              label="Agent Address:"
+              label={`Agent Address: `}
               name="address"
               rules={[
                 { required: true, message: "Please input select an address!" },
               ]}
             >
-              <Select>
-                <Select.Option value="0x029309092309">
-                  0x029309092309
-                </Select.Option>
-                <Select.Option value="0x019309092309">
-                  0x019309092309
-                </Select.Option>
-              </Select>
+              <Input placeholder="Enter An Address" disabled />
+            </Form.Item>
+
+            <Form.Item
+              label="Handle:"
+              name="handle"
+              rules={[{ required: true, message: "Please input your handle!" }]}
+            >
+              <Input placeholder="Enter Your Handle" />
             </Form.Item>
 
             <Form.Item
               label="Title:"
-              name="title"
+              name="name"
               rules={[{ required: true, message: "Please input your title!" }]}
             >
               <Input placeholder="Enter Your Title" />
@@ -103,6 +129,7 @@ export const CreateTopic = (props: CreateTopicProps) => {
             </Form.Item>
 
             <Button
+              loading={loaders["createTopic"]}
               type="primary"
               htmlType="submit"
               className="w-full mt-[28px] self-end"

@@ -165,7 +165,7 @@ export const AppHeader = (props: AppHeaderProps) => {
                     />
                     <span>
                       {shorternAddress(
-                        walletAccounts[connectedWallet][0] ?? ""
+                        walletAccounts[connectedWallet]?.[0] ?? ""
                       )}
                     </span>
                   </>
