@@ -26,7 +26,7 @@ export const ThemeContext = createContext<ThemeContextValues>({
 });
 
 export const ThemeContextProvider = ({ children }: { children: ReactNode }) => {
-  const [themeType, setThemeType] = useState<ThemeType>("light");
+  const [themeType, setThemeType] = useState<ThemeType>("dark");
   const { defaultAlgorithm, darkAlgorithm, compactAlgorithm } = theme;
   const [checkThemeChange, setCheckThemeChange] = useState<boolean>(false);
   useEffect(() => {
@@ -36,10 +36,12 @@ export const ThemeContextProvider = ({ children }: { children: ReactNode }) => {
         setThemeType(storage.get());
       }
       setCheckThemeChange(true);
+      console.log("storage.get()", storage.get());
     }
+    
   }, []);
   useEffect(() => {
-    // if (!checkThemeChange) return;
+    if (!checkThemeChange) return;
     const html = document.querySelector("html") as HTMLHtmlElement;
     html.className = themeType;
     if (typeof window !== "undefined") {
@@ -47,7 +49,7 @@ export const ThemeContextProvider = ({ children }: { children: ReactNode }) => {
       storage.set(themeType);
       console.log("storage", storage.get(), "themeType", themeType);
     }
-    // console.log("themeType", themeType);
+    
   }, [themeType]);
 
   const toggleTheme = () => {
@@ -61,7 +63,7 @@ export const ThemeContextProvider = ({ children }: { children: ReactNode }) => {
           algorithm: themeType == "light" ? defaultAlgorithm : darkAlgorithm,
           token: {
             // Seed Token
-            colorPrimary: "#25D366",
+            colorPrimary: "#3772ff",
             borderRadius: 2,
             fontFamily: `"Roboto", sans-serif`,
             fontSize: 15
