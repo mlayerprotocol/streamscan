@@ -61,7 +61,7 @@ export const Agents = (props: AgentsProps) => {
         role: authenticationData ? (
           PREVILEDGES[authenticationData?.privi ?? 0]
         ) : (
-          <i>Not Authenticated yet </i>
+          <i>Not Authorized</i>
         ),
 
         expires: authenticationData ? (
@@ -71,11 +71,12 @@ export const Agents = (props: AgentsProps) => {
             )
           ).fromNow()
         ) : (
-          <i>Not Authenticated yet </i>
+          <i>Not Authorized</i>
         ),
       };
     });
   }, [agents, authenticationList]);
+  console.log({agents});
   return (
     <motion.div
       className="inline-flex w-full flex-col gap-6"
@@ -90,7 +91,7 @@ export const Agents = (props: AgentsProps) => {
     >
       <span>
         For security and flexibility, Agents act on behalf of Accounts in the
-        maLyer network, for example, a compromised rolent can quickly be
+        mLayer network, for example, a compromised rolent can quickly be
         deauthorized to prevent further attack. Learn more...
       </span>
       <div className="flex gap-4 justify-end">

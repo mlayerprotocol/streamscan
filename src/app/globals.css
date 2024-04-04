@@ -7,10 +7,10 @@
   --background-start-rgb: 214, 219, 220;
   --background-end-rgb: 255, 255, 255;
 }
-html.random:root {
-  --foreground-rgb: 255, 0, 0;
-  --background-start-rgb: 0, 255, 0;
-  --background-end-rgb: 0, 0, 255;
+html.light:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 255, 255, 255;
+  --background-end-rgb: 214, 219, 220;
 }
 html.dark:root {
   --foreground-rgb: 255, 255, 255;
@@ -39,14 +39,37 @@ body {
 .ant-input-affix-wrapper{
   height: 50px;
   border-radius: 8px!important;
+  
+}
+
+
+html.dark .ant-input-affix-wrapper{
+  
   border-color: #424242!important;
   background-color: #292929!important;
 }
 
+html.light .ant-input-affix-wrapper{
+  
+  border-color: #eaf1ef!important;
+  background-color: #eeeeee!important;
+}
+
+
 textarea{
   border-radius: 8px!important;
+  
+}
+html.dark textarea{
+
   border-color: #424242!important;
   background-color: #292929!important;
+}
+
+html.light textarea{
+  
+  border-color: #eaf1ef!important;
+  background-color: #eeeeee!important;
 }
 .ant-form-item-row{
   align-items: center;
@@ -57,9 +80,13 @@ textarea{
   border-color: #424242!important;
   background-color: #292929!important;
 }
-.ant-input-affix-wrapper > input{
+html.dark  .ant-input-affix-wrapper > input{
   
   background-color: #292929!important;
+}
+html.light  .ant-input-affix-wrapper > input{
+  
+  background-color: #eeeeee!important;
 }
 .ant-input-number-affix-wrapper {
   width: 100%!important;

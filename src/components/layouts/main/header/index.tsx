@@ -7,6 +7,7 @@ import {
   Input,
   MenuProps,
   Spin,
+  Switch,
   Typography,
 } from "antd";
 import Image from "next/image";
@@ -16,7 +17,7 @@ import { MainAuth } from "@/components";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { useAppDispatch, useAppSelector } from "@/redux/app";
-import { AppContext, WalletContext } from "@/context";
+import { AppContext, ThemeContext, WalletContext } from "@/context";
 import { clearSessionStorage, shorternAddress } from "@/utils";
 import { removeAuthData } from "@/redux/slices";
 import * as HeroIcons from "@heroicons/react/24/solid";
@@ -29,6 +30,7 @@ export const AppHeader = (props: AppHeaderProps) => {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [showMobilMoney, setShowMobilMoney] = useState<boolean>(false);
   const { initialLoading } = useContext(AppContext);
+  const { themeType, toggleTheme } = useContext(ThemeContext);
   const {
     connectedWallet,
     walletAccounts,
@@ -66,8 +68,8 @@ export const AppHeader = (props: AppHeaderProps) => {
 
   return (
     <>
-      <header className="sticky top-0 flex flex-col py-4 px-4 md:px-20 lg:py-10  backdrop-blur-xl z-50 items-end ">
-        <div className="flex w-full flex-wrap">
+      <header className="sticky top-0 flex flex-col py-4  lg:py-10  backdrop-blur-xl z-50 items-end ">
+        <div className="flex w-full flex-wrap px-4 md:px-20">
           {/* <Image
           src="/logo.svg"
           alt="Vercel Logo"
@@ -76,7 +78,7 @@ export const AppHeader = (props: AppHeaderProps) => {
           height={24}
           priority
         /> */}
-          <div className="flex gap-3 md:gap-4 items-center">
+          <div className="flex gap-3 md:gap-4 items-center text-sm">
             <span>MLT PRICE: $0.0001</span>
             <span>MSG PRICE: 0.002MLT (~$0.00002)</span>
           </div>
@@ -154,12 +156,12 @@ export const AppHeader = (props: AppHeaderProps) => {
                   initial={{ opacity: 0, x: -40 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -40 }}
-                  className="h-[50px] rounded-full bg-[#6A6A6A] flex gap-2 justify-center items-center px-2 ml-2"
+                  className="h-[50px] rounded-full bg-gray-100 dark:bg-[#6A6A6A] flex gap-2 justify-center items-center px-2 ml-2"
                 >
                   <>
                     <Avatar
                       size={32}
-                      className="!bg-[#CBD5E1]"
+                      className="dark:!bg-[#CBD5E1]"
                       src={`/icons/${connectedWallet}.svg`}
                       icon={<UserOutlined />}
                     />
@@ -172,6 +174,14 @@ export const AppHeader = (props: AppHeaderProps) => {
                 </motion.a>
               </Dropdown>
             )}
+
+            <Switch
+              className="!ml-2"
+              value={themeType == "light"}
+              onChange={() => {
+                toggleTheme?.();
+              }}
+            />
 
             <MainAuth
               isModalOpen={showModal}
@@ -250,7 +260,7 @@ export const AppHeader = (props: AppHeaderProps) => {
           )}
         </AnimatePresence>
         <Divider className="!hidden lg:!block !border-t-4" />
-        <div className=" hidden lg:flex justify-between grow items-center w-full">
+        <div className=" hidden lg:flex justify-between grow items-center w-full px-4 md:px-20">
           <span className="text-2xl">MLStream Scan</span>
           <div className="flex gap-2 ml-20 items-center">
             <Link href={"/"}>Home</Link>

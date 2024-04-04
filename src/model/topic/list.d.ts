@@ -16,6 +16,7 @@ export interface TopicData {
   hand: string;
   desc: string;
   agt: string;
+  acct: string;
   pub: boolean;
   eH: string;
   h: string;

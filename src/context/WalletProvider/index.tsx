@@ -24,6 +24,8 @@ import { notification } from "antd";
 import { RESTProvider } from "@mlayerprotocol/core/src";
 import { TopicListModel } from "@/model/topic";
 import { AuthenticationListModel } from "@/model/authentications/list";
+import { Address } from "@mlayerprotocol/core/src/entities";
+import { BlockStatsListModel } from "@/model/block-stats";
 
 // import { Authorization } from "@mlayerprotocol/core/src/entities";
 // const { Authorization } = Entities;
@@ -42,6 +44,8 @@ interface WalletContextValues {
   agents: AddressData[];
   loaders: Record<string, boolean>;
   topicList?: TopicListModel;
+  blockStatsList?: BlockStatsListModel;
+  accountTopicList?: TopicListModel;
   authenticationList?: AuthenticationListModel;
   authorizeAgent?: (
     agent: AddressData,
@@ -58,6 +62,12 @@ interface WalletContextValues {
     isPublic: boolean
   ) => Promise<void>;
   setSelectedAgent?: Dispatch<SetStateAction<string | undefined>>;
+  subcribeToTopic?: (agent: AddressData, topicId: string) => Promise<void>;
+  sendMessage?: (
+    messageString: string,
+    agent: AddressData,
+    topicId: string
+  ) => Promise<void>;
 }
 
 export const WalletContext = createContext<WalletContextValues>({
@@ -85,6 +95,7 @@ export const WalletContextProvider = ({
   >({});
   const [connectedWallet, setConnectedWallet] = useState<string>();
   const [toggleGroup1, setToggleGroup1] = useState<boolean>(false);
+  const [toggleGroup2, setToggleGroup2] = useState<boolean>(false);
   const [selectedAgent, setSelectedAgent] = useState<string>();
   const { sdk, connected, connecting, provider, chainId } = useSDK();
   const [cosmosSDK, setCosmosSDK] = useState<stargate.StargateClient>();
@@ -95,6 +106,8 @@ export const WalletContextProvider = ({
   const [loaders, setLoaders] = useState<Record<string, boolean>>({});
 
   const [topicList, setTopicList] = useState<TopicListModel>();
+  const [accountTopicList, setAccountTopicList] = useState<TopicListModel>();
+  const [blockStatsList, setBlockStatsList] = useState<BlockStatsListModel>();
   const [authenticationList, setAuthenticationList] =
     useState<AuthenticationListModel>();
 
@@ -196,6 +209,7 @@ export const WalletContextProvider = ({
   }, []);
   useEffect(() => {
     initializeOldState();
+    getBlockStats({});
   }, []);
 
   useEffect(() => {
@@ -212,7 +226,16 @@ export const WalletContextProvider = ({
     getAuthorizations({
       params: { acct: `did:${walletAccounts[connectedWallet]?.[0]}` },
     });
-  }, [connectedWallet, toggleGroup1]);
+  }, [connectedWallet, walletAccounts, toggleGroup1]);
+
+  useEffect(() => {
+    if (!connectedWallet) return;
+    if (Object.keys(walletAccounts).length == 0) return;
+
+    getAccountSubscriptions({
+      params: { acct: `did:${walletAccounts[connectedWallet]?.[0]}` },
+    });
+  }, [connectedWallet, walletAccounts, toggleGroup2]);
 
   const ganerateAuthorizationMessage = async (
     validatorPublicKey: string,
@@ -426,7 +449,10 @@ export const WalletContextProvider = ({
       const client = new Client(new RESTProvider(NODE_HTTP));
       const auth = await client.createTopic(payload);
 
-      getTopics();
+      setTimeout(() => {
+        getTopics();
+        setToggleGroup2((old) => !old);
+      }, 5000);
 
       console.log("AUTHORIZE", auth, "rr", auth.error);
     } catch (e: any) {
@@ -468,6 +494,158 @@ export const WalletContextProvider = ({
     setLoaders((old) => ({ ...old, getAuthorizations: false }));
   };
 
+  const subcribeToTopic = async (agent: AddressData, topicId: string) => {
+    if (connectedWallet == null) {
+      notification.error({ message: "No wallet connected" });
+      return;
+    }
+    const account = walletAccounts[connectedWallet][0];
+    if (account == null || account == "") {
+      notification.error({ message: "No account found" });
+      return;
+    }
+    setLoaders((old) => ({ ...old, [`subcribeToTopic-${topicId}`]: true }));
+    try {
+      const subscribe: Entities.Subscription = new Entities.Subscription();
+      //console.log('keypairsss', Utils.generateKeyPairSecp());
+      // console.log(
+      //   'BECH32ADDRESS',
+      //   validator.publicKey,
+      //   Utils.toAddress(Buffer.from(validator.publicKey, 'hex'))
+      // );
+      // subscribe.status = 1;
+      subscribe.topic = topicId;
+      subscribe.subscriber = Address.fromString(account);
+      //   subscribe.agent = "Bitcoin world";
+      //   subscribe.reference = "898989";
+
+      const payload: Entities.ClientPayload<Entities.Subscription> =
+        new Entities.ClientPayload();
+      payload.data = subscribe;
+      payload.timestamp = Date.now();
+      payload.eventType = Entities.MemberTopicEventType.JoinEvent;
+      payload.validator = VALIDATOR_PUBLIC_KEY;
+      payload.account = Address.fromString(account);
+      const pb = payload.encodeBytes();
+      console.log("🚀 ~ main ~ pb:", pb.toString("hex"));
+      payload.signature = await Utils.signMessageEcc(pb, agent.privateKey);
+      console.log("Payload", JSON.stringify(payload.asPayload()));
+
+      const client = new Client(new RESTProvider(NODE_HTTP));
+      const auth = await client.createSubscription(payload);
+
+      setTimeout(() => {
+        getTopics();
+        setToggleGroup2((old) => !old);
+      }, 3000);
+
+      console.log("AUTHORIZE", auth, "rr", auth.error);
+    } catch (e: any) {
+      console.log("AUTHORIZE error", e);
+      notification.error({ message: e?.response?.data?.error + "" });
+    }
+    setLoaders((old) => ({ ...old, [`subcribeToTopic-${topicId}`]: false }));
+  };
+  const getAccountSubscriptions = async (params: Record<string, unknown>) => {
+    if (loaders["getAccountSubscriptions"]) return;
+    setLoaders((old) => ({ ...old, getAccountSubscriptions: true }));
+    try {
+      const client = new Client(new RESTProvider(NODE_HTTP));
+      const respond: TopicListModel = (await client.getAccountSubscriptions(
+        params
+      )) as unknown as TopicListModel;
+      if ((respond as any)?.error) {
+        notification.error({ message: (respond as any)?.error + "" });
+      }
+      setAccountTopicList(respond);
+      // console.log("getAccountSubscriptions::::", respond);
+    } catch (error) {}
+    setLoaders((old) => ({ ...old, getAccountSubscriptions: false }));
+  };
+
+  const sendMessage = async (
+    messageString: string,
+    agent: AddressData,
+    topicId: string
+  ) => {
+    if (connectedWallet == null) {
+      notification.error({ message: "No wallet connected" });
+      return;
+    }
+    const account = walletAccounts[connectedWallet][0];
+    if (account == null || account == "") {
+      notification.error({ message: "No account found" });
+      return;
+    }
+    setLoaders((old) => ({ ...old, sendMessage: true }));
+    try {
+      const message: Entities.Message = new Entities.Message();
+      const messageAction = new Entities.MessageAction();
+      const messageAttachment = new Entities.MessageAttachment();
+      const messageActions = [];
+      const messagettachments = [];
+
+      messageAction.contract = "";
+      messageAction.abi = "";
+      messageAction.action = "";
+      messageAction.parameters = [""];
+
+      messageActions.push(messageAction);
+
+      messageAttachment.cid = "";
+      messageAttachment.hash = "";
+
+      messagettachments.push(messageAttachment);
+
+      message.topicId = topicId;
+      message.sender = Address.fromString(account);
+      message.data = Buffer.from(messageString);
+      message.attachments = messagettachments.map((item) => item.asPayload());
+      message.actions = messageActions.map((item) => item.asPayload());
+
+      const payload: Entities.ClientPayload<Entities.Message> =
+        new Entities.ClientPayload();
+      payload.data = message;
+      payload.timestamp = Date.now();
+      payload.eventType = Entities.MemberMessageEventType.SendMessageEvent;
+      payload.validator = VALIDATOR_PUBLIC_KEY;
+      payload.account = Address.fromString(account);
+      payload.nonce = 0;
+      const pb = payload.encodeBytes();
+      console.log("HEXDATA", pb.toString("hex"));
+      payload.signature = await Utils.signMessageEcc(pb, agent.privateKey);
+      console.log("Payload", JSON.stringify(payload.asPayload()));
+
+      const client = new Client(new RESTProvider(NODE_HTTP));
+      const resp = await client.createMessage(payload);
+
+      // getTopics();
+
+      console.log("AUTHORIZE", resp, "rr", resp.error);
+    } catch (e: any) {
+      console.log("AUTHORIZE error", e);
+      notification.error({ message: e?.response?.data?.error + "" });
+    }
+    setLoaders((old) => ({ ...old, sendMessage: false }));
+  };
+
+  const getBlockStats = async (params: Record<string, unknown>) => {
+    if (loaders["getBlockStats"]) return;
+    setLoaders((old) => ({ ...old, getBlockStats: true }));
+    try {
+      const client = new Client(new RESTProvider(NODE_HTTP));
+      const respond: BlockStatsListModel = (await client.getBlockStats(
+        params
+      )) as unknown as BlockStatsListModel;
+      if ((respond as any)?.error) {
+        notification.error({ message: (respond as any)?.error + "" });
+      }
+      setBlockStatsList(respond);
+      // console.log("getBlockStats::::", respond);
+    } catch (error) {}
+    setLoaders((old) => ({ ...old, getBlockStats: false }));
+  };
+
   return (
     <WalletContext.Provider
       value={{
@@ -479,12 +657,16 @@ export const WalletContextProvider = ({
         generateAgent,
         createTopic,
         setSelectedAgent,
+        subcribeToTopic,
+        sendMessage,
         walletAccounts,
         loadingWalletConnections,
         walletConnectionState,
         connectedWallet,
         agents,
         topicList,
+        blockStatsList,
+        accountTopicList,
         authenticationList,
         selectedAgent,
       }}

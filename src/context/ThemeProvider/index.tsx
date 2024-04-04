@@ -18,6 +18,7 @@ type ThemeType = "dark" | "light";
 interface ThemeContextValues {
   themeType: ThemeType;
   setThemeType?: Dispatch<SetStateAction<ThemeType>>;
+  toggleTheme?: () => void;
 }
 
 export const ThemeContext = createContext<ThemeContextValues>({
@@ -37,27 +38,33 @@ export const ThemeContextProvider = ({ children }: { children: ReactNode }) => {
       setCheckThemeChange(true);
     }
   }, []);
-  // useEffect(() => {
-  //     if(!checkThemeChange) return;
-  //     const html = document.querySelector('html[data-theme]') as HTMLHtmlElement;
-  //     html.dataset.theme = themeType;
-  //     if(typeof window !== 'undefined'){
-  //         const storage = new Storage(THEME_STORAGE_KEY);
-  //         storage.set(themeType);
-  //         console.log('storage', storage.get(), 'themeType', themeType )
+  useEffect(() => {
+    // if (!checkThemeChange) return;
+    const html = document.querySelector("html") as HTMLHtmlElement;
+    html.className = themeType;
+    if (typeof window !== "undefined") {
+      const storage = new Storage(THEME_STORAGE_KEY);
+      storage.set(themeType);
+      console.log("storage", storage.get(), "themeType", themeType);
+    }
+    // console.log("themeType", themeType);
+  }, [themeType]);
 
-  //     }
-  // }, [themeType]);
+  const toggleTheme = () => {
+    setThemeType((old) => (old == "light" ? "dark" : "light"));
+  };
 
   return (
     <Provider store={store}>
       <ConfigProvider
         theme={{
-          algorithm: darkAlgorithm,
+          algorithm: themeType == "light" ? defaultAlgorithm : darkAlgorithm,
           token: {
             // Seed Token
             colorPrimary: "#25D366",
             borderRadius: 2,
+            fontFamily: `"Roboto", sans-serif`,
+            fontSize: 15
 
             // Alias Token
             // colorBgContainer: "#f6ffed",
@@ -71,7 +78,7 @@ export const ThemeContextProvider = ({ children }: { children: ReactNode }) => {
           },
         }}
       >
-        <ThemeContext.Provider value={{ themeType, setThemeType }}>
+        <ThemeContext.Provider value={{ themeType, setThemeType, toggleTheme }}>
           {children}
         </ThemeContext.Provider>
       </ConfigProvider>

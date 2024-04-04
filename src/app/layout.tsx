@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Josefin_Slab } from "next/font/google";
 import "./globals.css";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 
@@ -12,7 +12,7 @@ import {
   WalletContextProvider,
 } from "@/context";
 
-const inter = Inter({ subsets: ["latin"] });
+const roboto = Josefin_Slab({ subsets: ["latin"] });
 const myFont = localFont({ src: "../fonts/geist/GeistVariableVF.ttf" });
 
 export const metadata: Metadata = {
@@ -27,7 +27,19 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark">
-      <body className={`${myFont.className} `}>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+          rel="stylesheet"
+        ></link>
+      </head>
+      <body className={`${roboto.className} `} style={{ height: "100vh" }}>
         <ThemeContextProvider>
           <AppContextProvider>
             <AntdRegistry>

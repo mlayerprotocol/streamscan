@@ -1,64 +1,64 @@
+"use client";
+import { WalletContext } from "@/context";
 import { randomImageUrl } from "@/utils";
-import { Table } from "antd";
+import { Card, Table } from "antd";
 import Link from "next/link";
-import React from "react";
-
-const dataSource = [
-  {
-    key: "1",
-    name: "#2299999",
-    age: 233,
-    address: "10 Downing Street",
-    final: "10 minutes ago",
-    value:"23,002,092,2003"
-  },
-  {
-    key: "2",
-    name: "#2299999",
-    age: 423,
-    address: "10 Downing Street",
-    final: "10 minutes ago",
-    value:"13,002,092,2003"
-  },
-];
+import React, { useContext, useMemo } from "react";
 
 const columns = [
   {
     title: "Height",
-    dataIndex: "name",
-    key: "name",
+    dataIndex: "blk",
+    key: "blk",
   },
   {
     title: "Cycle",
-    dataIndex: "age",
-    key: "age",
+    dataIndex: "c",
+    key: "c",
   },
   {
     title: "Events",
-    dataIndex: "address",
-    key: "address",
+    dataIndex: "t",
+    key: "t",
   },
   {
     title: "MLT Value",
-    dataIndex: "address",
-    key: "value",
+    dataIndex: "id",
+    key: "id",
   },
-  {
-    title: "Finalized",
-    dataIndex: "address",
-    key: "finalized",
-  },
+  // {
+  //   title: "Finalized",
+  //   dataIndex: "address",
+  //   key: "finalized",
+  // },
 ];
 
 const DashboardPage = () => {
+  const {
+    loaders,
+    blockStatsList,
+    subcribeToTopic,
+    agents,
+    selectedAgent,
+    walletAccounts,
+    connectedWallet,
+  } = useContext(WalletContext);
+
+  const dataSource = useMemo(() => {
+    return blockStatsList?.data ?? [];
+  }, [blockStatsList]);
   return (
-    <div className="flex flex-col border-gray-200 border p-4">
+    <Card className="shadow-2xl">
       <div className="flex justify-between mb-4">
         <span className="font-bold text-xl">Recent Blocks</span>
         <Link href={"/"}>View all</Link>
       </div>
-      <Table dataSource={dataSource} columns={columns} />
-    </div>
+      <Table
+        dataSource={dataSource}
+        columns={columns}
+        loading={loaders["getBlockStats"]}
+      />
+    </Card>
   );
 };
 
