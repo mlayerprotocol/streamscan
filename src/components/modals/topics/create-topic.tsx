@@ -9,26 +9,33 @@ import {
   Select,
   notification,
 } from "antd";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import { motion } from "framer-motion";
 import { useForm } from "antd/es/form/Form";
 import { displayVariants, shorternAddress } from "@/utils";
 import { WalletContext } from "@/context";
+import { TopicData } from "@/model/topic";
 
 interface CreateTopicProps {
   isModalOpen?: boolean;
+  topicData?: TopicData;
   onCancel?: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 }
 export const CreateTopic = (props: CreateTopicProps) => {
   const { authenticationList, selectedAgent, createTopic, loaders, agents } =
     useContext(WalletContext);
-  const { isModalOpen = false, onCancel } = props;
+  const { isModalOpen = false, onCancel, topicData } = props;
   const [form] = useForm();
 
   const _selectedAgent = authenticationList?.data.find(
     (opt) => opt.agt == selectedAgent
   )?.agt;
+
+  useEffect(() => {
+    form.setFieldsValue({ address: _selectedAgent, ...topicData });
+    console.log("APPPP", { address: _selectedAgent, ...topicData });
+  }, [topicData]);
 
   return (
     <Modal
@@ -37,6 +44,7 @@ export const CreateTopic = (props: CreateTopicProps) => {
       open={isModalOpen}
       // onOk={handleOk}
       onCancel={(e) => {
+        form.setFieldsValue({});
         onCancel?.(e);
       }}
       footer={null}
@@ -58,7 +66,7 @@ export const CreateTopic = (props: CreateTopicProps) => {
             name="basic"
             layout="vertical"
             form={form}
-            initialValues={{ address: _selectedAgent }}
+            initialValues={{ address: _selectedAgent, ...topicData }}
             onFinish={(data) => {
               const agent: AddressData | undefined = agents.find(
                 (el) => el.address == data["address"]
@@ -69,13 +77,17 @@ export const CreateTopic = (props: CreateTopicProps) => {
                 });
                 return;
               }
-              const handle: string = data["handle"];
-              const name: string = data["name"];
-              const description: string = data["description"];
+              const handle: string = data["hand"];
+              const name: string = data["n"];
+              const description: string = data["desc"];
               const ref: string = data["ref"];
-              const isPublic: boolean = data["public"] == true;
+              const isPublic: boolean = data["pub"] == true;
+              createTopic?.(agent, handle, name, description, ref, isPublic, {
+                id: topicData?.id,
+                isUpdate: topicData != undefined,
+                loaderKey: `createTopic-${topicData?.id}`,
+              });
 
-              createTopic?.(agent, handle, name, description, ref, isPublic);
               console.log({ data, agent });
               onCancel?.({} as any);
             }}
@@ -94,7 +106,7 @@ export const CreateTopic = (props: CreateTopicProps) => {
 
             <Form.Item
               label="Handle:"
-              name="handle"
+              name="hand"
               rules={[{ required: true, message: "Please input your handle!" }]}
             >
               <Input placeholder="Enter Your Handle" />
@@ -102,7 +114,7 @@ export const CreateTopic = (props: CreateTopicProps) => {
 
             <Form.Item
               label="Title:"
-              name="name"
+              name="n"
               rules={[{ required: true, message: "Please input your title!" }]}
             >
               <Input placeholder="Enter Your Title" />
@@ -110,7 +122,7 @@ export const CreateTopic = (props: CreateTopicProps) => {
 
             <Form.Item
               label="Description:"
-              name="description"
+              name="desc"
               rules={[{ message: "Please input your description!" }]}
             >
               <Input placeholder="Enter Your Description" />
@@ -124,18 +136,23 @@ export const CreateTopic = (props: CreateTopicProps) => {
               <Input placeholder="Enter Your Ref" />
             </Form.Item>
 
-            <Form.Item label="Public:" name="public" valuePropName="checked">
+            <Form.Item label="Public:" name="pub" valuePropName="checked">
               <Checkbox />
             </Form.Item>
 
             <Button
-              loading={loaders["createTopic"]}
+              loading={
+                loaders["createTopic"] ||
+                loaders[`createTopic-${topicData?.id}`]
+              }
               type="primary"
               htmlType="submit"
               className="w-full mt-[28px] self-end"
               shape="round"
             >
-              <span className="text-black">Create</span>
+              <span className="text-black">
+                {topicData ? "Update" : "Create"}
+              </span>
             </Button>
           </Form>
         </motion.div>

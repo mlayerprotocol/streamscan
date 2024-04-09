@@ -76,10 +76,10 @@ export const Agents = (props: AgentsProps) => {
       };
     });
   }, [agents, authenticationList]);
-  console.log({agents});
+  console.log({ agents });
   return (
     <motion.div
-      className="inline-flex w-full flex-col gap-6"
+      className="inline-flex w-full flex-col gap-6 py-8"
       variants={displayVariants}
       initial={"hidden"}
       animate={"show"}
@@ -89,9 +89,9 @@ export const Agents = (props: AgentsProps) => {
       }}
       // transition={{ duration: 1, delay: 1 }}
     >
-      <span>
+      <span className="text-xs text-gray-500">
         For security and flexibility, Agents act on behalf of Accounts in the
-        mLayer network, for example, a compromised rolent can quickly be
+        maLyer network, for example, a compromised agent can quickly be
         deauthorized to prevent further attack. Learn more...
       </span>
       <div className="flex gap-4 justify-end">

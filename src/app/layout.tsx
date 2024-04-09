@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Josefin_Slab } from "next/font/google";
+import { Inter, Josefin_Slab, Jost } from "next/font/google";
 import "./globals.css";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 
@@ -12,8 +12,8 @@ import {
   WalletContextProvider,
 } from "@/context";
 
-const roboto = Josefin_Slab({ subsets: ["latin"] });
-const myFont = localFont({ src: "../fonts/geist/GeistVariableVF.ttf" });
+const gFont = Jost({ subsets: ["latin"] });
+// const myFont = localFont({ src: "../fonts/geist/GeistVariableVF.ttf" });
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -39,7 +39,7 @@ export default function RootLayout({
           rel="stylesheet"
         ></link>
       </head>
-      <body className={`${roboto.className} `} style={{ height: "100vh" }}>
+      <body className={`${gFont.className} `} style={{ height: "100vh" }}>
         <ThemeContextProvider>
           <AppContextProvider>
             <AntdRegistry>

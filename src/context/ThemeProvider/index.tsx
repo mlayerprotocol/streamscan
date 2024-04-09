@@ -66,7 +66,7 @@ export const ThemeContextProvider = ({ children }: { children: ReactNode }) => {
             colorPrimary: "#3772ff",
             borderRadius: 2,
             fontFamily: `"Roboto", sans-serif`,
-            fontSize: 15
+            fontSize: 15,
 
             // Alias Token
             // colorBgContainer: "#f6ffed",

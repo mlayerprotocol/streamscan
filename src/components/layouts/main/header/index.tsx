@@ -48,6 +48,15 @@ export const AppHeader = (props: AppHeaderProps) => {
 
   const userProfileItem: MenuProps["items"] = [
     {
+      key: "2",
+      icon: <HeroIcons.UserCircleIcon className="ml-2 h-[20px]" />,
+      label: (
+        <Link href={"/wallet/agents"} className="font-medium text-base ml-2">
+          Account
+        </Link>
+      ),
+    },
+    {
       icon: <HeroIcons.Cog8ToothIcon className="ml-2 h-[20px]" />,
       label: <span className="font-medium text-base ml-2">Switch Wallet</span>,
       key: "3",
@@ -108,9 +117,9 @@ export const AppHeader = (props: AppHeaderProps) => {
 
             <span onClick={() => setShowMobilMoney((old) => !old)}>
               {showMobilMoney ? (
-                <HeroIcons.XMarkIcon className="ml-2 h-[40px] text-white" />
+                <HeroIcons.XMarkIcon className="ml-2 h-[40px] " />
               ) : (
-                <HeroIcons.Bars3Icon className="ml-2 h-[40px] text-white" />
+                <HeroIcons.Bars3Icon className="ml-2 h-[40px] " />
               )}
             </span>
           </div>
@@ -201,26 +210,65 @@ export const AppHeader = (props: AppHeaderProps) => {
                 duration: 1,
                 height: { duration: 0.5 },
               }}
-              className="lg:hidden flex flex-col gap-10 pt-10 text-right"
+              className="lg:hidden flex flex-col gap-10 p-10  text-right"
             >
-              <Link href={"/"} className="text-2xl text-white ">
+              <Link
+                href={"/"}
+                className="text-2xl  "
+                onClick={() => {
+                  setShowMobilMoney((old) => !old);
+                }}
+              >
                 Home
               </Link>
-
-              <Link href={"/my-list"} className="text-2xl text-white">
-                My List
+              <Link
+                href={"/wallet/airdrop"}
+                className="text-2xl "
+                onClick={() => {
+                  setShowMobilMoney((old) => !old);
+                }}
+              >
+                Airdrop
               </Link>
-
-              <Link href={"/"} className="text-2xl text-white">
-                Explore
+              <Link
+                href={"/wallet/agents"}
+                className="text-2xl "
+                onClick={() => {
+                  setShowMobilMoney((old) => !old);
+                }}
+              >
+                Agents/Devices
               </Link>
-
-              <Link href={"/"} className="text-2xl text-white">
-                Wallet
+              <Link
+                href={"/wallet/topics"}
+                className="text-2xl "
+                onClick={() => {
+                  setShowMobilMoney((old) => !old);
+                }}
+              >
+                Topics
+              </Link>
+              <Link
+                href={"/wallet/messages"}
+                className="text-2xl "
+                onClick={() => {
+                  setShowMobilMoney((old) => !old);
+                }}
+              >
+                Messages
+              </Link>
+              <Link
+                href={"/wallet/stake"}
+                className="text-2xl "
+                onClick={() => {
+                  setShowMobilMoney((old) => !old);
+                }}
+              >
+                Stake
               </Link>
               {connectedWallet && (
                 <>
-                  <Link href={"/"} className="text-2xl text-white">
+                  <Link href={"/"} className="text-2xl ">
                     Settings
                   </Link>
                   <span
@@ -261,7 +309,18 @@ export const AppHeader = (props: AppHeaderProps) => {
         </AnimatePresence>
         <Divider className="!hidden lg:!block !border-t-4" />
         <div className=" hidden lg:flex justify-between grow items-center w-full px-4 md:px-20">
-          <span className="text-2xl">MLStream Scan</span>
+          <div className="flex items-center gap-2">
+            <Image
+              src="/logo.png"
+              alt="Vercel Logo"
+              // className="light:invert"
+              width={48}
+              height={48}
+              priority
+            />
+            <span className="text-2xl">MLStream Scan</span>
+          </div>
+
           <div className="flex gap-2 ml-20 items-center">
             <Link href={"/"}>Home</Link>
             <span className="text-gray-500">|</span>

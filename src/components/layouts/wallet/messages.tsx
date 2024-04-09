@@ -1,10 +1,12 @@
 "use client";
-import { displayVariants } from "@/utils";
+import { displayVariants, shorternAddress } from "@/utils";
 import React, { useContext, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { CreateMessage, CreateTopic } from "@/components";
 import { WalletContext } from "@/context";
-import { Button, Table } from "antd";
+import { Button, Dropdown, MenuProps, Space, Table } from "antd";
+import * as HeroIcons from "@heroicons/react/24/solid";
+import moment from "moment";
 interface MessagesProps {
   onSuccess?: (values: any) => void;
   handleCreateAccount?: () => void;
@@ -12,13 +14,51 @@ interface MessagesProps {
 export const Messages = (props: MessagesProps) => {
   const [showCreateMessageModal, setShowCreateMessageModal] =
     useState<boolean>(false);
-  const { loaders, subcribeToTopic, agents, selectedAgent } =
-    useContext(WalletContext);
-  const [selectedTopicId, setSelectedTopicId] = useState<string | undefined>();
+  const {
+    loaders,
+    accountTopicList,
+    agents,
+    selectedMessagesTopicId,
+    messagesList,
+    setSelectedMessagesTopicId,
+  } = useContext(WalletContext);
+
+  const topic = useMemo(() => {
+    if (!selectedMessagesTopicId && (accountTopicList?.data ?? []).length > 0) {
+      setTimeout(() => {
+        setSelectedMessagesTopicId?.((accountTopicList?.data ?? [])[0].id);
+      }, 2000);
+      return undefined;
+    }
+    return (accountTopicList?.data ?? []).find(
+      (v) => v.id == selectedMessagesTopicId
+    );
+  }, [selectedMessagesTopicId, accountTopicList]);
+
+  const items: MenuProps["items"] = useMemo(() => {
+    return (accountTopicList?.data ?? []).map((el, index) => ({
+      key: index,
+      label: <span>{el.n}</span>,
+      onClick: () => {
+        setSelectedMessagesTopicId?.(el.id);
+      },
+    }));
+  }, [accountTopicList]);
+
+  const dataSource = useMemo(() => {
+    return (messagesList?.data ?? []).map((msg, index) => {
+      return {
+        key: index,
+        sender: msg.s,
+        message: msg.d,
+        date: moment(Date.parse(msg.CreatedAt)).fromNow(),
+      };
+    });
+  }, [selectedMessagesTopicId, messagesList]);
 
   return (
     <motion.div
-      className="inline-block w-full"
+      className="inline-flex flex-col w-full gap-6 py-8"
       variants={displayVariants}
       initial={"hidden"}
       animate={"show"}
@@ -28,19 +68,19 @@ export const Messages = (props: MessagesProps) => {
       }}
       // transition={{ duration: 1, delay: 1 }}
     >
-      <div className="flex">
-        <span>
-          Messages received Lorem ipsum dolor sit amet, consectetur adipisicing
-          elit. Harum tenetur aliquid eveniet doloribus eos alias maiores
-          voluptas blanditiis qui excepturi hic, ipsa dignissimos autem!
-          Temporibus nemo accusamus voluptate voluptas exercitationem.
-        </span>
+      <div className="flex justify-between">
+        <Dropdown menu={{ items }}>
+          <Space>
+            Select topic: {topic?.n ?? "--"}
+            <HeroIcons.ChevronDownIcon className="ml-2 h-[20px]" />
+          </Space>
+        </Dropdown>
         <Button
           loading={loaders["sendMessage"]}
           onClick={() => {
             setShowCreateMessageModal((old) => !old);
           }}
-          className="self-start"
+          className=""
           ghost
           type="primary"
           shape="round"
@@ -48,11 +88,15 @@ export const Messages = (props: MessagesProps) => {
           <span>Send Message</span>
         </Button>
       </div>
-      <Table dataSource={dataSource} columns={columns} />
+      <Table
+        loading={loaders["getTopicMessages"]}
+        dataSource={dataSource}
+        columns={columns}
+      />
 
       <CreateMessage
         isModalOpen={showCreateMessageModal}
-        topicId={selectedTopicId}
+        topicId={selectedMessagesTopicId}
         onCancel={() => {
           setShowCreateMessageModal((old) => !old);
         }}
@@ -60,40 +104,27 @@ export const Messages = (props: MessagesProps) => {
     </motion.div>
   );
 };
-const dataSource = [
-  {
-    key: "1",
-    name: "Mike",
-    age: 32,
-    address: "10 Downing Street",
-  },
-  {
-    key: "2",
-    name: "John",
-    age: 42,
-    address: "10 Downing Street",
-  },
-];
 
 const columns = [
   {
-    title: "Hash",
-    dataIndex: "name",
-    key: "name",
+    title: "Sender",
+    dataIndex: "sender",
+    key: "sender",
+    render: (text: any) => {
+      return <span>{shorternAddress(text)}</span>;
+    },
   },
   {
-    title: "Data",
-    dataIndex: "age",
-    key: "age",
+    title: "Message",
+    dataIndex: "message",
+    key: "message",
+    render: (text: any) => {
+      return <span>{Buffer.from(text, "hex").toString()}</span>;
+    },
   },
   {
-    title: "Send",
-    dataIndex: "address",
-    key: "address",
-  },
-  {
-    title: "Receiver",
-    dataIndex: "address",
-    key: "address1",
+    title: "Date",
+    dataIndex: "date",
+    key: "date",
   },
 ];

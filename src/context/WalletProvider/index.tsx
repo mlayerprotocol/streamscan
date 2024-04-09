@@ -26,6 +26,7 @@ import { TopicListModel } from "@/model/topic";
 import { AuthenticationListModel } from "@/model/authentications/list";
 import { Address } from "@mlayerprotocol/core/src/entities";
 import { BlockStatsListModel } from "@/model/block-stats";
+import { MessageListModel } from "@/model/message/list";
 
 // import { Authorization } from "@mlayerprotocol/core/src/entities";
 // const { Authorization } = Entities;
@@ -40,11 +41,13 @@ interface WalletContextValues {
   walletConnectionState: Record<string, boolean>;
   connectedWallet?: string;
   selectedAgent?: string;
+  selectedMessagesTopicId?: string;
 
   agents: AddressData[];
   loaders: Record<string, boolean>;
   topicList?: TopicListModel;
   blockStatsList?: BlockStatsListModel;
+  messagesList?: MessageListModel;
   accountTopicList?: TopicListModel;
   authenticationList?: AuthenticationListModel;
   authorizeAgent?: (
@@ -59,7 +62,12 @@ interface WalletContextValues {
     description: string,
 
     reference: string,
-    isPublic: boolean
+    isPublic: boolean,
+    options?: {
+      id?: string;
+      loaderKey?: string;
+      isUpdate?: boolean;
+    }
   ) => Promise<void>;
   setSelectedAgent?: Dispatch<SetStateAction<string | undefined>>;
   subcribeToTopic?: (agent: AddressData, topicId: string) => Promise<void>;
@@ -68,6 +76,7 @@ interface WalletContextValues {
     agent: AddressData,
     topicId: string
   ) => Promise<void>;
+  setSelectedMessagesTopicId?: Dispatch<SetStateAction<string | undefined>>;
 }
 
 export const WalletContext = createContext<WalletContextValues>({
@@ -96,7 +105,10 @@ export const WalletContextProvider = ({
   const [connectedWallet, setConnectedWallet] = useState<string>();
   const [toggleGroup1, setToggleGroup1] = useState<boolean>(false);
   const [toggleGroup2, setToggleGroup2] = useState<boolean>(false);
+  const [toggleGroup3, setToggleGroup3] = useState<boolean>(false);
   const [selectedAgent, setSelectedAgent] = useState<string>();
+  const [selectedMessagesTopicId, setSelectedMessagesTopicId] =
+    useState<string>();
   const { sdk, connected, connecting, provider, chainId } = useSDK();
   const [cosmosSDK, setCosmosSDK] = useState<stargate.StargateClient>();
   const [agents, setKeyPairs] = useState<AddressData[]>([]);
@@ -108,6 +120,7 @@ export const WalletContextProvider = ({
   const [topicList, setTopicList] = useState<TopicListModel>();
   const [accountTopicList, setAccountTopicList] = useState<TopicListModel>();
   const [blockStatsList, setBlockStatsList] = useState<BlockStatsListModel>();
+  const [messagesList, setMessagesList] = useState<MessageListModel>();
   const [authenticationList, setAuthenticationList] =
     useState<AuthenticationListModel>();
 
@@ -211,6 +224,10 @@ export const WalletContextProvider = ({
     initializeOldState();
     getBlockStats({});
   }, []);
+
+  useEffect(() => {
+    getTopicMessages(selectedMessagesTopicId ?? "", {});
+  }, [selectedMessagesTopicId, toggleGroup3]);
 
   useEffect(() => {
     if (connectedWallet) connectedStorage?.set(connectedWallet);
@@ -406,7 +423,12 @@ export const WalletContextProvider = ({
     description: string,
 
     reference: string,
-    isPublic: boolean
+    isPublic: boolean,
+    options?: {
+      id?: string;
+      loaderKey?: string;
+      isUpdate?: boolean;
+    }
   ) => {
     if (connectedWallet == null) {
       notification.error({ message: "No wallet connected" });
@@ -417,7 +439,8 @@ export const WalletContextProvider = ({
       notification.error({ message: "No account found" });
       return;
     }
-    setLoaders((old) => ({ ...old, createTopic: true }));
+    const { loaderKey, isUpdate = false, id } = options ?? {};
+    setLoaders((old) => ({ ...old, [loaderKey ?? "createTopic"]: true }));
     try {
       const topic: Entities.Topic = new Entities.Topic();
       //console.log('keypairsss', Utils.generateKeyPairSecp());
@@ -432,12 +455,15 @@ export const WalletContextProvider = ({
       topic.name = name;
       topic.reference = reference;
       topic.isPublic = isPublic;
+      topic.id = id ?? "";
 
       const payload: Entities.ClientPayload<Entities.Topic> =
         new Entities.ClientPayload();
       payload.data = topic;
       payload.timestamp = Date.now();
-      payload.eventType = Entities.AdminTopicEventType.CreateTopic;
+      payload.eventType = isUpdate
+        ? Entities.AdminTopicEventType.UpdateTopic
+        : Entities.AdminTopicEventType.CreateTopic;
       payload.validator = VALIDATOR_PUBLIC_KEY;
       payload.account = Entities.Address.fromString(account);
       payload.nonce = 0;
@@ -447,19 +473,24 @@ export const WalletContextProvider = ({
       console.log("Payload", JSON.stringify(payload.asPayload()));
 
       const client = new Client(new RESTProvider(NODE_HTTP));
-      const auth = await client.createTopic(payload);
+      var auth;
+      if (isUpdate) {
+        auth = await client.updateTopic(payload);
+      } else {
+        auth = await client.createTopic(payload);
+      }
 
       setTimeout(() => {
         getTopics();
         setToggleGroup2((old) => !old);
-      }, 5000);
+      }, 1000);
 
-      console.log("AUTHORIZE", auth, "rr", auth.error);
+      console.log("AUTHORIZE", "rr", auth.error);
     } catch (e: any) {
       console.log("AUTHORIZE error", e);
       notification.error({ message: e?.response?.data?.error + "" });
     }
-    setLoaders((old) => ({ ...old, createTopic: false }));
+    setLoaders((old) => ({ ...old, [loaderKey ?? "createTopic"]: false }));
   };
 
   const getTopics = async () => {
@@ -515,7 +546,7 @@ export const WalletContextProvider = ({
       // );
       // subscribe.status = 1;
       subscribe.topic = topicId;
-      subscribe.subscriber = Address.fromString(account);
+      subscribe.account = Address.fromString(account);
       //   subscribe.agent = "Bitcoin world";
       //   subscribe.reference = "898989";
 
@@ -619,7 +650,7 @@ export const WalletContextProvider = ({
       const client = new Client(new RESTProvider(NODE_HTTP));
       const resp = await client.createMessage(payload);
 
-      // getTopics();
+      setToggleGroup3((old) => !old);
 
       console.log("AUTHORIZE", resp, "rr", resp.error);
     } catch (e: any) {
@@ -646,6 +677,27 @@ export const WalletContextProvider = ({
     setLoaders((old) => ({ ...old, getBlockStats: false }));
   };
 
+  const getTopicMessages = async (
+    id: string,
+    params: Record<string, unknown>
+  ) => {
+    if (loaders["getTopicMessages"]) return;
+    setLoaders((old) => ({ ...old, getTopicMessages: true }));
+    try {
+      const client = new Client(new RESTProvider(NODE_HTTP));
+      const respond: MessageListModel = (await client.getTopicMessages({
+        id,
+        params,
+      })) as unknown as MessageListModel;
+      if ((respond as any)?.error) {
+        notification.error({ message: (respond as any)?.error + "" });
+      }
+      setMessagesList(respond);
+      // console.log("getTopicMessages::::", respond);
+    } catch (error) {}
+    setLoaders((old) => ({ ...old, getTopicMessages: false }));
+  };
+
   return (
     <WalletContext.Provider
       value={{
@@ -657,6 +709,7 @@ export const WalletContextProvider = ({
         generateAgent,
         createTopic,
         setSelectedAgent,
+        setSelectedMessagesTopicId,
         subcribeToTopic,
         sendMessage,
         walletAccounts,
@@ -669,6 +722,8 @@ export const WalletContextProvider = ({
         accountTopicList,
         authenticationList,
         selectedAgent,
+        selectedMessagesTopicId,
+        messagesList,
       }}
     >
       {children}

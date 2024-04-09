@@ -8,6 +8,7 @@ import { Topics } from "./topics";
 import { Messages } from "./messages";
 import { Stake } from "./stake";
 import { AuthorizeAgent } from "@/components";
+import { AirDrop } from "./airdrop";
 
 const { Content, Sider } = Layout;
 
@@ -18,13 +19,20 @@ interface WalletMainLayoutProps {
 export const WalletMainLayout = (props: WalletMainLayoutProps) => {
   const { tab } = useParams();
   const router = useRouter();
-  
 
   useEffect(() => {
     console.log({ tab });
   }, [tab]);
 
   const tabItems: MenuProps["items"] = [
+    {
+      key: "airdrop",
+      icon: <HeroIcons.GifIcon className="h-[20px]" />,
+      label: "Airdrop",
+      onClick: () => {
+        router.push("/wallet/airdrop", { scroll: false });
+      },
+    },
     {
       key: "agents",
       icon: <HeroIcons.CpuChipIcon className="h-[20px]" />,
@@ -60,7 +68,7 @@ export const WalletMainLayout = (props: WalletMainLayoutProps) => {
   ];
   return (
     <Layout>
-      <Sider width={200}>
+      <Sider width={200} className="hidden lg:block">
         <Menu
           mode="inline"
           defaultSelectedKeys={["agents"]}
@@ -75,9 +83,9 @@ export const WalletMainLayout = (props: WalletMainLayoutProps) => {
           {"topics" == tab && <Topics />}
           {"messages" == tab && <Messages />}
           {"stake" == tab && <Stake />}
+          {"airdrop" == tab && <AirDrop />}
         </Content>
       </Layout>
-      
     </Layout>
   );
 };

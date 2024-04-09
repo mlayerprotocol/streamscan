@@ -9,7 +9,7 @@ import {
   Select,
   notification,
 } from "antd";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 
 import { motion } from "framer-motion";
 import { useForm } from "antd/es/form/Form";
@@ -17,6 +17,7 @@ import { displayVariants, shorternAddress } from "@/utils";
 import { WalletContext } from "@/context";
 
 interface JoinTopicProps {
+  topicId?: string;
   isModalOpen?: boolean;
   onCancel?: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 }
@@ -28,16 +29,21 @@ export const JoinTopic = (props: JoinTopicProps) => {
     authenticationList,
     selectedAgent,
   } = useContext(WalletContext);
-  const { isModalOpen = false, onCancel } = props;
+  const { isModalOpen = false, onCancel, topicId } = props;
   const [form] = useForm();
-  const _selectedAgent = authenticationList?.data.find(
-    (opt) => opt.agt == selectedAgent
-  )?.agt;
+  const _selectedAgent = useMemo(() => {
+    return authenticationList?.data.find((opt) => opt.agt == selectedAgent)
+      ?.agt;
+  }, [authenticationList]);
+
+  useEffect(() => {
+    form.setFieldsValue({ address: _selectedAgent, topicId });
+  }, [topicId, _selectedAgent]);
 
   return (
     <Modal
       className="rounded-lg"
-      title={null}
+      title={"Join Topic"}
       open={isModalOpen}
       // onOk={handleOk}
       onCancel={(e) => {
@@ -98,8 +104,6 @@ export const JoinTopic = (props: JoinTopicProps) => {
             >
               <Input placeholder="Enter Your Topic Id" />
             </Form.Item>
-
-            
 
             <Button
               loading={loaders["subcribeToTopic"]}

@@ -7,6 +7,7 @@ import { Button, Popconfirm, Spin, Table, TableProps } from "antd";
 import { CreateMessage, CreateTopic, JoinTopic } from "@/components";
 import { WalletContext } from "@/context";
 import { TopicData } from "@/model/topic";
+import { useSearchParams } from "next/navigation";
 
 interface SubscribedTopicsProps {
   onSuccess?: (values: any) => void;
@@ -18,6 +19,19 @@ export const SubscribedTopics = (props: SubscribedTopicsProps) => {
   const [showJoinTopicModal, setShowJoinTopicModal] = useState<boolean>(false);
   const [showCreateMessageModal, setShowCreateMessageModal] =
     useState<boolean>(false);
+  const [urlTopicId, setUrlTopicId] = useState<string>();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    console.log({ searchParams: searchParams.get("topicId") });
+    setUrlTopicId(searchParams.get("topicId") ?? "");
+  }, [searchParams]);
+
+  useEffect(() => {
+    console.log({ urlTopicId });
+    if (!urlTopicId) return;
+    setShowJoinTopicModal((old) => !old);
+  }, [urlTopicId]);
   const {
     loaders,
     accountTopicList,
@@ -139,7 +153,7 @@ export const SubscribedTopics = (props: SubscribedTopicsProps) => {
       }}
       // transition={{ duration: 1, delay: 1 }}
     >
-      <span>
+      <span className="text-xs text-gray-500">
         Topic are communication channels. Every subscriber to a topic receives
         the data/messages sent to that topic.
       </span>
@@ -191,7 +205,9 @@ export const SubscribedTopics = (props: SubscribedTopicsProps) => {
         isModalOpen={showJoinTopicModal}
         onCancel={() => {
           setShowJoinTopicModal((old) => !old);
+          setUrlTopicId(undefined);
         }}
+        topicId={urlTopicId}
       />
     </motion.div>
   );

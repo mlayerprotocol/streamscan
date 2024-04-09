@@ -1,23 +1,32 @@
 "use client";
 import { displayVariants } from "@/utils";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Tabs } from "antd";
 import { MyTopics } from "./my";
 import { SubscribedTopics } from "./subscribed";
 import { AllTopics } from "./all";
+import { useSearchParams } from "next/navigation";
 
-const onChange = (key: string) => {
-  console.log(key);
-};
 interface TopicsProps {
   onSuccess?: (values: any) => void;
   handleCreateAccount?: () => void;
 }
 export const Topics = (props: TopicsProps) => {
+  const searchParams = useSearchParams();
+  const [activeTab, setActiveTab] = useState<string>();
+
+  useEffect(() => {
+    console.log({ searchParams: searchParams.get("topicTab") });
+    setActiveTab(searchParams.get("topicTab") ?? "");
+  }, [searchParams]);
+
+  const onChange = (key: string) => {
+    setActiveTab(key);
+  };
   return (
     <motion.div
-      className="inline-flex w-full flex-col gap-6"
+      className="inline-flex w-full flex-col gap-6 py-8"
       variants={displayVariants}
       initial={"hidden"}
       animate={"show"}
@@ -29,6 +38,7 @@ export const Topics = (props: TopicsProps) => {
     >
       <Tabs
         onChange={onChange}
+        activeKey={activeTab}
         type="card"
         items={[
           {
@@ -41,11 +51,11 @@ export const Topics = (props: TopicsProps) => {
             key: "sub",
             children: <SubscribedTopics />,
           },
-        //   {
-        //     label: `All Topics`,
-        //     key: "all",
-        //     children: <AllTopics />,
-        //   },
+          //   {
+          //     label: `All Topics`,
+          //     key: "all",
+          //     children: <AllTopics />,
+          //   },
         ]}
       />
     </motion.div>

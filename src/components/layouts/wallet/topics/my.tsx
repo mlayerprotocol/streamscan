@@ -1,9 +1,17 @@
 "use client";
 import { displayVariants, shorternAddress } from "@/utils";
 import * as HeroIcons from "@heroicons/react/24/solid";
+import * as OutlineHeroIcons from "@heroicons/react/24/outline";
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { Button, Popconfirm, Spin, Table, TableProps } from "antd";
+import {
+  Button,
+  Popconfirm,
+  Spin,
+  Table,
+  TableProps,
+  notification,
+} from "antd";
 import { CreateMessage, CreateTopic } from "@/components";
 import { WalletContext } from "@/context";
 import { TopicData } from "@/model/topic";
@@ -17,6 +25,7 @@ export const MyTopics = (props: MyTopicsProps) => {
     useState<boolean>(false);
   const [showCreateMessageModal, setShowCreateMessageModal] =
     useState<boolean>(false);
+  const [selectedTopic, setSelectedTopic] = useState<TopicData>();
   const {
     loaders,
     accountTopicList,
@@ -60,7 +69,14 @@ export const MyTopics = (props: MyTopicsProps) => {
         dataIndex: "pub",
         key: "pub",
         render(value, record, index) {
-          return `${record.pub}`.toUpperCase();
+          if (!value) {
+            return (
+              <OutlineHeroIcons.CheckCircleIcon className="h-[20px] text-gray-500" />
+            );
+          }
+          return (
+            <HeroIcons.CheckCircleIcon className="h-[20px] text-green-500" />
+          );
         },
       },
       // {
@@ -109,10 +125,30 @@ export const MyTopics = (props: MyTopicsProps) => {
               >
                 <HeroIcons.ChatBubbleOvalLeftEllipsisIcon className="h-[20px]" />
               </Button>
-              <Button type="link">
+              <Button
+                type="link"
+                onClick={async () => {
+                  await navigator.clipboard.writeText(
+                    `${window.location.protocol}//${window.location.host}/wallet/topics?topicTab=sub&topicId=${record.id}`
+                  );
+                  notification.info({
+                    message: "Invitation Url copied",
+                    icon: (
+                      <HeroIcons.ArrowUpTrayIcon className="h-[20px] text-green-500" />
+                    ),
+                  });
+                }}
+              >
                 <HeroIcons.ArrowUpTrayIcon className="h-[20px]" />
               </Button>
-              <Button type="link">
+              <Button
+                type="link"
+                loading={loaders[`createTopic-${record?.id}`]}
+                onClick={async () => {
+                  setSelectedTopic(record);
+                  setShowCreateTopicModal((old) => !old);
+                }}
+              >
                 <HeroIcons.PencilIcon className="h-[20px]" />
               </Button>
               <Button type="link">
@@ -137,7 +173,7 @@ export const MyTopics = (props: MyTopicsProps) => {
       }}
       // transition={{ duration: 1, delay: 1 }}
     >
-      <span>
+      <span className="text-xs text-gray-500">
         Topic are communication channels. Every subscriber to a topic receives
         the data/messages sent to that topic.
       </span>
@@ -159,9 +195,11 @@ export const MyTopics = (props: MyTopicsProps) => {
         loading={loaders["getAccountSubscriptions"]}
       />
       <CreateTopic
+        topicData={selectedTopic}
         isModalOpen={showCreateTopicModal}
         onCancel={() => {
           setShowCreateTopicModal((old) => !old);
+          setSelectedTopic(undefined);
         }}
       />
       <CreateMessage

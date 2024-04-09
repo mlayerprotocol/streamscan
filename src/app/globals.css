@@ -77,6 +77,11 @@ html.light textarea{
 :not(.ant-input-affix-wrapper) > input, .ant-select, .ant-select-selector{
   height: 50px!important;
   border-radius: 8px!important;
+  
+  
+}
+
+html.dark :not(.ant-input-affix-wrapper) > input, html.dark .ant-select, html.dark .ant-select-selector{
   border-color: #424242!important;
   background-color: #292929!important;
 }
@@ -90,8 +95,13 @@ html.light  .ant-input-affix-wrapper > input{
 }
 .ant-input-number-affix-wrapper {
   width: 100%!important;
-  background-color: #292929!important;
   border-radius: 8px!important;
+}
+
+html.dark .ant-input-number-affix-wrapper {
+ 
+  background-color: #292929!important;
+  
 }
 
 .ant-form-item-label > label{
@@ -155,4 +165,7 @@ html.light  .ant-input-affix-wrapper > input{
     border-radius: 8px!important;
     padding: 40px!important;
   }
+}
+.ant-table-wrapper{
+  overflow: scroll;
 }

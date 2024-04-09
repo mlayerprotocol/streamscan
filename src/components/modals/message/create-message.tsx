@@ -9,7 +9,7 @@ import {
   Select,
   notification,
 } from "antd";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 
 import { motion } from "framer-motion";
 import { useForm } from "antd/es/form/Form";
@@ -33,13 +33,14 @@ export const CreateMessage = (props: CreateMessageProps) => {
   const { isModalOpen = false, onCancel, topicId } = props;
   const [form] = useForm();
 
-  const _selectedAgent = authenticationList?.data.find(
-    (opt) => opt.agt == selectedAgent
-  )?.agt;
+  const _selectedAgent = useMemo(() => {
+    return authenticationList?.data.find((opt) => opt.agt == selectedAgent)
+      ?.agt;
+  }, [authenticationList, selectedAgent]);
 
   useEffect(() => {
-    form.setFieldsValue({ address: _selectedAgent });
-  }, [selectedAgent]);
+    form.setFieldsValue({ address: _selectedAgent, topicId });
+  }, [topicId, _selectedAgent]);
 
   return (
     <Modal

@@ -10,8 +10,8 @@ import { shorternAddress } from "@/utils";
 const WalletPage = () => {
   const { selectedAgent, setSelectedAgent, agents, authenticationList } =
     useContext(WalletContext);
-  const items: MenuProps["items"] = authenticationList?.data.map(
-    (item, index) => {
+  const items: MenuProps["items"] =
+    authenticationList?.data.map((item, index) => {
       return {
         key: index,
         label: <span>{shorternAddress(item.agt)}</span>,
@@ -19,10 +19,9 @@ const WalletPage = () => {
           setSelectedAgent?.(item.agt);
         },
       };
-    }
-  );
+    }) ?? [];
   return (
-    <Card className="shadow-2xl">
+    <Card className="shadow-2xl !rounded-2xl">
       <div className="flex justify-center mb-4">
         <Dropdown menu={{ items }}>
           <Space>
@@ -31,7 +30,7 @@ const WalletPage = () => {
               authenticationList?.data.find((opt) => opt.agt == selectedAgent)
                 ?.agt ?? ""
             )}
-            <HeroIcons.ChevronDownIcon className="ml-2 h-[20px] text-white" />
+            <HeroIcons.ChevronDownIcon className="ml-2 h-[20px]" />
           </Space>
         </Dropdown>
       </div>
