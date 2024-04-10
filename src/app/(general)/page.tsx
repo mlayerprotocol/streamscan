@@ -5,6 +5,7 @@ import Link from "next/link";
 import React, { useContext, useMemo } from "react";
 import * as HeroIcons from "@heroicons/react/24/solid";
 import { HomeStatCardOne } from "@/components";
+import { currencyFormat } from "@/utils";
 
 const columns = [
   {
@@ -35,7 +36,7 @@ const columns = [
 ];
 
 const DashboardPage = () => {
-  const { loaders, blockStatsList } = useContext(WalletContext);
+  const { loaders, blockStatsList, mainStatsData } = useContext(WalletContext);
 
   const dataSource = useMemo(() => {
     return blockStatsList?.data ?? [];
@@ -47,14 +48,14 @@ const DashboardPage = () => {
           <div className="flex flex-col grow gap-2">
             <HomeStatCardOne
               title="Total Accounts"
-              amount="222,341,222"
+              amount={`${mainStatsData?.data.accounts ?? "---"}`}
               date="24h"
               offset="+192,341"
               icon={<HeroIcons.UsersIcon className="ml-2 h-[30px] " />}
             />
             <HomeStatCardOne
               title="Total Messages"
-              amount="121,222"
+              amount={`${mainStatsData?.data.messages ?? "---"}`}
               date="2h"
               offset="+2,341"
               icon={<HeroIcons.EnvelopeIcon className="ml-2 h-[30px] " />}
@@ -64,14 +65,18 @@ const DashboardPage = () => {
           <div className="flex flex-col grow gap-2">
             <HomeStatCardOne
               title="TVL"
-              amount="$932,341,222"
+              amount={`${currencyFormat(
+                mainStatsData?.data.topic_balance ?? 0
+              )}`}
               date="24h"
               offset="-192,341"
               icon={<HeroIcons.BarsArrowUpIcon className="ml-2 h-[30px] " />}
             />
             <HomeStatCardOne
               title="Total Transfer Volume"
-              amount="121,222"
+              amount={`${currencyFormat(
+                mainStatsData?.data.message_cost ?? 0
+              )}`}
               date="2h"
               offset="+$111, 121,212,341"
               icon={<HeroIcons.WalletIcon className="ml-2 h-[30px] " />}

@@ -15,7 +15,7 @@
     "@heroicons/react": "^2.1.1",
     "@keplr-wallet/types": "^0.12.72",
     "@metamask/sdk-react": "^0.16.0",
-    "@mlayerprotocol/core": "^1.0.122",
+    "@mlayerprotocol/core": "^1.0.123",
     "@reduxjs/toolkit": "^2.2.1",
     "antd": "^5.14.2",
     "ethers": "^6.11.1",

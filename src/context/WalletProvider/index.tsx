@@ -27,6 +27,7 @@ import { AuthenticationListModel } from "@/model/authentications/list";
 import { Address } from "@mlayerprotocol/core/src/entities";
 import { BlockStatsListModel } from "@/model/block-stats";
 import { MessageListModel } from "@/model/message/list";
+import { MainStatsModel } from "@/model/main-stats/data";
 
 // import { Authorization } from "@mlayerprotocol/core/src/entities";
 // const { Authorization } = Entities;
@@ -47,6 +48,7 @@ interface WalletContextValues {
   loaders: Record<string, boolean>;
   topicList?: TopicListModel;
   blockStatsList?: BlockStatsListModel;
+  mainStatsData?: MainStatsModel;
   messagesList?: MessageListModel;
   accountTopicList?: TopicListModel;
   authenticationList?: AuthenticationListModel;
@@ -120,6 +122,7 @@ export const WalletContextProvider = ({
   const [topicList, setTopicList] = useState<TopicListModel>();
   const [accountTopicList, setAccountTopicList] = useState<TopicListModel>();
   const [blockStatsList, setBlockStatsList] = useState<BlockStatsListModel>();
+  const [mainStatsData, setMainStatsData] = useState<MainStatsModel>();
   const [messagesList, setMessagesList] = useState<MessageListModel>();
   const [authenticationList, setAuthenticationList] =
     useState<AuthenticationListModel>();
@@ -223,6 +226,7 @@ export const WalletContextProvider = ({
   useEffect(() => {
     initializeOldState();
     getBlockStats({});
+    getMainStats({});
   }, []);
 
   useEffect(() => {
@@ -677,6 +681,23 @@ export const WalletContextProvider = ({
     setLoaders((old) => ({ ...old, getBlockStats: false }));
   };
 
+  const getMainStats = async (params: Record<string, unknown>) => {
+    if (loaders["getMainStats"]) return;
+    setLoaders((old) => ({ ...old, getMainStats: true }));
+    try {
+      const client = new Client(new RESTProvider(NODE_HTTP));
+      const respond: MainStatsModel = (await client.getMainStats(
+        params
+      )) as unknown as MainStatsModel;
+      if ((respond as any)?.error) {
+        notification.error({ message: (respond as any)?.error + "" });
+      }
+      setMainStatsData(respond);
+      // console.log("getMainStats::::", respond);
+    } catch (error) {}
+    setLoaders((old) => ({ ...old, getMainStats: false }));
+  };
+
   const getTopicMessages = async (
     id: string,
     params: Record<string, unknown>
@@ -719,6 +740,7 @@ export const WalletContextProvider = ({
         agents,
         topicList,
         blockStatsList,
+        mainStatsData,
         accountTopicList,
         authenticationList,
         selectedAgent,
