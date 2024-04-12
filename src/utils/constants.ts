@@ -17,7 +17,7 @@ export const TRANSACTION_URL = "/transaction";
 export const VALIDATOR_PUBLIC_KEY =
   "2c2387845a0e17281653050892d3095e7fc99ad32d79b7fbdf11c9a87671daca";
 // export const NODE_HTTP = "http://154.12.228.25:9531";
-export const NODE_HTTP = "http://localhost:9531";
+export const NODE_HTTP = process.env.NEXT_PUBLIC_NODE_HTTP;
 export const displayVariants = {
   hidden: { opacity: 0, scale: 0 },
   exit0: { opacity: 0, scale: 0 },
