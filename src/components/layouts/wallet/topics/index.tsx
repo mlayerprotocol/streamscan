@@ -14,14 +14,15 @@ interface TopicsProps {
 }
 export const Topics = (props: TopicsProps) => {
   const searchParams = useSearchParams();
-  const [activeTab, setActiveTab] = useState<string>();
+  const [activeTab, setActiveTab] = useState<string>('my');
 
   useEffect(() => {
     console.log({ searchParams: searchParams.get("topicTab") });
-    setActiveTab(searchParams.get("topicTab") ?? "");
+    setActiveTab(searchParams.get("topicTab") ?? activeTab);
   }, [searchParams]);
 
   const onChange = (key: string) => {
+    console.log({activeTab, key})
     setActiveTab(key);
   };
   return (
