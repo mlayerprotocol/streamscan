@@ -1,19 +1,22 @@
 "use client";
 import { Button, Form, Input, InputNumber, Modal, Select } from "antd";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 
 import { motion } from "framer-motion";
 import { useForm } from "antd/es/form/Form";
-import { displayVariants } from "@/utils";
+import { PREVILEDGES, displayVariants, formLayout, shorternAddress } from "@/utils";
+import { WalletContext } from "@/context";
 
 interface AuthorizeAgentProps {
   isModalOpen?: boolean;
   onCancel?: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 }
 export const AuthorizeAgent = (props: AuthorizeAgentProps) => {
+  const { authenticationList, agents, authorizeAgent, loaders } =
+    useContext(WalletContext);
   const { isModalOpen = false, onCancel } = props;
   const [form] = useForm();
-
+  // console.log({ agents });
   return (
     <Modal
       className="rounded-lg"
@@ -40,10 +43,15 @@ export const AuthorizeAgent = (props: AuthorizeAgentProps) => {
           <Form
             className="flex flex-col"
             name="basic"
+            {...formLayout}
             form={form}
             initialValues={{ remember: true }}
             onFinish={(data) => {
-              console.log({ data });
+              const keyPair: AddressData = agents[data["address"] ?? 0];
+              const days: number = data["duration"];
+              const previledge: 0 | 1 | 2 | 3 = data["role"];
+              authorizeAgent?.(keyPair, days, previledge);
+              console.log({ data, keyPair });
               onCancel?.({} as any);
             }}
             // onFinishFailed={onFinishFailed}
@@ -57,12 +65,17 @@ export const AuthorizeAgent = (props: AuthorizeAgentProps) => {
               ]}
             >
               <Select>
-                <Select.Option value="0x029309092309">
-                  0x029309092309
-                </Select.Option>
-                <Select.Option value="0x019309092309">
-                  0x019309092309
-                </Select.Option>
+                {agents?.map((kp, index) => {
+                  const authenticationData = authenticationList?.data.find(
+                    (item) => item.agt == kp.address
+                  );
+                  if (authenticationData) return null;
+                  return (
+                    <Select.Option key={index} value={index}>
+                      {shorternAddress(kp.address)}
+                    </Select.Option>
+                  );
+                })}
               </Select>
             </Form.Item>
 
@@ -83,19 +96,22 @@ export const AuthorizeAgent = (props: AuthorizeAgentProps) => {
               rules={[{ required: true, message: "Please select a role!" }]}
             >
               <Select>
-                <Select.Option value="read">Read</Select.Option>
-                <Select.Option value="write">Write</Select.Option>
-                <Select.Option value="admin">Admin</Select.Option>
+                {PREVILEDGES.map((e, index) => (
+                  <Select.Option key={index} value={index}>
+                    {e}
+                  </Select.Option>
+                ))}
               </Select>
             </Form.Item>
 
             <Button
+              loading={loaders["authorizeAgent"]}
               type="primary"
               htmlType="submit"
               className="w-full mt-[28px] self-end"
               shape="round"
             >
-              <span className="text-black">Authorized</span>
+              <span className="text-black">Authorize</span>
             </Button>
           </Form>
         </motion.div>

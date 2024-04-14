@@ -1,6 +1,4 @@
 "use client";
-
-import { ConfigProvider, theme } from "antd";
 import {
   createContext,
   Dispatch,

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Josefin_Slab, Jost } from "next/font/google";
 import "./globals.css";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 
@@ -12,8 +12,8 @@ import {
   WalletContextProvider,
 } from "@/context";
 
-const inter = Inter({ subsets: ["latin"] });
-const myFont = localFont({ src: "../fonts/geist/GeistVariableVF.ttf" });
+const gFont = Jost({ subsets: ["latin"] });
+// const myFont = localFont({ src: "../fonts/geist/GeistVariableVF.ttf" });
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -27,7 +27,19 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark">
-      <body className={`${myFont.className} `}>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Raleway:ital,wght@0,100..900;1,100..900&display=swap"
+          rel="stylesheet"
+        ></link>
+      </head>
+      <body className={`${gFont.className} `} style={{ height: "100vh" }}>
         <ThemeContextProvider>
           <AppContextProvider>
             <AntdRegistry>

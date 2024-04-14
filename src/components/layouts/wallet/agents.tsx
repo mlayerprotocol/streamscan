@@ -1,28 +1,12 @@
 "use client";
-import { displayVariants } from "@/utils";
+import { PREVILEDGES, displayVariants } from "@/utils";
 import * as HeroIcons from "@heroicons/react/24/solid";
-import React, { useState } from "react";
+import React, { useContext, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Button, Table, TableProps } from "antd";
 import { AuthorizeAgent } from "@/components";
-
-const dataSource = [
-  {
-    key: "1",
-    address: "0x20929230920392039023",
-    role: "Admin",
-
-    final: "10 minutes ago",
-    value: "23,002,092,2003",
-  },
-  {
-    key: "2",
-    address: "0x20929230920392039023",
-    role: "Admin",
-    final: "10 minutes ago",
-    value: "13,002,092,2003",
-  },
-];
+import { WalletContext } from "@/context";
+import moment from "moment";
 
 const columns: TableProps<any>["columns"] = [
   {
@@ -37,13 +21,13 @@ const columns: TableProps<any>["columns"] = [
   },
   {
     title: "Expires",
-    dataIndex: "final",
-    key: "address",
+    dataIndex: "expires",
+    key: "expires",
   },
   {
     title: "",
     dataIndex: "address",
-    key: "value",
+    key: "action",
     render: (text) => {
       return (
         <div className="flex gap-6">
@@ -61,9 +45,41 @@ interface AgentsProps {
 }
 export const Agents = (props: AgentsProps) => {
   const [showModal, setShowModal] = useState<boolean>(false);
+  const { initialLoading, agents, authenticationList, generateAgent, loaders } =
+    useContext(WalletContext);
+
+  const dataSource = useMemo(() => {
+    return agents.map((kp, index) => {
+      const authenticationData = authenticationList?.data.find(
+        (item) => item.agt == kp.address
+      );
+      // console.log(index, kp.address, authenticationData);
+      return {
+        key: index,
+        address: kp.address,
+        // role: "--",
+        role: authenticationData ? (
+          PREVILEDGES[authenticationData?.privi ?? 0]
+        ) : (
+          <i>Not Authorized</i>
+        ),
+
+        expires: authenticationData ? (
+          moment(
+            new Date(
+              (authenticationData?.ts ?? 0) + (authenticationData?.du ?? 0)
+            )
+          ).fromNow()
+        ) : (
+          <i>Not Authorized</i>
+        ),
+      };
+    });
+  }, [agents, authenticationList]);
+  console.log({ agents });
   return (
     <motion.div
-      className="inline-flex w-full flex-col gap-6"
+      className="inline-flex w-full flex-col gap-6 py-8"
       variants={displayVariants}
       initial={"hidden"}
       animate={"show"}
@@ -73,22 +89,38 @@ export const Agents = (props: AgentsProps) => {
       }}
       // transition={{ duration: 1, delay: 1 }}
     >
-      <span>
-        For security and flexibility, Agents act on behalf of Accounts in the
-        maLyer network, for example, a compromised rolent can quickly be
+      <span className="text-xs text-gray-500">
+        For security and flexibility, Agents act on behalf of Accounts on the
+        mLayer network. For example, a compromised agent can quickly be
         deauthorized to prevent further attack. Learn more...
       </span>
-      <Button
-        onClick={() => {
-          setShowModal((old) => !old);
-        }}
-        className="self-end"
-        ghost
-        type="primary"
-        shape="round"
-      >
-        <span>Authorize Agent/Device</span>
-      </Button>
+      <div className="flex gap-4 justify-end">
+        <Button
+          onClick={() => {
+            setShowModal((old) => !old);
+          }}
+          loading={loaders["authorizeAgent"]}
+          className="self-end"
+          ghost
+          type="primary"
+          shape="round"
+        >
+          <span>Authorize Agent/Device</span>
+        </Button>
+
+        <Button
+          onClick={() => {
+            //
+            generateAgent?.();
+          }}
+          className=""
+          ghost
+          type="primary"
+          shape="round"
+        >
+          <HeroIcons.PlusCircleIcon className="h-[20px]" />
+        </Button>
+      </div>
       <Table dataSource={dataSource} columns={columns} />
       <AuthorizeAgent
         isModalOpen={showModal}

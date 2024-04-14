@@ -1,15 +1,69 @@
-import React from "react";
+"use client";
+import React, { useContext, useState } from "react";
 
-import { WalletMainLayout } from "@/components";
+import { MainAuth, WalletMainLayout } from "@/components";
+import { WalletContext } from "@/context";
+import { Button, Card, Dropdown, MenuProps, Space } from "antd";
+import * as HeroIcons from "@heroicons/react/24/solid";
+import { shorternAddress } from "@/utils";
 
 const WalletPage = () => {
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const {
+    selectedAgent,
+    setSelectedAgent,
+    connectedWallet,
+    authenticationList,
+  } = useContext(WalletContext);
+  const items: MenuProps["items"] =
+    authenticationList?.data.map((item, index) => {
+      return {
+        key: index,
+        label: <span>{shorternAddress(item.agt)}</span>,
+        onClick: () => {
+          setSelectedAgent?.(item.agt);
+        },
+      };
+    }) ?? [];
+  if (!connectedWallet) {
+    return (
+      <div className="flex flex-col my-8">
+        <Button
+          onClick={() => {
+            setShowModal((old) => !old);
+          }}
+          className="self-center"
+          type="primary"
+          shape="round"
+          size="large"
+        >
+          Connect
+        </Button>
+        <MainAuth
+          isModalOpen={showModal}
+          onCancel={() => {
+            setShowModal((old) => !old);
+          }}
+        />
+      </div>
+    );
+  }
   return (
-    <div className="flex flex-col border-gray-200 border p-4">
-      <div className="flex justify-center mb-4">
-        <span>Connected Account: ml:a82j9d02isi92e89sdd</span>
+    <Card className="shadow-2xl !rounded-2xl">
+      <div className="flex justify-center mb-4 ">
+        <Dropdown menu={{ items }} className="!border !border-gray-600 p-2 !rounded-md">
+          <Space>
+            Active Agent/Device:{" "}
+            {shorternAddress(
+              authenticationList?.data.find((opt) => opt.agt == selectedAgent)
+                ?.agt ?? ""
+            )}
+            <HeroIcons.ChevronDownIcon className="ml-2 h-[20px]" />
+          </Space>
+        </Dropdown>
       </div>
       <WalletMainLayout />
-    </div>
+    </Card>
   );
 };
 

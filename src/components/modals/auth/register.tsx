@@ -7,6 +7,7 @@ import Image from "next/image";
 import {
   displayErrorMessage,
   displayVariants,
+  formLayout,
   setSessionStorage,
 } from "@/utils";
 import { useForm } from "antd/es/form/Form";
@@ -39,6 +40,7 @@ export const RegisterAuth = (props: RegisterAuthProps) => {
         className="flex flex-col"
         name="basic"
         form={form}
+        {...formLayout}
         initialValues={{ remember: true }}
         onFinish={(data) => {
           console.log({ data });

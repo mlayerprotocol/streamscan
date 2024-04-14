@@ -7,6 +7,7 @@ import {
   Input,
   MenuProps,
   Spin,
+  Switch,
   Typography,
 } from "antd";
 import Image from "next/image";
@@ -16,7 +17,7 @@ import { MainAuth } from "@/components";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { useAppDispatch, useAppSelector } from "@/redux/app";
-import { AppContext, WalletContext } from "@/context";
+import { AppContext, ThemeContext, WalletContext } from "@/context";
 import { clearSessionStorage, shorternAddress } from "@/utils";
 import { removeAuthData } from "@/redux/slices";
 import * as HeroIcons from "@heroicons/react/24/solid";
@@ -29,6 +30,7 @@ export const AppHeader = (props: AppHeaderProps) => {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [showMobilMoney, setShowMobilMoney] = useState<boolean>(false);
   const { initialLoading } = useContext(AppContext);
+  const { themeType, toggleTheme } = useContext(ThemeContext);
   const {
     connectedWallet,
     walletAccounts,
@@ -45,6 +47,15 @@ export const AppHeader = (props: AppHeaderProps) => {
   };
 
   const userProfileItem: MenuProps["items"] = [
+    {
+      key: "2",
+      icon: <HeroIcons.UserCircleIcon className="ml-2 h-[20px]" />,
+      label: (
+        <Link href={"/wallet/agents"} className="font-medium text-base ml-2">
+          Wallet
+        </Link>
+      ),
+    },
     {
       icon: <HeroIcons.Cog8ToothIcon className="ml-2 h-[20px]" />,
       label: <span className="font-medium text-base ml-2">Switch Wallet</span>,
@@ -66,8 +77,8 @@ export const AppHeader = (props: AppHeaderProps) => {
 
   return (
     <>
-      <header className="sticky top-0 flex flex-col py-4 px-4 md:px-20 lg:py-10  backdrop-blur-xl z-50 items-end ">
-        <div className="flex w-full flex-wrap">
+      <header className="sticky top-0 flex flex-col py-2  lg:py-4  backdrop-blur-xl z-50 items-end ">
+        <div className="flex w-full flex-wrap px-4 md:px-20">
           {/* <Image
           src="/logo.svg"
           alt="Vercel Logo"
@@ -76,8 +87,8 @@ export const AppHeader = (props: AppHeaderProps) => {
           height={24}
           priority
         /> */}
-          <div className="flex gap-3 md:gap-4 items-center">
-            <span>MLT PRICE: $0.0001</span>
+          <div className="flex gap-3 md:gap-4 items-center !text-xs !text-gray-400">
+            <span className="">MLT PRICE: $0.0001</span>
             <span>MSG PRICE: 0.002MLT (~$0.00002)</span>
           </div>
           <div className="ml-auto flex lg:hidden">
@@ -106,24 +117,25 @@ export const AppHeader = (props: AppHeaderProps) => {
 
             <span onClick={() => setShowMobilMoney((old) => !old)}>
               {showMobilMoney ? (
-                <HeroIcons.XMarkIcon className="ml-2 h-[40px] text-white" />
+                <HeroIcons.XMarkIcon className="ml-2 h-[40px] " />
               ) : (
-                <HeroIcons.Bars3Icon className="ml-2 h-[40px] text-white" />
+                <HeroIcons.Bars3Icon className="ml-2 h-[40px] " />
               )}
             </span>
           </div>
 
           <div className=" hidden lg:flex grow items-center">
             <Input
+              
               className="!w-[342px] ml-auto"
               prefix={
                 <HeroIcons.MagnifyingGlassIcon className="h-[20px] text-white" />
               }
               placeholder="Search by Account, Agent, Event Hash"
             />
-            <Button className="ml-6 " type="primary" shape="round">
+            <Button className="ml-6" type="primary" shape="round">
               <div className="flex items-center gap-2">
-                <span>Mainnet</span>
+              <Typography.Text className="ml-0 !text-white text-nowrap">Mainnet</Typography.Text>
                 <HeroIcons.ChevronDownIcon className="h-[20px] text-white" />
               </div>
             </Button>
@@ -139,7 +151,7 @@ export const AppHeader = (props: AppHeaderProps) => {
                 }}
                 className="h-[50px] flex justify-center items-center pl-1 pr-3 ml-2"
               >
-                <Typography.Text className="ml-2 !text-white text-nowrap">
+                <Typography.Text className="ml-0 !text-white text-nowrap">
                   Connect Wallet
                 </Typography.Text>
               </MotionButton>
@@ -154,24 +166,32 @@ export const AppHeader = (props: AppHeaderProps) => {
                   initial={{ opacity: 0, x: -40 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -40 }}
-                  className="h-[50px] rounded-full bg-[#6A6A6A] flex gap-2 justify-center items-center px-2 ml-2"
+                  className="h-[40px] rounded-full bg-gray-100 dark:bg-[#6A6A6A] flex gap-2 justify-center items-center px-2 pr-4 ml-2"
                 >
                   <>
                     <Avatar
-                      size={32}
-                      className="!bg-[#CBD5E1]"
+                      size={28}
+                      className="dark:!bg-[#CBD5E1] !border-0"
                       src={`/icons/${connectedWallet}.svg`}
                       icon={<UserOutlined />}
                     />
-                    <span>
+                    <span className="text-sm">
                       {shorternAddress(
-                        walletAccounts[connectedWallet][0] ?? ""
+                        walletAccounts[connectedWallet]?.[0] ?? ""
                       )}
                     </span>
                   </>
                 </motion.a>
               </Dropdown>
             )}
+
+            <Switch
+              className="!ml-2"
+              value={themeType == "light"}
+              onChange={() => {
+                toggleTheme?.();
+              }}
+            />
 
             <MainAuth
               isModalOpen={showModal}
@@ -191,26 +211,65 @@ export const AppHeader = (props: AppHeaderProps) => {
                 duration: 1,
                 height: { duration: 0.5 },
               }}
-              className="lg:hidden flex flex-col gap-10 pt-10 text-right"
+              className="lg:hidden flex flex-col gap-10 p-10  text-right"
             >
-              <Link href={"/"} className="text-2xl text-white ">
+              <Link
+                href={"/"}
+                className="text-2xl  "
+                onClick={() => {
+                  setShowMobilMoney((old) => !old);
+                }}
+              >
                 Home
               </Link>
-
-              <Link href={"/my-list"} className="text-2xl text-white">
-                My List
+              <Link
+                href={"/wallet/airdrop"}
+                className="text-2xl "
+                onClick={() => {
+                  setShowMobilMoney((old) => !old);
+                }}
+              >
+                Airdrop
               </Link>
-
-              <Link href={"/"} className="text-2xl text-white">
-                Explore
+              <Link
+                href={"/wallet/agents"}
+                className="text-2xl "
+                onClick={() => {
+                  setShowMobilMoney((old) => !old);
+                }}
+              >
+                Agents/Devices
               </Link>
-
-              <Link href={"/"} className="text-2xl text-white">
-                Wallet
+              <Link
+                href={"/wallet/topics"}
+                className="text-2xl "
+                onClick={() => {
+                  setShowMobilMoney((old) => !old);
+                }}
+              >
+                Topics
+              </Link>
+              <Link
+                href={"/wallet/messages"}
+                className="text-2xl "
+                onClick={() => {
+                  setShowMobilMoney((old) => !old);
+                }}
+              >
+                Messages
+              </Link>
+              <Link
+                href={"/wallet/stake"}
+                className="text-2xl "
+                onClick={() => {
+                  setShowMobilMoney((old) => !old);
+                }}
+              >
+                Stake
               </Link>
               {connectedWallet && (
                 <>
-                  <Link href={"/"} className="text-2xl text-white">
+                  <Link href={"/"} className="text-2xl ">
                     Settings
                   </Link>
                   <span
@@ -249,21 +308,33 @@ export const AppHeader = (props: AppHeaderProps) => {
             </motion.div>
           )}
         </AnimatePresence>
-        <Divider className="!hidden lg:!block !border-t-4" />
-        <div className=" hidden lg:flex justify-between grow items-center w-full">
-          <span className="text-2xl">MLStream Scan</span>
+        <Divider className="!hidden lg:!block !border-t-2 !my-4" />
+        <div className=" hidden lg:flex justify-between grow items-center w-full px-4 md:px-20">
+          <div className="flex items-center gap-2">
+            <Image
+              src="/logo.png"
+              alt="Vercel Logo"
+              // className="light:invert"
+              width={48}
+              height={48}
+              priority
+            />
+            <span className="text-2xl">MLStreams</span>
+          </div>
+
           <div className="flex gap-2 ml-20 items-center">
             <Link href={"/"}>Home</Link>
             <span className="text-gray-500">|</span>
-            <Link href={"/my-list"}>Validator</Link>
+            <Link href={"/wallet"}>Wallet</Link>
+            {/* <Link href={"/my-list"}>Validator</Link>
             <span className="text-gray-500">|</span>
-            <Link href={"/"}>Name Service</Link>
+            <Link href={"/"}>Name Service</Link> */}
           </div>
         </div>
       </header>
-      <Button ghost className=" my-6  self-center w-2/3" type="primary">
+      {/* <Button ghost className=" my-6  self-center w-2/3" type="primary">
         <span>Ad Space</span>
-      </Button>
+      </Button> */}
     </>
   );
 };

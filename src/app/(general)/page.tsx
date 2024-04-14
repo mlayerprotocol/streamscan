@@ -1,63 +1,99 @@
-import { randomImageUrl } from "@/utils";
-import { Table } from "antd";
+"use client";
+import { WalletContext } from "@/context";
+import { Card, Divider, Table } from "antd";
 import Link from "next/link";
-import React from "react";
-
-const dataSource = [
-  {
-    key: "1",
-    name: "#2299999",
-    age: 233,
-    address: "10 Downing Street",
-    final: "10 minutes ago",
-    value:"23,002,092,2003"
-  },
-  {
-    key: "2",
-    name: "#2299999",
-    age: 423,
-    address: "10 Downing Street",
-    final: "10 minutes ago",
-    value:"13,002,092,2003"
-  },
-];
+import React, { useContext, useMemo } from "react";
+import * as HeroIcons from "@heroicons/react/24/solid";
+import { HomeStatCardOne } from "@/components";
+import { currencyFormat } from "@/utils";
 
 const columns = [
   {
     title: "Height",
-    dataIndex: "name",
-    key: "name",
+    dataIndex: "blk",
+    key: "blk",
   },
   {
     title: "Cycle",
-    dataIndex: "age",
-    key: "age",
+    dataIndex: "c",
+    key: "c",
   },
   {
     title: "Events",
-    dataIndex: "address",
-    key: "address",
+    dataIndex: "t",
+    key: "t",
   },
   {
     title: "MLT Value",
-    dataIndex: "address",
-    key: "value",
+    dataIndex: "id",
+    key: "id",
   },
-  {
-    title: "Finalized",
-    dataIndex: "address",
-    key: "finalized",
-  },
+  // {
+  //   title: "Finalized",
+  //   dataIndex: "address",
+  //   key: "finalized",
+  // },
 ];
 
 const DashboardPage = () => {
+  const { loaders, blockStatsList, mainStatsData } = useContext(WalletContext);
+
+  const dataSource = useMemo(() => {
+    return blockStatsList?.data ?? [];
+  }, [blockStatsList]);
   return (
-    <div className="flex flex-col border-gray-200 border p-4">
-      <div className="flex justify-between mb-4">
-        <span className="font-bold text-xl">Recent Blocks</span>
-        <Link href={"/"}>View all</Link>
+    <div className="flex flex-col gap-4">
+      <div className="flex gap-4">
+        <Card className="shadow-2xl !rounded-2xl grow flex items-center justify-center [&>.ant-card-body]:flex [&>.ant-card-body]:grow [&>.ant-card-body]:items-center [&>.ant-card-body]:flex-wrap">
+          <div className="flex flex-col grow gap-2">
+            <HomeStatCardOne
+              title="Total Accounts"
+              amount={`${mainStatsData?.data.accounts ?? "---"}`}
+             
+              icon={<HeroIcons.UsersIcon className="ml-2 h-[30px] " />}
+            />
+            <HomeStatCardOne
+              title="Total Messages"
+              amount={`${mainStatsData?.data.messages ?? "---"}`}
+              // date="2h"
+              // offset="+2,341"
+              icon={<HeroIcons.EnvelopeIcon className="ml-2 h-[30px] " />}
+            />
+          </div>
+          <Divider type="vertical" className="!h-[50px]" />
+          <div className="flex flex-col grow gap-2">
+            <HomeStatCardOne
+              title="TVL"
+              amount={`${
+                mainStatsData?.data.topic_balance || 0
+              } MLT`} 
+             
+              offset={`${currencyFormat(
+                1232345
+              )}`}
+              icon={<HeroIcons.BarsArrowUpIcon className="ml-2 h-[30px] " />}
+            />
+            <HomeStatCardOne
+              title="Total Tranx Volume"
+              amount={`${'20,000'} MLT`}
+              // date="2h"
+              offset="~$1,212,341"
+              icon={<HeroIcons.WalletIcon className="ml-2 h-[30px] " />}
+            />
+          </div>
+        </Card>
       </div>
-      <Table dataSource={dataSource} columns={columns} />
+      <Card className="shadow-2xl !rounded-2xl">
+        <div className="flex justify-between mb-4">
+          <span className="font-bold text-xl">Recent Blocks</span>
+          <Link href={"/"}>View all</Link>
+        </div>
+        <Table
+          dataSource={dataSource}
+          columns={columns}
+          loading={loaders["getBlockStats"]}
+        />
+      </Card>
     </div>
   );
 };

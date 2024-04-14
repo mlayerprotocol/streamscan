@@ -9,6 +9,7 @@ import { useForm } from "antd/es/form/Form";
 import {
   displayErrorMessage,
   displayVariants,
+  formLayout,
   setSessionStorage,
 } from "@/utils";
 import { useRouter } from "next/navigation";
@@ -42,6 +43,7 @@ export const LoginAuth = (props: LoginAuthProps) => {
         className="flex flex-col"
         name="basic"
         form={form}
+        {...formLayout}
         initialValues={{ remember: true }}
         onFinish={(data) => {
           console.log({ data });

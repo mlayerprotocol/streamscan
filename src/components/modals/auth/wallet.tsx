@@ -52,11 +52,12 @@ export const WalletConnect = (props: WalletConnectProps) => {
         )}
       </Button>
       <Button
+       
         onClick={() => {
           intializeMetamask?.();
         }}
         loading={loadingWalletConnections["metamask"]}
-        disabled={connectedWallet == "metamask"}
+        disabled={connectedWallet == "metamask" || true}
         shape="round"
         type="default"
         className="!flex justify-start items-center"
@@ -70,7 +71,7 @@ export const WalletConnect = (props: WalletConnectProps) => {
           />
         }
       >
-        <span className="">Metamask</span>
+        <span className="">Metamask (coming soon)</span>
         {connectedWallet == "metamask" && (
           <CheckCircleFilled className="!text-green-500 text-2xl !ml-auto" />
         )}
