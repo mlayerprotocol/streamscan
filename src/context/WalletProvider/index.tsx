@@ -14,6 +14,49 @@ interface WalletContextValues {
   connectedWallet?: string;
 }
 
+declare const TextEncoder: any;
+declare const TextDecoder: any;
+
+export function toUtf8(str: string): Uint8Array {
+  return new TextEncoder().encode(str);
+}
+function sortedObject(obj: any): any {
+  if (typeof obj !== "object" || obj === null) {
+    return obj;
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(sortedObject);
+  }
+  const sortedKeys = Object.keys(obj).sort();
+  const result: Record<string, any> = {};
+  // NOTE: Use forEach instead of reduce for performance with large objects eg Wasm code
+  sortedKeys.forEach((key) => {
+    result[key] = sortedObject(obj[key]);
+  });
+  return result;
+}
+export function escapeCharacters(input: string): string {
+  // When we migrate to target es2021 or above, we can use replaceAll instead of global patterns.
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replaceAll
+  const amp = /&/g;
+  const lt = /</g;
+  const gt = />/g;
+  return input.replace(amp, "\\u0026").replace(lt, "\\u003c").replace(gt, "\\u003e");
+}
+export function sortedJsonStringify(obj: any): string {
+  const strigified = JSON.stringify(sortedObject(obj));
+  console.log('STRINGIFIED', strigified);
+  return strigified;
+}
+
+export function serializeSignDoc(signDoc: any): Uint8Array {
+  const serialized = escapeCharacters(sortedJsonStringify(signDoc));
+  console.log('Escaped', serialized);
+  const utf = toUtf8(serialized);
+  console.log('UTF8ed', JSON.stringify(utf));
+  return utf;
+}
+
 export const WalletContext = createContext<WalletContextValues>({
   initialLoading: false,
   walletAccounts: {},
@@ -74,8 +117,32 @@ export const WalletContextProvider = ({
       const signature = await window.keplr.signArbitrary(
         chainId,
         accounts[0].address,
-        "Hello World"
+        "Approve 0xe652d28F89A28adb89e674a6b51852D0C341Ebe9 for tml: ofrPvSGZK5UtKcDTHBACd9PttDjjRKnHMQqNhjOH2yA="
       );
+      const signDoc = {
+        "chain_id": "",
+        "account_number": "0",
+        "sequence": "0",
+        "fee": {
+          "gas": "0",
+          "amount": []
+        },
+        "msgs": [
+          {
+            "type": "sign/MsgSignData",
+            "value": {
+              "signer": "cosmos14y0pyqjay3p8dsqp2jd5rkft7vf9cdkqnrc43l",
+              "data": "aGVsbG93b3JsZA=="
+            }
+          }
+        ],
+        "memo": ""
+      }
+      
+
+      console.log('SERIal', serializeSignDoc(signDoc))
+
+      console.log('SIGNEDARBITRARY', JSON.stringify(signature))
       setKeplrSignature(signature);
       setCosmosSDK(cosmJS);
       setLoadingWalletConnections((old) => {
