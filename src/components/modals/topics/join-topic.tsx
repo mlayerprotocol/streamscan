@@ -22,23 +22,17 @@ interface JoinTopicProps {
   onCancel?: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 }
 export const JoinTopic = (props: JoinTopicProps) => {
-  const {
-    subcribeToTopic,
-    loaders,
-    agents,
-    authenticationList,
-    selectedAgent,
-  } = useContext(WalletContext);
+  const { subcribeToTopic, loaders, agents, combinedAgents, selectedAgent } =
+    useContext(WalletContext);
   const { isModalOpen = false, onCancel, topicId } = props;
   const [form] = useForm();
-  const _selectedAgent = useMemo(() => {
-    return authenticationList?.data.find((opt) => opt.agt == selectedAgent)
-      ?.agt;
-  }, [authenticationList]);
+  const selectedAgentObj = useMemo(() => {
+    return combinedAgents.find((opt) => opt.address == selectedAgent);
+  }, [combinedAgents, selectedAgent]);
 
   useEffect(() => {
-    form.setFieldsValue({ address: _selectedAgent, topicId });
-  }, [topicId, _selectedAgent]);
+    form.setFieldsValue({ address: selectedAgentObj?.address, topicId });
+  }, [topicId, selectedAgentObj]);
 
   return (
     <Modal
@@ -64,12 +58,11 @@ export const JoinTopic = (props: JoinTopicProps) => {
           // transition={{ duration: 1, delay: 1 }}
         >
           <Form
-             {...formLayout}
+            {...formLayout}
             className="flex flex-col"
             name="basic"
-          
             form={form}
-            initialValues={{ address: _selectedAgent }}
+            initialValues={{ address: selectedAgentObj?.address }}
             onFinish={(data) => {
               const agent: AddressData | undefined = agents.find(
                 (el) => el.address == data["address"]

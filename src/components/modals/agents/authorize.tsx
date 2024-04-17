@@ -1,22 +1,67 @@
 "use client";
 import { Button, Form, Input, InputNumber, Modal, Select } from "antd";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import { motion } from "framer-motion";
 import { useForm } from "antd/es/form/Form";
-import { PREVILEDGES, displayVariants, formLayout, shorternAddress } from "@/utils";
+import {
+  PREVILEDGES,
+  displayVariants,
+  formLayout,
+  shorternAddress,
+} from "@/utils";
 import { WalletContext } from "@/context";
+import moment from "moment";
 
 interface AuthorizeAgentProps {
+  updateAddressData?: AddressData;
+  addressData?: AddressData;
   isModalOpen?: boolean;
   onCancel?: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 }
 export const AuthorizeAgent = (props: AuthorizeAgentProps) => {
-  const { authenticationList, agents, authorizeAgent, loaders } =
-    useContext(WalletContext);
-  const { isModalOpen = false, onCancel } = props;
+  const {
+    authenticationList,
+    agents,
+    combinedAgents,
+    authorizeAgent,
+    loaders,
+  } = useContext(WalletContext);
+  const {
+    isModalOpen = false,
+    onCancel,
+    addressData,
+    updateAddressData,
+  } = props;
   const [form] = useForm();
   // console.log({ agents });
+
+  useEffect(() => {
+    if (!addressData) return;
+    const selectIndex: number = agents.findIndex(
+      (agt) => agt.address == addressData?.address
+    );
+    form.setFieldsValue({
+      address: selectIndex == -1 ? undefined : selectIndex,
+    });
+  }, [addressData]);
+
+  useEffect(() => {
+    //
+    if (!updateAddressData) return;
+    console.log(updateAddressData);
+    form.setFieldsValue({
+      address: updateAddressData?.address,
+      role: updateAddressData?.authData?.privi,
+      duration:
+        moment(
+          new Date(
+            (updateAddressData?.authData?.ts ?? 0) +
+              (updateAddressData?.authData?.du ?? 0)
+          )
+        ).diff(moment.now(), "days") + 1,
+    });
+  }, [updateAddressData]);
   return (
     <Modal
       className="rounded-lg"
@@ -45,14 +90,15 @@ export const AuthorizeAgent = (props: AuthorizeAgentProps) => {
             name="basic"
             {...formLayout}
             form={form}
-            initialValues={{ remember: true }}
             onFinish={(data) => {
-              const keyPair: AddressData = agents[data["address"] ?? 0];
+              const keyPair: AddressData =
+                agents[data["address"] ?? 0] ?? updateAddressData;
               const days: number = data["duration"];
               const previledge: 0 | 1 | 2 | 3 = data["role"];
               authorizeAgent?.(keyPair, days, previledge);
-              console.log({ data, keyPair });
+              // console.log({ keyPair, days, previledge, data });
               onCancel?.({} as any);
+              form.setFieldsValue({});
             }}
             // onFinishFailed={onFinishFailed}
             autoComplete="off"
@@ -64,19 +110,22 @@ export const AuthorizeAgent = (props: AuthorizeAgentProps) => {
                 { required: true, message: "Please input select an address!" },
               ]}
             >
-              <Select>
-                {agents?.map((kp, index) => {
-                  const authenticationData = authenticationList?.data.find(
-                    (item) => item.agt == kp.address
-                  );
-                  if (authenticationData) return null;
-                  return (
-                    <Select.Option key={index} value={index}>
-                      {shorternAddress(kp.address)}
-                    </Select.Option>
-                  );
-                })}
-              </Select>
+              {updateAddressData && <Input />}
+              {!updateAddressData && (
+                <Select>
+                  {agents?.map((kp, index) => {
+                    const authenticationData = authenticationList?.data.find(
+                      (item) => item.agt == kp.address
+                    );
+                    if (authenticationData) return null;
+                    return (
+                      <Select.Option key={index} value={index}>
+                        {shorternAddress(kp.address)}
+                      </Select.Option>
+                    );
+                  })}
+                </Select>
+              )}
             </Form.Item>
 
             <Form.Item
@@ -111,7 +160,7 @@ export const AuthorizeAgent = (props: AuthorizeAgentProps) => {
               className="w-full mt-[28px] self-end"
               shape="round"
             >
-              <span className="text-black">Authorize</span>
+              <span className="text-black">{updateAddressData?'Update':'Authorize'}</span>
             </Button>
           </Form>
         </motion.div>

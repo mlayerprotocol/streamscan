@@ -10,7 +10,7 @@ import {
   Typography,
   notification,
 } from "antd";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 
 import { motion } from "framer-motion";
 import { useForm } from "antd/es/form/Form";
@@ -24,19 +24,19 @@ interface CreateTopicProps {
   onCancel?: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 }
 export const CreateTopic = (props: CreateTopicProps) => {
-  const { authenticationList, selectedAgent, createTopic, loaders, agents } =
+  const { combinedAgents, selectedAgent, createTopic, loaders, agents } =
     useContext(WalletContext);
   const { isModalOpen = false, onCancel, topicData } = props;
   const [form] = useForm();
 
-  const _selectedAgent = authenticationList?.data.find(
-    (opt) => opt.agt == selectedAgent
-  )?.agt;
+  const selectedAgentObj = useMemo(() => {
+    return combinedAgents.find((opt) => opt.address == selectedAgent);
+  }, [combinedAgents, selectedAgent]);
 
   useEffect(() => {
-    form.setFieldsValue({ address: _selectedAgent, ...topicData });
-    console.log("APPPP", { address: _selectedAgent, ...topicData });
-  }, [topicData]);
+    form.setFieldsValue({ address: selectedAgentObj?.address, ...topicData });
+    console.log("APPPP", { ...topicData, address: selectedAgentObj?.address });
+  }, [topicData, selectedAgentObj]);
 
   return (
     <Modal
@@ -63,17 +63,13 @@ export const CreateTopic = (props: CreateTopicProps) => {
           // transition={{ duration: 1, delay: 1 }}
         >
           <Form
-             {...formLayout}
+            {...formLayout}
             className="flex flex-col"
             name="basic"
-           
             form={form}
-            initialValues={{ address: _selectedAgent, ...topicData }}
+            initialValues={{ address: selectedAgentObj?.address, ...topicData }}
             onFinish={(data) => {
-              const agent: AddressData | undefined = agents.find(
-                (el) => el.address == data["address"]
-              );
-              if (!agent) {
+              if (!selectedAgentObj?.privateKey) {
                 notification.error({
                   message: "Agent Private Key Not Accessable",
                 });
@@ -84,13 +80,21 @@ export const CreateTopic = (props: CreateTopicProps) => {
               const description: string = data["desc"];
               const ref: string = data["ref"];
               const isPublic: boolean = data["pub"] == true;
-              createTopic?.(agent, handle, name, description, ref, isPublic, {
-                id: topicData?.id,
-                isUpdate: topicData != undefined,
-                loaderKey: `createTopic-${topicData?.id}`,
-              });
+              createTopic?.(
+                selectedAgentObj,
+                handle,
+                name,
+                description,
+                ref,
+                isPublic,
+                {
+                  id: topicData?.id,
+                  isUpdate: topicData != undefined,
+                  loaderKey: `createTopic-${topicData?.id}`,
+                }
+              );
 
-              console.log({ data, agent });
+              console.log({ data, selectedAgentObj });
               onCancel?.({} as any);
             }}
             // onFinishFailed={onFinishFailed}

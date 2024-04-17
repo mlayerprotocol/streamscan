@@ -9,22 +9,20 @@ import { shorternAddress } from "@/utils";
 
 const WalletPage = () => {
   const [showModal, setShowModal] = useState<boolean>(false);
-  const {
-    selectedAgent,
-    setSelectedAgent,
-    connectedWallet,
-    authenticationList,
-  } = useContext(WalletContext);
+  const { selectedAgent, setSelectedAgent, connectedWallet, combinedAgents } =
+    useContext(WalletContext);
   const items: MenuProps["items"] =
-    authenticationList?.data.map((item, index) => {
-      return {
-        key: index,
-        label: <span>{shorternAddress(item.agt)}</span>,
-        onClick: () => {
-          setSelectedAgent?.(item.agt);
-        },
-      };
-    }) ?? [];
+    combinedAgents
+      .filter((cAgt) => cAgt.privateKey && cAgt.authData)
+      .map((item, index) => {
+        return {
+          key: index,
+          label: <span>{shorternAddress(item.address)}</span>,
+          onClick: () => {
+            setSelectedAgent?.(item.address);
+          },
+        };
+      }) ?? [];
   if (!connectedWallet) {
     return (
       <div className="flex flex-col my-8">
@@ -51,12 +49,15 @@ const WalletPage = () => {
   return (
     <Card className="shadow-2xl !rounded-2xl">
       <div className="flex justify-center mb-4 ">
-        <Dropdown menu={{ items }} className="!border !border-gray-600 p-2 !rounded-md">
+        <Dropdown
+          menu={{ items }}
+          className="!border !border-gray-600 p-2 !rounded-md"
+        >
           <Space>
             Active Agent/Device:{" "}
             {shorternAddress(
-              authenticationList?.data.find((opt) => opt.agt == selectedAgent)
-                ?.agt ?? ""
+              combinedAgents.find((opt) => opt.address == selectedAgent)
+                ?.address ?? ""
             )}
             <HeroIcons.ChevronDownIcon className="ml-2 h-[20px]" />
           </Space>
