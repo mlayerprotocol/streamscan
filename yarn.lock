@@ -774,10 +774,10 @@
     semver "^7.3.8"
     superstruct "^1.0.3"
 
-"@mlayerprotocol/core@^1.0.123":
-  version "1.0.123"
-  resolved "https://registry.yarnpkg.com/@mlayerprotocol/core/-/core-1.0.123.tgz#20ffde2b4f2bab783341ef29e478bee8d0bbd17e"
-  integrity sha512-sUyKeIvvo7TKV6WE7mqGUEHbrS60rzIPN8n2GMMPgxeLCivIq125OoYiY0joNNQDKjtMGqY00/NpSdSQuD6idg==
+"@mlayerprotocol/core@^1.0.125":
+  version "1.0.125"
+  resolved "https://registry.yarnpkg.com/@mlayerprotocol/core/-/core-1.0.125.tgz#f69550c1e96219ad8e7ecd5b3bf29acb0c9f0f2f"
+  integrity sha512-8C18hy0peq0MVLzZKMXhrN2XayU41uXchn90ySVrDq7+/uNsxiVXtgoRg1GMItSuKRAXUTGcnTeOMoL/0nRwsQ==
   dependencies:
     "@cosmjs/crypto" "^0.32.3"
     axios "^1.6.5"

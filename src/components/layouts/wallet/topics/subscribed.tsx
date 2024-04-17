@@ -1,9 +1,17 @@
 "use client";
 import { displayVariants, shorternAddress } from "@/utils";
 import * as HeroIcons from "@heroicons/react/24/solid";
+import * as OutlineHeroIcons from "@heroicons/react/24/outline";
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { Button, Popconfirm, Spin, Table, TableProps } from "antd";
+import {
+  Button,
+  Popconfirm,
+  Spin,
+  Table,
+  TableProps,
+  notification,
+} from "antd";
 import { CreateMessage, CreateTopic, JoinTopic } from "@/components";
 import { WalletContext } from "@/context";
 import { TopicData } from "@/model/topic";
@@ -52,9 +60,6 @@ export const SubscribedTopics = (props: SubscribedTopicsProps) => {
       (item) => item.acct != `did:${account}`
     );
   }, [accountTopicList, account]);
-  const agent = useMemo(() => {
-    return agents.find((opt) => opt.address == selectedAgent);
-  }, [agents, selectedAgent]);
 
   const columns: TableProps<TopicData>["columns"] = useMemo(() => {
     return [
@@ -76,7 +81,14 @@ export const SubscribedTopics = (props: SubscribedTopicsProps) => {
         dataIndex: "pub",
         key: "pub",
         render(value, record, index) {
-          return `${record.pub}`.toUpperCase();
+          if (!value) {
+            return (
+              <OutlineHeroIcons.CheckCircleIcon className="h-[20px] text-gray-500" />
+            );
+          }
+          return (
+            <HeroIcons.CheckCircleIcon className="h-[20px] text-green-500" />
+          );
         },
       },
       // {
@@ -125,12 +137,23 @@ export const SubscribedTopics = (props: SubscribedTopicsProps) => {
               >
                 <HeroIcons.ChatBubbleOvalLeftEllipsisIcon className="h-[20px]" />
               </Button>
-              <Button type="link">
+              <Button
+                type="link"
+                onClick={async () => {
+                  await navigator.clipboard.writeText(
+                    `${window.location.protocol}//${window.location.host}/wallet/topics?topicTab=sub&topicId=${record.id}`
+                  );
+                  notification.info({
+                    message: "Invitation Url copied",
+                    icon: (
+                      <HeroIcons.ArrowUpTrayIcon className="h-[20px] text-green-500" />
+                    ),
+                  });
+                }}
+              >
                 <HeroIcons.ArrowUpTrayIcon className="h-[20px]" />
               </Button>
-              <Button type="link">
-                <HeroIcons.PencilIcon className="h-[20px]" />
-              </Button>
+
               <Button type="link">
                 <HeroIcons.XMarkIcon className="h-[20px]" />
               </Button>
@@ -158,7 +181,7 @@ export const SubscribedTopics = (props: SubscribedTopicsProps) => {
         the data/messages sent to that topic.
       </span>
       <div className="flex gap-4 justify-end">
-        <Button
+        {/* <Button
           loading={loaders["createTopic"]}
           onClick={() => {
             setShowCreateTopicModal((old) => !old);
@@ -169,7 +192,7 @@ export const SubscribedTopics = (props: SubscribedTopicsProps) => {
           shape="round"
         >
           <span>Create Topic</span>
-        </Button>
+        </Button> */}
         <Button
           loading={loaders["subcribeToTopic"]}
           onClick={() => {
@@ -188,12 +211,7 @@ export const SubscribedTopics = (props: SubscribedTopicsProps) => {
         columns={columns}
         loading={loaders["getAccountSubscriptions"]}
       />
-      <CreateTopic
-        isModalOpen={showCreateTopicModal}
-        onCancel={() => {
-          setShowCreateTopicModal((old) => !old);
-        }}
-      />
+
       <CreateMessage
         isModalOpen={showCreateMessageModal}
         topicId={selectedTopicId}

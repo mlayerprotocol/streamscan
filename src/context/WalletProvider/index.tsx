@@ -13,6 +13,7 @@ import { MetaMaskProvider, useSDK } from "@metamask/sdk-react";
 import {
   CONNECTED_WALLET_STORAGE_KEY,
   KEYPAIR_STORAGE_KEY,
+  LOCAL_PRIVKEY_STORAGE_KEY,
   NODE_HTTP,
   SELECTED_AGENT_STORAGE_KEY,
   Storage,
@@ -36,7 +37,13 @@ interface WalletContextValues {
   initialLoading: boolean;
   initializeKeplr?: () => Promise<void>;
   intializeMetamask?: () => Promise<void>;
-  generateAgent?: (asNew?: boolean) => Promise<void>;
+  generateAgent?: (asNew?: boolean) => Promise<AddressData | undefined>;
+  updateAgents?: (newKps: AddressData[]) => Promise<void>;
+  generateLocalPrivKeys?: (
+    asNew?: boolean,
+    address?: string,
+    privateKey?: string
+  ) => Promise<void>;
   walletAccounts: Record<string, string[]>;
   loadingWalletConnections: Record<string, boolean>;
   walletConnectionState: Record<string, boolean>;
@@ -45,6 +52,7 @@ interface WalletContextValues {
   selectedMessagesTopicId?: string;
 
   agents: AddressData[];
+  combinedAgents: AddressData[];
   loaders: Record<string, boolean>;
   topicList?: TopicListModel;
   blockStatsList?: BlockStatsListModel;
@@ -72,6 +80,7 @@ interface WalletContextValues {
     }
   ) => Promise<void>;
   setSelectedAgent?: Dispatch<SetStateAction<string | undefined>>;
+  setCombinedAgents?: Dispatch<SetStateAction<AddressData[]>>;
   subcribeToTopic?: (agent: AddressData, topicId: string) => Promise<void>;
   sendMessage?: (
     messageString: string,
@@ -108,19 +117,22 @@ export function escapeCharacters(input: string): string {
   const amp = /&/g;
   const lt = /</g;
   const gt = />/g;
-  return input.replace(amp, "\\u0026").replace(lt, "\\u003c").replace(gt, "\\u003e");
+  return input
+    .replace(amp, "\\u0026")
+    .replace(lt, "\\u003c")
+    .replace(gt, "\\u003e");
 }
 export function sortedJsonStringify(obj: any): string {
   const strigified = JSON.stringify(sortedObject(obj));
-  console.log('STRINGIFIED', strigified);
+  console.log("STRINGIFIED", strigified);
   return strigified;
 }
 
 export function serializeSignDoc(signDoc: any): Uint8Array {
   const serialized = escapeCharacters(sortedJsonStringify(signDoc));
-  console.log('Escaped', serialized);
+  console.log("Escaped", serialized);
   const utf = toUtf8(serialized);
-  console.log('UTF8ed', JSON.stringify(utf));
+  console.log("UTF8ed", JSON.stringify(utf));
   return utf;
 }
 
@@ -131,6 +143,7 @@ export const WalletContext = createContext<WalletContextValues>({
   loadingWalletConnections: {},
   walletConnectionState: {},
   agents: [],
+  combinedAgents: [],
 });
 
 export const WalletContextProvider = ({
@@ -156,7 +169,9 @@ export const WalletContextProvider = ({
     useState<string>();
   const { sdk, connected, connecting, provider, chainId } = useSDK();
   const [cosmosSDK, setCosmosSDK] = useState<stargate.StargateClient>();
-  const [agents, setKeyPairs] = useState<AddressData[]>([]);
+  const [agents, setAgents] = useState<AddressData[]>([]);
+  const [localPrivKey, setLocalPrivKey] = useState<Record<string, string>>({});
+  const [combinedAgents, setCombinedAgents] = useState<AddressData[]>([]);
   const [keplrSignature, setKeplrSignature] = useState<Record<string, any>>();
   const chainIds: Record<string, string> = { keplr: "cosmoshub-4" };
 
@@ -265,6 +280,7 @@ export const WalletContextProvider = ({
 
     if (agents.length > 0) return;
     generateAgent(true);
+    generateLocalPrivKeys(true);
   }, []);
   useEffect(() => {
     initializeOldState();
@@ -300,6 +316,26 @@ export const WalletContextProvider = ({
       params: { acct: `did:${walletAccounts[connectedWallet]?.[0]}` },
     });
   }, [connectedWallet, walletAccounts, toggleGroup2]);
+
+  useEffect(() => {
+    const serverAgents: AddressData[] = [];
+    const localAgents: AddressData[] = [...agents];
+    (authenticationList?.data ?? []).forEach((authEl) => {
+      const idx: number = localAgents.findIndex(
+        (agt) => agt.address == authEl.agt
+      );
+      if (idx != -1) {
+        localAgents[idx].authData = authEl;
+      } else {
+        serverAgents.push({
+          address: authEl.agt,
+          authData: authEl,
+          privateKey: localPrivKey[authEl.agt] ?? undefined,
+        } as AddressData);
+      }
+    });
+    setCombinedAgents([...localAgents, ...serverAgents]);
+  }, [agents, authenticationList]);
 
   const ganerateAuthorizationMessage = async (
     validatorPublicKey: string,
@@ -401,6 +437,7 @@ export const WalletContextProvider = ({
           notification.error({ message: "Please install keplr extension" });
           return;
         }
+        
         const signature = await window.keplr.signArbitrary(
           chainIds[connectedWallet],
           account,
@@ -423,6 +460,7 @@ export const WalletContextProvider = ({
         });
       })
       .catch((r) => {
+        console.log({r})
         setLoaders((old) => ({ ...old, authorizeAgent: false }));
       });
   };
@@ -433,13 +471,42 @@ export const WalletContextProvider = ({
       // console.log({ KEYPAIR_STORAGE_KEY, storage: storage.get() });
 
       if (asNew && storage.get()) {
-        setKeyPairs(storage.get());
+        setAgents(storage.get());
         return;
       }
       const kp = Utils.generateKeyPairEcc();
       const newKps: AddressData[] = [...agents, kp];
-      setKeyPairs(newKps);
+
+      updateAgents(newKps);
+      return kp;
+    }
+  };
+
+  const updateAgents = async (newKps: AddressData[]) => {
+    if (typeof window !== "undefined") {
+      const storage = new Storage(KEYPAIR_STORAGE_KEY);
+
+      setAgents(newKps);
       storage.set(newKps);
+    }
+  };
+
+  const generateLocalPrivKeys = async (
+    asNew?: boolean,
+    address?: string,
+    privateKey?: string
+  ) => {
+    if (typeof window !== "undefined") {
+      const storage = new Storage(LOCAL_PRIVKEY_STORAGE_KEY);
+
+      if (asNew && storage.get()) {
+        setLocalPrivKey(storage.get());
+        return;
+      }
+      if (!address) return;
+      const newLPK = { ...localPrivKey, [address]: privateKey ?? "" };
+      setLocalPrivKey(newLPK);
+      storage.set(newLPK);
     }
   };
 
@@ -520,19 +587,19 @@ export const WalletContextProvider = ({
       console.log("Payload", JSON.stringify(payload.asPayload()));
 
       const client = new Client(new RESTProvider(NODE_HTTP));
-      var auth;
+      var auth: any;
       if (isUpdate) {
         auth = await client.updateTopic(payload);
       } else {
         auth = await client.createTopic(payload);
       }
 
-      setTimeout(() => {
+      const event = auth?.data?.event;
+      console.log("AUTHORIZE", "event", event?.id, event?.t);
+      client.resolveEvent({ type: event?.t, id: event?.id }).then((e) => {
         getTopics();
         setToggleGroup2((old) => !old);
-      }, 1000);
-
-      console.log("AUTHORIZE", "rr", auth.error);
+      });
     } catch (e: any) {
       console.log("AUTHORIZE error", e);
       notification.error({ message: e?.response?.data?.error + "" });
@@ -610,14 +677,14 @@ export const WalletContextProvider = ({
       console.log("Payload", JSON.stringify(payload.asPayload()));
 
       const client = new Client(new RESTProvider(NODE_HTTP));
-      const auth = await client.createSubscription(payload);
+      const auth: any = await client.createSubscription(payload);
 
-      setTimeout(() => {
+      const event = auth?.data;
+      console.log("AUTHORIZE", "auth", auth, "event", event?.id, event?.t);
+      client.resolveEvent({ type: event?.t, id: event?.id }).then((e) => {
         getTopics();
         setToggleGroup2((old) => !old);
-      }, 3000);
-
-      console.log("AUTHORIZE", auth, "rr", auth.error);
+      });
     } catch (e: any) {
       console.log("AUTHORIZE error", e);
       notification.error({ message: e?.response?.data?.error + "" });
@@ -695,11 +762,13 @@ export const WalletContextProvider = ({
       console.log("Payload", JSON.stringify(payload.asPayload()));
 
       const client = new Client(new RESTProvider(NODE_HTTP));
-      const resp = await client.createMessage(payload);
+      const resp: any = await client.createMessage(payload);
 
-      setToggleGroup3((old) => !old);
-
-      console.log("AUTHORIZE", resp, "rr", resp.error);
+      const event = resp?.data;
+      console.log("AUTHORIZE", "resp", resp, "event", event?.id, event?.t);
+      client.resolveEvent({ type: event?.t, id: event?.id }).then((e) => {
+        setToggleGroup3((old) => !old);
+      });
     } catch (e: any) {
       console.log("AUTHORIZE error", e);
       notification.error({ message: e?.response?.data?.error + "" });
@@ -771,8 +840,11 @@ export const WalletContextProvider = ({
         intializeMetamask,
         authorizeAgent,
         generateAgent,
+        updateAgents,
+        generateLocalPrivKeys,
         createTopic,
         setSelectedAgent,
+        setCombinedAgents,
         setSelectedMessagesTopicId,
         subcribeToTopic,
         sendMessage,
@@ -781,6 +853,7 @@ export const WalletContextProvider = ({
         walletConnectionState,
         connectedWallet,
         agents,
+        combinedAgents,
         topicList,
         blockStatsList,
         mainStatsData,

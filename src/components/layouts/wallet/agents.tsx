@@ -1,82 +1,138 @@
 "use client";
-import { PREVILEDGES, displayVariants } from "@/utils";
+import { PREVILEDGES, displayVariants, shorternAddress } from "@/utils";
 import * as HeroIcons from "@heroicons/react/24/solid";
 import React, { useContext, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { Button, Table, TableProps } from "antd";
-import { AuthorizeAgent } from "@/components";
+import { Button, Table, TableProps, notification } from "antd";
+import { AuthorizeAgent, NewAgent, PrivateKey } from "@/components";
 import { WalletContext } from "@/context";
 import moment from "moment";
-
-const columns: TableProps<any>["columns"] = [
-  {
-    title: "Address",
-    dataIndex: "address",
-    key: "address",
-  },
-  {
-    title: "Role",
-    dataIndex: "role",
-    key: "role",
-  },
-  {
-    title: "Expires",
-    dataIndex: "expires",
-    key: "expires",
-  },
-  {
-    title: "",
-    dataIndex: "address",
-    key: "action",
-    render: (text) => {
-      return (
-        <div className="flex gap-6">
-          <HeroIcons.PencilIcon className="h-[20px]" />
-          <HeroIcons.XMarkIcon className="h-[20px]" />
-        </div>
-      );
-    },
-  },
-];
 
 interface AgentsProps {
   onSuccess?: (values: any) => void;
   handleCreateAccount?: () => void;
 }
 export const Agents = (props: AgentsProps) => {
+  const [authAddress, setAuthAddress] = useState<AddressData>();
+  const [updateAddressData, setUpdateAddressData] = useState<AddressData>();
   const [showModal, setShowModal] = useState<boolean>(false);
-  const { initialLoading, agents, authenticationList, generateAgent, loaders } =
-    useContext(WalletContext);
+  const [showPrivateKeyModal, setShowPrivateKeyModal] =
+    useState<boolean>(false);
+  const [showNewAgentModal, setShowNewAgentModal] = useState<boolean>(false);
+
+  const [selectedAgent, setSelectedAgent] = useState<AddressData>();
+  const {
+    initialLoading,
+    combinedAgents,
+    // authenticationList,
+    generateAgent,
+    loaders,
+  } = useContext(WalletContext);
 
   const dataSource = useMemo(() => {
-    return agents.map((kp, index) => {
-      const authenticationData = authenticationList?.data.find(
-        (item) => item.agt == kp.address
-      );
+    return combinedAgents.map((kp: AddressData, index) => {
       // console.log(index, kp.address, authenticationData);
       return {
+        ...kp,
         key: index,
-        address: kp.address,
         // role: "--",
-        role: authenticationData ? (
-          PREVILEDGES[authenticationData?.privi ?? 0]
+        role: kp.authData ? (
+          PREVILEDGES[kp.authData?.privi ?? 0]
         ) : (
           <i>Not Authorized</i>
         ),
 
-        expires: authenticationData ? (
+        expires: kp.authData ? (
           moment(
-            new Date(
-              (authenticationData?.ts ?? 0) + (authenticationData?.du ?? 0)
-            )
+            new Date((kp.authData?.ts ?? 0) + (kp.authData?.du ?? 0))
           ).fromNow()
         ) : (
           <i>Not Authorized</i>
         ),
-      };
+      } as any;
     });
-  }, [agents, authenticationList]);
-  console.log({ agents });
+  }, [combinedAgents]);
+
+  const columns: TableProps<AddressData>["columns"] = [
+    {
+      title: "Address",
+      dataIndex: "address",
+      key: "address",
+      render: (text) => {
+        return <>{shorternAddress(text)}</>;
+      },
+    },
+    {
+      title: "Private Key",
+      dataIndex: "privateKey",
+      key: "privateKey",
+      render: (text, record) => {
+        if (!record.privateKey) {
+          return (
+            <Button
+              onClick={() => {
+                setSelectedAgent(record);
+                setShowPrivateKeyModal((old) => !old);
+              }}
+              type="dashed"
+              shape="round"
+            >
+              <div className="flex gap-2">
+                <span>Update Private Key</span>
+                <HeroIcons.KeyIcon className="h-[20px]" />
+              </div>
+            </Button>
+          );
+        }
+        return (
+          <Button
+            onClick={() => {
+              navigator.clipboard.writeText(text);
+              notification.open({ message: "Key Copied" });
+            }}
+            type="primary"
+            ghost
+            shape="round"
+          >
+            <div className="flex gap-2">
+              <span>{shorternAddress(text)}</span>
+              <HeroIcons.DocumentDuplicateIcon className="h-[20px]" />
+            </div>
+          </Button>
+        );
+      },
+    },
+    {
+      title: "Role",
+      dataIndex: "role",
+      key: "role",
+    },
+    {
+      title: "Expires",
+      dataIndex: "expires",
+      key: "expires",
+    },
+    {
+      title: "",
+      dataIndex: "address",
+      key: "action",
+      render: (text, record) => {
+        return (
+          <div className="flex gap-6">
+            <HeroIcons.PencilIcon
+              className="h-[20px]"
+              onClick={() => {
+                setUpdateAddressData(record);
+                setShowModal((old) => !old);
+              }}
+            />
+          </div>
+        );
+      },
+    },
+  ];
+  console.log({ combinedAgents });
+
   return (
     <motion.div
       className="inline-flex w-full flex-col gap-6 py-8"
@@ -111,7 +167,8 @@ export const Agents = (props: AgentsProps) => {
         <Button
           onClick={() => {
             //
-            generateAgent?.();
+            // generateAgent?.();
+            setShowNewAgentModal((old) => !old);
           }}
           className=""
           ghost
@@ -123,9 +180,33 @@ export const Agents = (props: AgentsProps) => {
       </div>
       <Table dataSource={dataSource} columns={columns} />
       <AuthorizeAgent
+        updateAddressData={updateAddressData}
+        addressData={authAddress}
         isModalOpen={showModal}
         onCancel={() => {
           setShowModal((old) => !old);
+          setAuthAddress(undefined);
+          setUpdateAddressData(undefined);
+        }}
+      />
+      {selectedAgent && (
+        <PrivateKey
+          addressData={selectedAgent}
+          isModalOpen={showPrivateKeyModal}
+          onCancel={() => {
+            setShowPrivateKeyModal((old) => !old);
+          }}
+        />
+      )}
+
+      <NewAgent
+        isModalOpen={showNewAgentModal}
+        onCancel={() => {
+          setShowNewAgentModal((old) => !old);
+        }}
+        onAuth={(authAddress) => {
+          setAuthAddress(authAddress);
+          setShowModal(true);
         }}
       />
     </motion.div>
