@@ -54,11 +54,11 @@ const WalletPage = () => {
           className="!border !border-gray-600 p-2 !rounded-md"
         >
           <Space>
-            Active Agent/Device:{" "}
-            {shorternAddress(
+            <span className="text-gray-400">Active Agents:{" "}</span>
+            {items.length? shorternAddress(
               combinedAgents.find((opt) => opt.address == selectedAgent)
                 ?.address ?? ""
-            )}
+            ): 'No approved agents found'}
             <HeroIcons.ChevronDownIcon className="ml-2 h-[20px]" />
           </Space>
         </Dropdown>

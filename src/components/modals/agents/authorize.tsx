@@ -49,17 +49,19 @@ export const AuthorizeAgent = (props: AuthorizeAgentProps) => {
   useEffect(() => {
     //
     if (!updateAddressData) return;
+    const dur = moment(
+      new Date(
+        (updateAddressData?.authData?.ts ?? 0) +
+        (updateAddressData?.authData?.du ?? 0)
+      )
+    ).diff(moment.now(), "days");
+
     console.log(updateAddressData);
     form.setFieldsValue({
       address: updateAddressData?.address,
       role: updateAddressData?.authData?.privi,
       duration:
-        moment(
-          new Date(
-            (updateAddressData?.authData?.ts ?? 0) +
-              (updateAddressData?.authData?.du ?? 0)
-          )
-        ).diff(moment.now(), "days") + 1,
+       dur < 0? '' : dur
     });
   }, [updateAddressData]);
   return (
@@ -134,13 +136,13 @@ export const AuthorizeAgent = (props: AuthorizeAgentProps) => {
               rules={[{ required: true, message: "Please input a duration!" }]}
             >
               <InputNumber
-                placeholder="Enter a duration"
+                placeholder="Enter a number"
                 suffix={<span>Days</span>}
               />
             </Form.Item>
 
             <Form.Item
-              label="Role:"
+              label="Privilege:"
               name="role"
               rules={[{ required: true, message: "Please select a role!" }]}
             >
