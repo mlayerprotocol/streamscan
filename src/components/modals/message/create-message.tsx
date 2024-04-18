@@ -23,7 +23,7 @@ interface CreateMessageProps {
 }
 export const CreateMessage = (props: CreateMessageProps) => {
   const {
-    authenticationList,
+    combinedAgents,
     selectedAgent,
     sendMessage,
     loaders,
@@ -34,9 +34,8 @@ export const CreateMessage = (props: CreateMessageProps) => {
   const [form] = useForm();
 
   const _selectedAgent = useMemo(() => {
-    return authenticationList?.data.find((opt) => opt.agt == selectedAgent)
-      ?.agt;
-  }, [authenticationList, selectedAgent]);
+    return combinedAgents.find((opt) => opt.address == selectedAgent)?.address;
+  }, [combinedAgents, selectedAgent]);
 
   useEffect(() => {
     form.setFieldsValue({ address: _selectedAgent, topicId });
@@ -66,10 +65,9 @@ export const CreateMessage = (props: CreateMessageProps) => {
           // transition={{ duration: 1, delay: 1 }}
         >
           <Form
-             {...formLayout}
+            {...formLayout}
             className="flex flex-col"
             name="basic"
-           
             form={form}
             initialValues={{ address: _selectedAgent, topicId }}
             onFinish={(data) => {
