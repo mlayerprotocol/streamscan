@@ -52,7 +52,7 @@ export const AppHeader = (props: AppHeaderProps) => {
       icon: <HeroIcons.UserCircleIcon className="ml-2 h-[20px]" />,
       label: (
         <Link href={"/wallet/agents"} className="font-medium text-base ml-2">
-          Account
+          Wallet
         </Link>
       ),
     },
@@ -77,7 +77,7 @@ export const AppHeader = (props: AppHeaderProps) => {
 
   return (
     <>
-      <header className="sticky top-0 flex flex-col py-4  lg:py-10  backdrop-blur-xl z-50 items-end ">
+      <header className="sticky top-0 flex flex-col py-1 lg:py-2  lg:py-10  backdrop-blur-xl z-50 items-end ">
         <div className="flex w-full flex-wrap px-4 md:px-20">
           {/* <Image
           src="/logo.svg"
@@ -87,7 +87,7 @@ export const AppHeader = (props: AppHeaderProps) => {
           height={24}
           priority
         /> */}
-          <div className="flex gap-3 md:gap-4 items-center text-sm">
+          <div className="flex gap-3 md:gap-4 items-center !text-xs !text-gray-400">
             <span>MLT PRICE: $0.0001</span>
             <span>MSG PRICE: 0.002MLT (~$0.00002)</span>
           </div>
@@ -132,9 +132,9 @@ export const AppHeader = (props: AppHeaderProps) => {
               }
               placeholder="Search by Account, Agent, Event Hash"
             />
-            <Button className="ml-6 " type="primary" shape="round">
+           <Button className="ml-6" type="primary" shape="round">
               <div className="flex items-center gap-2">
-                <span>Mainnet</span>
+              <Typography.Text className="ml-0 !text-white text-nowrap">Mainnet</Typography.Text>
                 <HeroIcons.ChevronDownIcon className="h-[20px] text-white" />
               </div>
             </Button>
@@ -150,7 +150,7 @@ export const AppHeader = (props: AppHeaderProps) => {
                 }}
                 className="h-[50px] flex justify-center items-center pl-1 pr-3 ml-2"
               >
-                <Typography.Text className="ml-2 !text-white text-nowrap">
+                <Typography.Text className="ml-0 !text-white text-nowrap">
                   Connect Wallet
                 </Typography.Text>
               </MotionButton>
@@ -165,16 +165,16 @@ export const AppHeader = (props: AppHeaderProps) => {
                   initial={{ opacity: 0, x: -40 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -40 }}
-                  className="h-[50px] rounded-full bg-gray-100 dark:bg-[#6A6A6A] flex gap-2 justify-center items-center px-2 ml-2"
+                  className="h-[40px] rounded-full bg-gray-100 dark:bg-[#6A6A6A] flex gap-2 justify-center items-center px-2 ml-2"
                 >
                   <>
                     <Avatar
-                      size={32}
-                      className="dark:!bg-[#CBD5E1]"
+                      size={28}
+                      className="dark:!bg-[#CBD5E1] !border-0"
                       src={`/icons/${connectedWallet}.svg`}
                       icon={<UserOutlined />}
                     />
-                    <span>
+                    <span className="text-sm">
                       {shorternAddress(
                         walletAccounts[connectedWallet]?.[0] ?? ""
                       )}
@@ -307,9 +307,9 @@ export const AppHeader = (props: AppHeaderProps) => {
             </motion.div>
           )}
         </AnimatePresence>
-        <Divider className="!hidden lg:!block !border-t-4" />
-        <div className=" hidden lg:flex justify-between grow items-center w-full px-4 md:px-20">
-          <div className="flex items-center gap-2">
+        <Divider className="!hidden lg:!block !border-t-2 !mb-2 !mt-2" />
+        <div className=" hidden lg:flex justify-between grow items-center w-full px-7  md:px-20">
+          <div className="flex items-center gap-2 mx-10">
             <Image
               src="/logo.png"
               alt="Vercel Logo"
@@ -318,21 +318,22 @@ export const AppHeader = (props: AppHeaderProps) => {
               height={48}
               priority
             />
-            <span className="text-2xl">MLStream Scan</span>
+            <span className="text-2xl">MLStream</span>
           </div>
 
-          <div className="flex gap-2 ml-20 items-center">
+          <div className="flex gap-2 mx-10 items-center">
             <Link href={"/"}>Home</Link>
             <span className="text-gray-500">|</span>
-            <Link href={"/my-list"}>Validator</Link>
+            <Link href={"/wallet/agents"}>Wallet</Link>
+            {/* <Link href={"/my-list"}>Validator</Link>
             <span className="text-gray-500">|</span>
-            <Link href={"/"}>Name Service</Link>
+            <Link href={"/"}>Name Service</Link> */}
           </div>
         </div>
       </header>
-      <Button ghost className=" my-6  self-center w-2/3" type="primary">
+      {/* <Button ghost className=" my-6  self-center w-2/3" type="primary">
         <span>Ad Space</span>
-      </Button>
+      </Button> */}
     </>
   );
 };

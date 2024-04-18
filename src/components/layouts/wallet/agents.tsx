@@ -90,12 +90,12 @@ export const Agents = (props: AgentsProps) => {
               navigator.clipboard.writeText(text);
               notification.open({ message: "Key Copied" });
             }}
-            type="primary"
+            type="link"
             ghost
             shape="round"
           >
             <div className="flex gap-2">
-              <span>{shorternAddress(text)}</span>
+              <span>******</span>
               <HeroIcons.DocumentDuplicateIcon className="h-[20px]" />
             </div>
           </Button>
@@ -120,7 +120,7 @@ export const Agents = (props: AgentsProps) => {
         return (
           <div className="flex gap-6">
             <HeroIcons.PencilIcon
-              className="h-[20px]"
+              className="h-[20px] cursor-pointer"
               onClick={() => {
                 setUpdateAddressData(record);
                 setShowModal((old) => !old);
@@ -161,7 +161,7 @@ export const Agents = (props: AgentsProps) => {
           type="primary"
           shape="round"
         >
-          <span>Authorize Agent/Device</span>
+          <span>Authorize Agent</span>
         </Button>
 
         <Button
@@ -175,7 +175,8 @@ export const Agents = (props: AgentsProps) => {
           type="primary"
           shape="round"
         >
-          <HeroIcons.PlusCircleIcon className="h-[20px]" />
+          {/* <HeroIcons.PlusCircleIcon className="h-[20px]" /> */}
+          Add Agent
         </Button>
       </div>
       <Table dataSource={dataSource} columns={columns} />

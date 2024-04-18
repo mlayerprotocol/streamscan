@@ -8,6 +8,7 @@ import {
   Radio,
   RadioChangeEvent,
   Select,
+  Typography,
   notification,
 } from "antd";
 import React, { useContext, useEffect, useState } from "react";
@@ -62,18 +63,20 @@ export const NewAgent = (props: NewAgentProps) => {
         <div className="mb-8">
           {!showAuthSection && (
             <Radio.Group onChange={onChange} value={selectedOption}>
-              <Radio value={KeyOptionTypes.Upload}>Upload Private Key</Radio>
-              <Radio value={KeyOptionTypes.GenerateNew}>Generate Key</Radio>
+              <Radio value={KeyOptionTypes.Upload}>Import Private Key</Radio>
+              <Radio value={KeyOptionTypes.GenerateNew}>Generate New Agent Keys</Radio>
             </Radio.Group>
           )}
           {showAuthSection && (
+            <div className="flex gap-2">
             <HeroIcons.ArrowLeftIcon
               onClick={() => {
                 setShowAuthSection(false);
               }}
               className="h-[20px]"
-            />
-          )}
+            /> <Typography.Title level={5}> New Agent Key Pair</Typography.Title>
+              </div>
+          )} 
         </div>
         <AnimatePresence>
           {!showAuthSection && (
@@ -177,7 +180,19 @@ export const NewAgent = (props: NewAgentProps) => {
               }}
               // transition={{ duration: 1, delay: 1 }}
             >
-              <span>{createdAddress?.address}</span>
+              <span className="text-gray-500">Agent Address: </span><span> {createdAddress?.address}</span>
+              <br/><span  className="text-gray-500">Private Key: </span><Button
+            onClick={() => {
+              navigator.clipboard.writeText(String(createdAddress?.privateKey));
+              notification.open({ message: "Copied to clipboard" });
+            }}
+            type="text"
+          
+          >
+            <div className="flex gap-2">
+            <span>{shorternAddress(String(createdAddress?.privateKey))} </span> <HeroIcons.DocumentDuplicateIcon className="h-[20px]" />
+            </div>
+          </Button>
               <Button
                 type="primary"
                 onClick={() => {
@@ -190,7 +205,7 @@ export const NewAgent = (props: NewAgentProps) => {
                 className="w-full mt-[28px] self-end"
                 shape="round"
               >
-                <span className="text-black">Authenticate Agent</span>
+                <span className="text-black">Authorize this Agent Keys</span>
               </Button>
             </motion.div>
           )}
