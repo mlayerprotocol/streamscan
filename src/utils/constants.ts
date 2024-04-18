@@ -1,5 +1,6 @@
 export const THEME_STORAGE_KEY = "@@mlayer-storage/theme";
 export const KEYPAIR_STORAGE_KEY = "@@mlayer-storage/keypair-v4";
+export const LOCAL_PRIVKEY_STORAGE_KEY = "@@mlayer-storage/local-privkey-v4";
 export const CONNECTED_WALLET_STORAGE_KEY = "@@mlayer-storage/connected-wallet";
 export const WALLET_ACCOUNTS_STORAGE_KEY = "@@mlayer-storage/wallet-accounts";
 export const SELECTED_AGENT_STORAGE_KEY =
