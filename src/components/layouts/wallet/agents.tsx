@@ -105,7 +105,7 @@ export const Agents = (props: AgentsProps) => {
           type="primary"
           shape="round"
         >
-          <span>Authorize Agent/Device</span>
+          <span>Authorize Agent</span>
         </Button>
 
         <Button
@@ -118,7 +118,7 @@ export const Agents = (props: AgentsProps) => {
           type="primary"
           shape="round"
         >
-          <HeroIcons.PlusCircleIcon className="h-[20px]" />
+         + Add Agent
         </Button>
       </div>
       <Table dataSource={dataSource} columns={columns} />

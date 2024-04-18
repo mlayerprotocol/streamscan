@@ -53,7 +53,7 @@ const WalletPage = () => {
       <div className="flex justify-center mb-4 ">
         <Dropdown menu={{ items }} className="!border !border-gray-600 p-2 !rounded-md">
           <Space>
-            Active Agent/Device:{" "}
+           <span className="text-gray-400">Active Agents:</span>{" "}
             {shorternAddress(
               authenticationList?.data.find((opt) => opt.agt == selectedAgent)
                 ?.agt ?? ""
