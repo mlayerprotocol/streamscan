@@ -78,7 +78,7 @@ export const Agents = (props: AgentsProps) => {
               shape="round"
             >
               <div className="flex gap-2">
-                <span>Update Private Key</span>
+                <span>Import Private Key</span>
                 <HeroIcons.KeyIcon className="h-[20px]" />
               </div>
             </Button>

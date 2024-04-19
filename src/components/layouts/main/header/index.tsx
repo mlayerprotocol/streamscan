@@ -310,15 +310,17 @@ export const AppHeader = (props: AppHeaderProps) => {
         <Divider className="!hidden lg:!block !border-t-2 !mb-2 !mt-2" />
         <div className=" hidden lg:flex justify-between grow items-center w-full px-7  md:px-20">
           <div className="flex items-center gap-2 mx-10">
-            <Image
+           <a href="/"><Image
               src="/logo.png"
               alt="Vercel Logo"
               // className="light:invert"
               width={48}
               height={48}
               priority
-            />
-            <span className="text-2xl">MLStream</span>
+            /> </a>
+            <a href="/">
+              <span className="text-2xl">MLStream</span>
+             </a>
           </div>
 
           <div className="flex gap-2 mx-10 items-center">
