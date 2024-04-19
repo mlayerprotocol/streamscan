@@ -421,7 +421,7 @@ export const WalletContextProvider = ({
     }
     setLoaders((old) => ({ ...old, authorizeAgent: true }));
     ganerateAuthorizationMessage(
-      VALIDATOR_PUBLIC_KEY,
+      String(VALIDATOR_PUBLIC_KEY),
       {
         address: account,
         publicKey: account,
