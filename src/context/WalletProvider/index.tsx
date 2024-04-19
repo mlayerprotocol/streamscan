@@ -447,7 +447,7 @@ export const WalletContextProvider = ({
           signature.signature,
           signature.pub_key.type,
           messageObj.authority,
-          VALIDATOR_PUBLIC_KEY,
+          String(VALIDATOR_PUBLIC_KEY),
           {
             address: account,
             publicKey: signature.pub_key.value,
