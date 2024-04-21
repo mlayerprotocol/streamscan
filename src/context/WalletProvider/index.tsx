@@ -88,6 +88,7 @@ interface WalletContextValues {
     topicId: string
   ) => Promise<void>;
   setSelectedMessagesTopicId?: Dispatch<SetStateAction<string | undefined>>;
+  setToggleGroupStats?: Dispatch<SetStateAction<boolean>>;
 }
 
 declare const TextEncoder: any;
@@ -164,6 +165,7 @@ export const WalletContextProvider = ({
   const [toggleGroup1, setToggleGroup1] = useState<boolean>(false);
   const [toggleGroup2, setToggleGroup2] = useState<boolean>(false);
   const [toggleGroup3, setToggleGroup3] = useState<boolean>(false);
+  const [toggleGroupStats, setToggleGroupStats] = useState<boolean>(false);
   const [selectedAgent, setSelectedAgent] = useState<string>();
   const [selectedMessagesTopicId, setSelectedMessagesTopicId] =
     useState<string>();
@@ -284,9 +286,11 @@ export const WalletContextProvider = ({
   }, []);
   useEffect(() => {
     initializeOldState();
+  }, []);
+  useEffect(() => {
     getBlockStats({});
     getMainStats({});
-  }, []);
+  }, [toggleGroupStats]);
 
   useEffect(() => {
     getTopicMessages(selectedMessagesTopicId ?? "", {});
@@ -437,7 +441,7 @@ export const WalletContextProvider = ({
           notification.error({ message: "Please install keplr extension" });
           return;
         }
-        
+
         const signature = await window.keplr.signArbitrary(
           chainIds[connectedWallet],
           account,
@@ -460,7 +464,7 @@ export const WalletContextProvider = ({
         });
       })
       .catch((r) => {
-        console.log({r})
+        console.log({ r });
         setLoaders((old) => ({ ...old, authorizeAgent: false }));
       });
   };
@@ -848,6 +852,7 @@ export const WalletContextProvider = ({
         setSelectedMessagesTopicId,
         subcribeToTopic,
         sendMessage,
+        setToggleGroupStats,
         walletAccounts,
         loadingWalletConnections,
         walletConnectionState,
