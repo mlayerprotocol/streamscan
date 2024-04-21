@@ -85,6 +85,7 @@ export const CreateMessage = (props: CreateMessageProps) => {
 
               sendMessage?.(message, agent, topicId);
               console.log({ data, agent });
+              form.setFieldsValue({});
               onCancel?.({} as any);
             }}
             // onFinishFailed={onFinishFailed}

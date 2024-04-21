@@ -75,7 +75,7 @@ export const JoinTopic = (props: JoinTopicProps) => {
               }
               const topicId: string = data["topicId"];
               subcribeToTopic?.(agent, topicId);
-
+              form.setFieldsValue({});
               onCancel?.({} as any);
             }}
             // onFinishFailed={onFinishFailed}

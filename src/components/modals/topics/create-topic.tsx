@@ -95,6 +95,7 @@ export const CreateTopic = (props: CreateTopicProps) => {
               );
 
               console.log({ data, selectedAgentObj });
+              form.setFieldsValue({});
               onCancel?.({} as any);
             }}
             // onFinishFailed={onFinishFailed}
