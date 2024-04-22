@@ -78,7 +78,7 @@ export const CreateTopic = (props: CreateTopicProps) => {
               const handle: string = data["hand"];
               const name: string = data["n"];
               const description: string = data["desc"];
-              const ref: string = data["ref"];
+              const ref: string = data["ref"] ;
               const isPublic: boolean = data["pub"] == true;
               createTopic?.(
                 selectedAgentObj,
@@ -94,7 +94,7 @@ export const CreateTopic = (props: CreateTopicProps) => {
                 }
               );
 
-              console.log({ data, selectedAgentObj });
+              console.log({ data, selectedAgentObj, ref });
               form.setFieldsValue({});
               onCancel?.({} as any);
             }}
@@ -139,7 +139,7 @@ export const CreateTopic = (props: CreateTopicProps) => {
             <Form.Item
               label="Ref:"
               name="ref"
-              rules={[{ message: "Please input your description!" }]}
+              rules={[{ message: "Please input a reference!" }]}
             >
               <Input placeholder="Enter Your Ref" />
             </Form.Item>
