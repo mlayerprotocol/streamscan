@@ -5,9 +5,9 @@ import {
   Form,
   Input,
   InputNumber,
+  MenuProps,
   Modal,
   Select,
-  Typography,
   notification,
 } from "antd";
 import React, { useContext, useEffect, useMemo, useState } from "react";
@@ -16,27 +16,34 @@ import { motion } from "framer-motion";
 import { useForm } from "antd/es/form/Form";
 import { displayVariants, formLayout, shorternAddress } from "@/utils";
 import { WalletContext } from "@/context";
-import { TopicData } from "@/model/topic";
 
-interface CreateTopicProps {
+interface CreateSubnetProps {
   isModalOpen?: boolean;
-  topicData?: TopicData;
   onCancel?: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 }
-export const CreateTopic = (props: CreateTopicProps) => {
-  const { combinedAgents, selectedAgent, createTopic, loaders, agents } =
-    useContext(WalletContext);
-  const { isModalOpen = false, onCancel, topicData } = props;
+export const CreateSubnet = (props: CreateSubnetProps) => {
+  const {
+    combinedAgents,
+    selectedAgent,
+    createSubnet,
+    loaders,
+    agents,
+    topicList,
+  } = useContext(WalletContext);
+  const { isModalOpen = false, onCancel } = props;
   const [form] = useForm();
 
-  const selectedAgentObj = useMemo(() => {
-    return combinedAgents.find((opt) => opt.address == selectedAgent);
+  const _selectedAgent = useMemo(() => {
+    return combinedAgents.find((opt) => opt.address == selectedAgent)?.address;
   }, [combinedAgents, selectedAgent]);
 
+  const items = combinedAgents.filter(
+    (cAgt) => cAgt.privateKey && cAgt.authData
+  );
+
   useEffect(() => {
-    form.setFieldsValue({ address: selectedAgentObj?.address, ...topicData });
-    console.log("APPPP", { ...topicData, address: selectedAgentObj?.address });
-  }, [topicData, selectedAgentObj]);
+    form.setFieldsValue({ address: _selectedAgent });
+  }, [_selectedAgent]);
 
   return (
     <Modal
@@ -45,7 +52,6 @@ export const CreateTopic = (props: CreateTopicProps) => {
       open={isModalOpen}
       // onOk={handleOk}
       onCancel={(e) => {
-        form.setFieldsValue({});
         onCancel?.(e);
       }}
       footer={null}
@@ -67,40 +73,29 @@ export const CreateTopic = (props: CreateTopicProps) => {
             className="flex flex-col"
             name="basic"
             form={form}
-            initialValues={{ address: selectedAgentObj?.address, ...topicData }}
+            initialValues={{}}
             onFinish={(data) => {
-              if (!selectedAgentObj?.privateKey) {
+              const agent: AddressData | undefined = agents.find(
+                (el) => el.address == data["address"]
+              );
+              if (!agent) {
                 notification.error({
                   message: "Agent Private Key Not Accessable",
                 });
                 return;
               }
-
               const name: string = data["n"];
-              const description: string = data["desc"];
               const ref: string = data["ref"];
-              const isPublic: boolean = data["pub"] == true;
-              createTopic?.(
-                selectedAgentObj,
-                name,
-                description,
-                ref,
-                isPublic,
-                {
-                  id: topicData?.id,
-                  isUpdate: topicData != undefined,
-                  loaderKey: `createTopic-${topicData?.id}`,
-                }
-              );
+              const status: number = data["status"];
 
-              console.log({ data, selectedAgentObj, ref });
+              createSubnet?.(agent, name, ref, status);
+              console.log({ data, agent });
               form.setFieldsValue({});
               onCancel?.({} as any);
             }}
             // onFinishFailed={onFinishFailed}
             autoComplete="off"
           >
-            <Typography.Title level={3}>Create A Topic</Typography.Title>
             <Form.Item
               label={`Agent Address: `}
               name="address"
@@ -108,50 +103,61 @@ export const CreateTopic = (props: CreateTopicProps) => {
                 { required: true, message: "Please input select an address!" },
               ]}
             >
-              <Input placeholder="Enter An Address" disabled />
+              <Select>
+                {items.map((val, index) => {
+                  return (
+                    <Select.Option key={index} value={val.address}>
+                      {shorternAddress(val.address)}
+                    </Select.Option>
+                  );
+                })}
+              </Select>
+              {/* <Input placeholder="Enter An Address" disabled /> */}
             </Form.Item>
-
             <Form.Item
-              label="Ref:"
-              name="ref"
-              rules={[{ required: true, message: "Please input a reference!" }]}
-            >
-              <Input placeholder="Enter Your Handle" />
-            </Form.Item>
-
-            <Form.Item
-              label="Title:"
+              label={`Name: `}
               name="n"
-              rules={[{ required: true, message: "Please input your title!" }]}
+              rules={[{ required: true, message: "Please input a name!" }]}
             >
-              <Input placeholder="Enter Your Title" />
+              <Input placeholder="Enter A Name" />
             </Form.Item>
 
             <Form.Item
-              label="Description:"
-              name="desc"
-              rules={[{ message: "Please input your description!" }]}
+              label={`Reference: `}
+              name="ref"
+              rules={[
+                { required: true, message: "Please input select a reference!" },
+              ]}
             >
-              <Input placeholder="Enter Your Description" />
+              <Input placeholder="Enter A Reference" />
             </Form.Item>
 
-            <Form.Item label="Public:" name="pub" valuePropName="checked">
-              <Checkbox />
+            <Form.Item
+              label="Status:"
+              name="s"
+              rules={[
+                { required: true, message: "Please input select a status!" },
+              ]}
+            >
+              <Select>
+                {["Disabled", "Running"].map((val, index) => {
+                  return (
+                    <Select.Option key={index} value={index}>
+                      {val}
+                    </Select.Option>
+                  );
+                })}
+              </Select>
             </Form.Item>
 
             <Button
-              loading={
-                loaders["createTopic"] ||
-                loaders[`createTopic-${topicData?.id}`]
-              }
+              loading={loaders["createSubnet"]}
               type="primary"
               htmlType="submit"
               className="w-full mt-[28px] self-end"
               shape="round"
             >
-              <span className="text-black">
-                {topicData ? "Update" : "Create"}
-              </span>
+              <span className="text-black">Create Subnet</span>
             </Button>
           </Form>
         </motion.div>

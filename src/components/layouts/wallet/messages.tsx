@@ -1,5 +1,5 @@
 "use client";
-import { displayVariants, shorternAddress } from "@/utils";
+import { displayVariants, metaToObject, shorternAddress } from "@/utils";
 import React, { useContext, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { CreateMessage, CreateTopic } from "@/components";
@@ -17,11 +17,18 @@ export const Messages = (props: MessagesProps) => {
   const {
     loaders,
     accountTopicList,
-    agents,
+    selectedSubnetId,
+    walletAccounts,
+    connectedWallet,
     selectedMessagesTopicId,
     messagesList,
     setSelectedMessagesTopicId,
   } = useContext(WalletContext);
+
+  const account = useMemo(
+    () => walletAccounts[connectedWallet ?? ""]?.[0],
+    [walletAccounts, connectedWallet]
+  );
 
   const topic = useMemo(() => {
     if (!selectedMessagesTopicId && (accountTopicList?.data ?? []).length > 0) {
@@ -31,18 +38,25 @@ export const Messages = (props: MessagesProps) => {
       return undefined;
     }
     return (accountTopicList?.data ?? []).find(
-      (v) => v.id == selectedMessagesTopicId
+      (v) =>
+        v.snet == selectedSubnetId &&
+        v.acct == `did:${account}` &&
+        v.id == selectedMessagesTopicId
     );
   }, [selectedMessagesTopicId, accountTopicList]);
 
   const items: MenuProps["items"] = useMemo(() => {
-    return (accountTopicList?.data ?? []).map((el, index) => ({
-      key: index,
-      label: <span>{el.n}</span>,
-      onClick: () => {
-        setSelectedMessagesTopicId?.(el.id);
-      },
-    }));
+    return (accountTopicList?.data ?? [])
+      .filter(
+        (item) => item.snet == selectedSubnetId && item.acct == `did:${account}`
+      )
+      .map((el, index) => ({
+        key: index,
+        label: <span>{metaToObject(el.meta)?.name ?? el.ref}</span>,
+        onClick: () => {
+          setSelectedMessagesTopicId?.(el.id);
+        },
+      }));
   }, [accountTopicList]);
 
   const dataSource = useMemo(() => {
@@ -71,7 +85,8 @@ export const Messages = (props: MessagesProps) => {
       <div className="flex justify-between">
         <Dropdown menu={{ items }}>
           <Space>
-            Select topic: {topic?.n ?? "--"}
+            Select topic:{" "}
+            {metaToObject(topic?.meta)?.name ?? topic?.ref ?? "--"}
             <HeroIcons.ChevronDownIcon className="ml-2 h-[20px]" />
           </Space>
         </Dropdown>

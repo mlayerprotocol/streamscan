@@ -1,5 +1,5 @@
 "use client";
-import { displayVariants, shorternAddress } from "@/utils";
+import { displayVariants, shorternAddress, metaToObject } from "@/utils";
 import * as HeroIcons from "@heroicons/react/24/solid";
 import * as OutlineHeroIcons from "@heroicons/react/24/outline";
 import React, { useContext, useEffect, useMemo, useState } from "react";
@@ -34,6 +34,7 @@ export const MyTopics = (props: MyTopicsProps) => {
     selectedAgent,
     walletAccounts,
     connectedWallet,
+    selectedSubnetId,
   } = useContext(WalletContext);
   const [selectedTopicId, setSelectedTopicId] = useState<string | undefined>();
   const account = useMemo(
@@ -42,7 +43,7 @@ export const MyTopics = (props: MyTopicsProps) => {
   );
   const dataSource = useMemo(() => {
     return (accountTopicList?.data ?? []).filter(
-      (item) => item.acct == `did:${account}`
+      (item) => item.snet == selectedSubnetId && item.acct == `did:${account}`
     );
   }, [accountTopicList, account]);
   const agent = useMemo(() => {
@@ -63,6 +64,9 @@ export const MyTopics = (props: MyTopicsProps) => {
         title: "Title",
         dataIndex: "n",
         key: "n",
+        render(value, record, index) {
+          return metaToObject(record.meta)?.name ?? value;
+        },
       },
       {
         title: "Public",
@@ -174,8 +178,8 @@ export const MyTopics = (props: MyTopicsProps) => {
       // transition={{ duration: 1, delay: 1 }}
     >
       <span className="text-xs text-gray-500">
-        Topic are communication channel streams. Every subscriber to a topic receives
-        the data/messages streamed to that topic.
+        Topic are communication channel streams. Every subscriber to a topic
+        receives the data/messages streamed to that topic.
       </span>
       <Button
         loading={loaders["createTopic"]}

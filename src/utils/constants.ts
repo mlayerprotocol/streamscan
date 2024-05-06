@@ -5,6 +5,8 @@ export const CONNECTED_WALLET_STORAGE_KEY = "@@mlayer-storage/connected-wallet";
 export const WALLET_ACCOUNTS_STORAGE_KEY = "@@mlayer-storage/wallet-accounts";
 export const SELECTED_AGENT_STORAGE_KEY =
   "@@mlayer-storage/selected-agent-account";
+export const SELECTED_SUBNET_STORAGE_KEY =
+  "@@mlayer-storage/selected-subnet-id";
 
 export const BASE_URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}`;
 // export const HOST_URL = process.env.NEXT_PUBLIC_API_BASE_URL

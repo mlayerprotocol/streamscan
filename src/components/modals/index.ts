@@ -3,3 +3,4 @@ export * from "./welcome";
 export * from "./agents";
 export * from "./topics";
 export * from "./message";
+export * from "./subnet";
