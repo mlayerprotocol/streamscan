@@ -36,5 +36,14 @@ export function waitFor(ms: number, value: any) {
 export function currencyFormat(num: number, currency: string = "$") {
   return `${currency}${num
     .toFixed(2)
-    .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}`;
+    .replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,")}`;
+}
+
+export function metaToObject(value?: string): Record<string, any> | undefined {
+  if (!value) return undefined;
+  try {
+    return JSON.parse(value);
+  } catch (error) {
+    return undefined;
+  }
 }

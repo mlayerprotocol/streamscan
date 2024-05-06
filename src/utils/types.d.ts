@@ -2,6 +2,7 @@ interface AddressData {
   privateKey: string;
   publicKey: string;
   address: string;
+  subnetId?: string;
   authData?: AuthenticationData;
 }
 
@@ -17,6 +18,7 @@ interface AuthenticationData {
   sigD: SigD;
   h: string;
   eH: string;
+  snet?: string;
   CreatedAt: string;
   UpdatedAt: string;
   DeletedAt: null;
