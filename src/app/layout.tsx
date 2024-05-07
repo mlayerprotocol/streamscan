@@ -30,6 +30,7 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="icon" type="image/png" sizes="any" href="/logo.png" />
+        <link rel="icon" href="/favicon.png" sizes="any" />
         <link
           rel="preconnect"
           href="https://fonts.gstatic.com"

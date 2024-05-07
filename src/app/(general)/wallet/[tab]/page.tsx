@@ -58,7 +58,7 @@ const WalletPage = () => {
             {items.length? shorternAddress(
               combinedAgents.find((opt) => opt.address == selectedAgent)
                 ?.address ?? ""
-            ): 'No approved agents found'}
+            ): 'No authorized agents found'}
             <HeroIcons.ChevronDownIcon className="ml-2 h-[20px]" />
           </Space>
         </Dropdown>

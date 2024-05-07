@@ -60,6 +60,14 @@ export const MyTopics = (props: MyTopicsProps) => {
         },
       },
       {
+        title: "Handle",
+        dataIndex: "hand",
+        key: "hand",
+        render(value, record, index) {
+          return `@${value}`
+        }
+      },
+      {
         title: "Title",
         dataIndex: "n",
         key: "n",
