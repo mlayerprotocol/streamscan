@@ -14,6 +14,8 @@ import {
   CONNECTED_WALLET_STORAGE_KEY,
   KEYPAIR_STORAGE_KEY,
   LOCAL_PRIVKEY_STORAGE_KEY,
+  makeRequest,
+  MIDDLEWARE_HTTP_URLS,
   NODE_HTTP,
   SELECTED_AGENT_STORAGE_KEY,
   SELECTED_SUBNET_STORAGE_KEY,
@@ -31,6 +33,7 @@ import { BlockStatsListModel } from "@/model/block-stats";
 import { MessageListModel } from "@/model/message/list";
 import { MainStatsModel } from "@/model/main-stats/data";
 import { SubnetListModel } from "@/model/subnets";
+import { PointListModel } from "@/model/points";
 
 // import { Authorization } from "@mlayerprotocol/core/src/entities";
 // const { Authorization } = Entities;
@@ -61,6 +64,7 @@ interface WalletContextValues {
   blockStatsList?: BlockStatsListModel;
   mainStatsData?: MainStatsModel;
   messagesList?: MessageListModel;
+  pointsList?: PointListModel;
   subnetListModelList?: SubnetListModel;
   accountTopicList?: TopicListModel;
   authenticationList?: AuthenticationListModel;
@@ -95,7 +99,8 @@ interface WalletContextValues {
     // agent: AddressData,
     name: string,
     ref: string,
-    status: number
+    status: number,
+    update?: boolean
   ) => Promise<void>;
   setSelectedMessagesTopicId?: Dispatch<SetStateAction<string | undefined>>;
   setSelectedSubnetId?: Dispatch<SetStateAction<string | undefined>>;
@@ -178,6 +183,7 @@ export const WalletContextProvider = ({
   const [toggleGroup2, setToggleGroup2] = useState<boolean>(false);
   const [toggleGroup3, setToggleGroup3] = useState<boolean>(false);
   const [toggleGroup4, setToggleGroup4] = useState<boolean>(false);
+  const [toggleGroup5, setToggleGroup5] = useState<boolean>(false);
   const [toggleGroupStats, setToggleGroupStats] = useState<boolean>(false);
   const [selectedAgent, setSelectedAgent] = useState<string>();
   const [selectedMessagesTopicId, setSelectedMessagesTopicId] =
@@ -198,6 +204,7 @@ export const WalletContextProvider = ({
   const [blockStatsList, setBlockStatsList] = useState<BlockStatsListModel>();
   const [mainStatsData, setMainStatsData] = useState<MainStatsModel>();
   const [messagesList, setMessagesList] = useState<MessageListModel>();
+  const [pointsList, setPointsList] = useState<PointListModel>();
   const [authenticationList, setAuthenticationList] =
     useState<AuthenticationListModel>();
 
@@ -266,6 +273,14 @@ export const WalletContextProvider = ({
         return { ...old, keplr: accounts.map((el: any) => el.address) };
       });
       setConnectedWallet("keplr");
+      makeRequest(MIDDLEWARE_HTTP_URLS.connect.url, {
+        method: MIDDLEWARE_HTTP_URLS.claim.method,
+        body: JSON.stringify({
+          account: `did:${accounts[0].address}`,
+        }),
+      }).then((b) => {
+        setToggleGroup5((old) => !old);
+      });
     }
   };
   const intializeMetamask = async () => {
@@ -376,7 +391,20 @@ export const WalletContextProvider = ({
       ...serverAgents.filter((agt) => selectedSubnetId == agt?.authData?.snet),
     ]);
   }, [agents, authenticationList, selectedSubnetId]);
-
+  useEffect(() => {
+    if (!connectedWallet) return;
+    const account = walletAccounts?.[connectedWallet]?.[0];
+    if (!account) return;
+    makeRequest(`${MIDDLEWARE_HTTP_URLS.account.url}/did:${account}/points`, {
+      method: MIDDLEWARE_HTTP_URLS.account.method,
+    })
+      .then((b) => b?.json())
+      .then((resp) => {
+        setPointsList(resp);
+        console.log({ resp: resp.data });
+      })
+      .catch((e) => notification.error({ message: e }));
+  }, [connectedWallet, toggleGroup5]);
   const ganerateAuthorizationMessage = async (
     validatorPublicKey: string,
     account: AddressData,
@@ -657,6 +685,15 @@ export const WalletContextProvider = ({
       client.resolveEvent({ type: event?.t, id: event?.id }).then((e) => {
         getTopics();
         setToggleGroup2((old) => !old);
+        makeRequest(MIDDLEWARE_HTTP_URLS.claim.url, {
+          method: MIDDLEWARE_HTTP_URLS.claim.method,
+          body: JSON.stringify({
+            event: event.t,
+            account: `did:${account}`,
+          }),
+        }).then((b) => {
+          setToggleGroup5((old) => !old);
+        });
       });
     } catch (e: any) {
       console.log("AUTHORIZE error", e);
@@ -742,6 +779,15 @@ export const WalletContextProvider = ({
       client.resolveEvent({ type: event?.t, id: event?.id }).then((e) => {
         getTopics();
         setToggleGroup2((old) => !old);
+        makeRequest(MIDDLEWARE_HTTP_URLS.claim.url, {
+          method: MIDDLEWARE_HTTP_URLS.claim.method,
+          body: JSON.stringify({
+            event: event.t,
+            account: `did:${account}`,
+          }),
+        }).then((b) => {
+          setToggleGroup5((old) => !old);
+        });
       });
     } catch (e: any) {
       console.log("AUTHORIZE error", e);
@@ -826,6 +872,15 @@ export const WalletContextProvider = ({
       console.log("AUTHORIZE", "resp", resp, "event", event?.id, event?.t);
       client.resolveEvent({ type: event?.t, id: event?.id }).then((e) => {
         setToggleGroup3((old) => !old);
+        makeRequest(MIDDLEWARE_HTTP_URLS.claim.url, {
+          method: MIDDLEWARE_HTTP_URLS.claim.method,
+          body: JSON.stringify({
+            event: event.t,
+            account: `did:${account}`,
+          }),
+        }).then((b) => {
+          setToggleGroup5((old) => !old);
+        });
       });
     } catch (e: any) {
       console.log("AUTHORIZE error", e);
@@ -835,10 +890,11 @@ export const WalletContextProvider = ({
   };
 
   const createSubnet = async (
-    agent: AddressData,
+    // agent: AddressData,
     name: string,
     ref: string,
-    status: number
+    status: number,
+    update?: boolean
   ) => {
     if (!window.keplr) {
       notification.error({ message: "Please install keplr extension" });
@@ -866,6 +922,7 @@ export const WalletContextProvider = ({
 
       subNetwork.meta = JSON.stringify({ name });
       subNetwork.reference = ref;
+      subNetwork.status = status;
 
       const encoded = subNetwork.encodeBytes();
       // console.log("ID::::", { authority, encoded });
@@ -889,14 +946,26 @@ export const WalletContextProvider = ({
 
       payload.data = subNetwork;
       payload.timestamp = Date.now();
-      payload.eventType = Entities.AdminSubnetEventType.CreateSubnet;
+      if (update) {
+        if (selectedSubnetId == null) {
+          notification.error({ message: "No Subnet Selected" });
+          throw Error("No Subnet Selected");
+          // return;
+        }
+        payload.eventType = Entities.AdminSubnetEventType.UpdateSubnet;
+        payload.subnet = selectedSubnetId;
+        subNetwork.id = selectedSubnetId;
+      } else {
+        payload.eventType = Entities.AdminSubnetEventType.CreateSubnet;
+      }
+      payload.data = subNetwork;
       payload.validator = VALIDATOR_PUBLIC_KEY;
       payload.account = Address.fromString(account);
       payload.nonce = 0;
 
       const pb = payload.encodeBytes();
       console.log("HEXDATA", pb.toString("hex"));
-      payload.signature = await Utils.signMessageEcc(pb, agent.privateKey);
+      // payload.signature = await Utils.signMessageEcc(pb, agent.privateKey);
       console.log("Payload", JSON.stringify(payload.asPayload()));
 
       const client = new Client(new RESTProvider(NODE_HTTP));
@@ -1022,6 +1091,7 @@ export const WalletContextProvider = ({
         selectedAgent,
         selectedMessagesTopicId,
         messagesList,
+        pointsList,
       }}
     >
       {children}

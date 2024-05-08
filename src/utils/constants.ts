@@ -19,6 +19,7 @@ export const USER_URL = '/users';
 export const TRANSACTION_URL = '/transaction';
 export const VALIDATOR_PUBLIC_KEY = process.env.NEXT_PUBLIC_VALIDATOR_PUBLIC_KEY;
 export const NODE_HTTP = process.env.NEXT_PUBLIC_NODE_HTTP;
+export const MIDDLEWARE_HTTP = process.env.NEXT_PUBLIC_MIDDLEWARE_HTTP;
 export const displayVariants = {
   hidden: { opacity: 0, scale: 0 },
   exit0: { opacity: 0, scale: 0 },
@@ -35,6 +36,23 @@ export const formLayout = {
   wrapperCol: { span: 16 },
 };
 
+<<<<<<< HEAD
 export const INFO_LINKS = {
   subnetInfo: 'https://mlayer.gitbook.io/white-paper/technology#components-of-the-communication-layer'
 }
+=======
+export const MIDDLEWARE_HTTP_URLS = {
+  connect: {
+    url: `${MIDDLEWARE_HTTP}/v1/activity/connect-wallet`,
+    method: `POST`,
+  },
+  claim: {
+    url: `${MIDDLEWARE_HTTP}/v1/activity/claim`,
+    method: `POST`,
+  },
+  account: {
+    url: `${MIDDLEWARE_HTTP}/v1/activity/account`,
+    method: `GET`,
+  },
+};
+>>>>>>> 997ae8869473b80055d3e47b2c711be0a70c1ba1
