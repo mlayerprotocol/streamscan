@@ -1,5 +1,10 @@
 "use client";
-import { displayVariants, formLayout, shorternAddress } from "@/utils";
+import {
+  displayVariants,
+  formLayout,
+  metaToObject,
+  shorternAddress,
+} from "@/utils";
 import React, { useContext, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useForm } from "antd/es/form/Form";
@@ -17,21 +22,26 @@ export const Settings = (props: SettingsProps) => {
     selectedAgent,
     createSubnet,
     loaders,
-    agents,
-    topicList,
+    selectedSubnetId,
+    subnetListModelList,
   } = useContext(WalletContext);
-
-  const _selectedAgent = useMemo(() => {
-    return combinedAgents.find((opt) => opt.address == selectedAgent)?.address;
-  }, [combinedAgents, selectedAgent]);
 
   const items = combinedAgents.filter(
     (cAgt) => cAgt.privateKey && cAgt.authData
   );
 
   useEffect(() => {
-    form.setFieldsValue({ address: _selectedAgent });
-  }, [_selectedAgent]);
+    const selectedSubnet = subnetListModelList?.data.find(
+      (opt) => opt.id == selectedSubnetId
+    );
+    const meta = metaToObject(selectedSubnet?.meta) ?? {};
+    // console.log({ meta, ref: selectedSubnet?.ref, status: selectedSubnet?.st });
+    form.setFieldsValue({
+      n: meta.name,
+      ref: selectedSubnet?.ref,
+      status: selectedSubnet?.st,
+    });
+  }, [subnetListModelList, selectedSubnetId]);
   return (
     <motion.div
       className="inline-block w-full"
@@ -63,27 +73,18 @@ export const Settings = (props: SettingsProps) => {
             form={form}
             initialValues={{}}
             onFinish={(data) => {
-              const agent: AddressData | undefined = agents.find(
-                (el) => el.address == data["address"]
-              );
-              if (!agent) {
-                notification.error({
-                  message: "Agent Private Key Not Accessable",
-                });
-                return;
-              }
               const name: string = data["n"];
               const ref: string = data["ref"];
               const status: number = data["status"];
 
-              createSubnet?.(agent, name, ref, status);
-              console.log({ data, agent });
+              createSubnet?.(name, ref.trim(), status, true);
+              console.log({ data });
               form.setFieldsValue({});
             }}
             // onFinishFailed={onFinishFailed}
             autoComplete="off"
           >
-            <Form.Item
+            {/* <Form.Item
               label={`Agent Address: `}
               name="address"
               rules={[
@@ -99,8 +100,8 @@ export const Settings = (props: SettingsProps) => {
                   );
                 })}
               </Select>
-              {/* <Input placeholder="Enter An Address" disabled /> */}
-            </Form.Item>
+              
+            </Form.Item> */}
             <Form.Item
               label={`Name: `}
               name="n"
@@ -121,7 +122,7 @@ export const Settings = (props: SettingsProps) => {
 
             <Form.Item
               label="Status:"
-              name="s"
+              name="status"
               rules={[
                 { required: true, message: "Please input select a status!" },
               ]}
