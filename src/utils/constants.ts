@@ -17,7 +17,9 @@ export const ACCOUNT_LOGOUT = '/logout';
 export const STATUS_URL = '/status';
 export const USER_URL = '/users';
 export const TRANSACTION_URL = '/transaction';
-export const VALIDATOR_PUBLIC_KEY = process.env.NEXT_PUBLIC_VALIDATOR_PUBLIC_KEY;
+export const VALIDATOR_PUBLIC_KEY = String(
+  process.env.NEXT_PUBLIC_VALIDATOR_PUBLIC_KEY
+);
 export const NODE_HTTP = process.env.NEXT_PUBLIC_NODE_HTTP;
 export const MIDDLEWARE_HTTP = process.env.NEXT_PUBLIC_MIDDLEWARE_HTTP;
 export const displayVariants = {

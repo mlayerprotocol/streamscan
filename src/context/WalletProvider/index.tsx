@@ -664,7 +664,7 @@ export const WalletContextProvider = ({
       payload.eventType = isUpdate
         ? Entities.AdminTopicEventType.UpdateTopic
         : Entities.AdminTopicEventType.CreateTopic;
-      payload.validator = VALIDATOR_PUBLIC_KEY;
+      payload.validator = String(VALIDATOR_PUBLIC_KEY);
       payload.account = Entities.Address.fromString(account);
       payload.nonce = 0;
       const pb = payload.encodeBytes();
@@ -764,7 +764,7 @@ export const WalletContextProvider = ({
       payload.data = subscribe;
       payload.timestamp = Date.now();
       payload.eventType = Entities.MemberTopicEventType.JoinEvent;
-      payload.validator = VALIDATOR_PUBLIC_KEY;
+      payload.validator = String(VALIDATOR_PUBLIC_KEY);
       payload.account = Address.fromString(account);
       const pb = payload.encodeBytes();
       console.log("🚀 ~ main ~ pb:", pb.toString("hex"));
