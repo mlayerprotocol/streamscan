@@ -21,6 +21,7 @@ export const VALIDATOR_PUBLIC_KEY =
   "2c2387845a0e17281653050892d3095e7fc99ad32d79b7fbdf11c9a87671daca";
 // export const NODE_HTTP = "http://154.12.228.25:9531";
 export const NODE_HTTP = process.env.NEXT_PUBLIC_NODE_HTTP;
+export const MIDDLEWARE_HTTP = process.env.NEXT_PUBLIC_MIDDLEWARE_HTTP;
 export const displayVariants = {
   hidden: { opacity: 0, scale: 0 },
   exit0: { opacity: 0, scale: 0 },
@@ -35,4 +36,19 @@ export const PREVILEDGES = ["Disabled", "Read", "Write", "Admin"];
 export const formLayout = {
   labelCol: { span: 8 },
   wrapperCol: { span: 16 },
+};
+
+export const MIDDLEWARE_HTTP_URLS = {
+  connect: {
+    url: `${MIDDLEWARE_HTTP}/v1/activity/connect-wallet`,
+    method: `POST`,
+  },
+  claim: {
+    url: `${MIDDLEWARE_HTTP}/v1/activity/claim`,
+    method: `POST`,
+  },
+  account: {
+    url: `${MIDDLEWARE_HTTP}/v1/activity/account`,
+    method: `GET`,
+  },
 };

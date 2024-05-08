@@ -1,3 +1,4 @@
+import { notification } from "antd";
 import { RcFile } from "antd/es/upload";
 import { ethers } from "ethers";
 
@@ -43,6 +44,23 @@ export function metaToObject(value?: string): Record<string, any> | undefined {
   if (!value) return undefined;
   try {
     return JSON.parse(value);
+  } catch (error) {
+    return undefined;
+  }
+}
+
+export async function makeRequest(
+  url: string,
+  init?: RequestInit
+): Promise<Response | undefined> {
+  if (!window.fetch) {
+    return undefined;
+  }
+  try {
+    return fetch(url, {
+      ...init,
+      headers: { ...init?.headers, "Content-Type": "application/json" },
+    });
   } catch (error) {
     return undefined;
   }

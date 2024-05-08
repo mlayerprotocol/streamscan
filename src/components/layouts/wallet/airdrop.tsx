@@ -12,9 +12,25 @@ interface AirDropProps {
 export const AirDrop = (props: AirDropProps) => {
   const [showCreateMessageModal, setShowCreateMessageModal] =
     useState<boolean>(false);
-  const { loaders, subcribeToTopic, agents, selectedAgent } =
-    useContext(WalletContext);
-
+  const { pointsList } = useContext(WalletContext);
+  const activites = useMemo(() => {
+    // return (pointsList?.data ?? []).map((point) => ({
+    //   title: point.activityName,
+    //   point: "?? points/downline",
+    //   amount: point.points,
+    //   actionText: "Get referral link",
+    // }));
+    const _points = pointsList?.data ?? [];
+    return ACTIVITIES.map((activity) => {
+      const _pt = _points.find((e) => e.activityName == activity.title);
+      return {
+        ...activity,
+        title: activity.title,
+        point: `${_pt?.points ?? "..."} point`,
+        amount: _pt?.claimStatus?.[0]?.points ?? "...",
+      };
+    });
+  }, [pointsList]);
   return (
     <motion.div
       className="inline-flex w-full flex-col gap-6 py-8"
@@ -58,7 +74,7 @@ export const AirDrop = (props: AirDropProps) => {
   );
 };
 
-const activites = [
+const ACTIVITIES = [
   {
     title: "Referrals",
     point: "50 points/downline",

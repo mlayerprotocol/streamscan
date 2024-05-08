@@ -11,6 +11,7 @@ export interface SubnetData {
   id: string;
   n: string;
   ref: string;
+  st: number;
   acct: string;
   agt: string;
   e: E;

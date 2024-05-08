@@ -75,28 +75,28 @@ export const CreateSubnet = (props: CreateSubnetProps) => {
             form={form}
             initialValues={{}}
             onFinish={(data) => {
-              const agent: AddressData | undefined = agents.find(
-                (el) => el.address == data["address"]
-              );
-              if (!agent) {
-                notification.error({
-                  message: "Agent Private Key Not Accessable",
-                });
-                return;
-              }
+              // const agent: AddressData | undefined = agents.find(
+              //   (el) => el.address == data["address"]
+              // );
+              // if (!agent) {
+              //   notification.error({
+              //     message: "Agent Private Key Not Accessable",
+              //   });
+              //   return;
+              // }
               const name: string = data["n"];
               const ref: string = data["ref"];
               const status: number = data["status"];
 
-              createSubnet?.(agent, name, ref, status);
-              console.log({ data, agent });
+              createSubnet?.(name, ref, status);
+              // console.log({ data, agent });
               form.setFieldsValue({});
               onCancel?.({} as any);
             }}
             // onFinishFailed={onFinishFailed}
             autoComplete="off"
           >
-            <Form.Item
+            {/* <Form.Item
               label={`Agent Address: `}
               name="address"
               rules={[
@@ -112,8 +112,7 @@ export const CreateSubnet = (props: CreateSubnetProps) => {
                   );
                 })}
               </Select>
-              {/* <Input placeholder="Enter An Address" disabled /> */}
-            </Form.Item>
+            </Form.Item> */}
             <Form.Item
               label={`Name: `}
               name="n"
@@ -134,7 +133,7 @@ export const CreateSubnet = (props: CreateSubnetProps) => {
 
             <Form.Item
               label="Status:"
-              name="s"
+              name="status"
               rules={[
                 { required: true, message: "Please input select a status!" },
               ]}
