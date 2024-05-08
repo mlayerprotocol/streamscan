@@ -75,14 +75,13 @@ export const CreateTopic = (props: CreateTopicProps) => {
                 });
                 return;
               }
-              const handle: string = data["hand"];
+
               const name: string = data["n"];
               const description: string = data["desc"];
               const ref: string = data["ref"];
               const isPublic: boolean = data["pub"] == true;
               createTopic?.(
                 selectedAgentObj,
-                handle,
                 name,
                 description,
                 ref,
@@ -94,7 +93,8 @@ export const CreateTopic = (props: CreateTopicProps) => {
                 }
               );
 
-              console.log({ data, selectedAgentObj });
+              console.log({ data, selectedAgentObj, ref });
+              form.setFieldsValue({});
               onCancel?.({} as any);
             }}
             // onFinishFailed={onFinishFailed}
@@ -112,9 +112,9 @@ export const CreateTopic = (props: CreateTopicProps) => {
             </Form.Item>
 
             <Form.Item
-              label="Handle:"
-              name="hand"
-              rules={[{ required: true, message: "Please input your handle!" }]}
+              label="Ref:"
+              name="ref"
+              rules={[{ required: true, message: "Please input a reference!" }]}
             >
               <Input placeholder="Enter Your Handle" />
             </Form.Item>
@@ -133,14 +133,6 @@ export const CreateTopic = (props: CreateTopicProps) => {
               rules={[{ message: "Please input your description!" }]}
             >
               <Input placeholder="Enter Your Description" />
-            </Form.Item>
-
-            <Form.Item
-              label="Ref:"
-              name="ref"
-              rules={[{ message: "Please input your description!" }]}
-            >
-              <Input placeholder="Enter Your Ref" />
             </Form.Item>
 
             <Form.Item label="Public:" name="pub" valuePropName="checked">

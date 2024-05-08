@@ -93,6 +93,7 @@ export const PrivateKey = (props: PrivateKeyProps) => {
                     return agt;
                   });
                 });
+                form.setFieldsValue({});
                 onCancel?.({} as any);
               } catch (error: any) {
                 notification.error({ message: `Invalid Private Key` });

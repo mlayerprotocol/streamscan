@@ -1,14 +1,16 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import * as HeroIcons from "@heroicons/react/24/solid";
 import { Breadcrumb, Layout, Menu, MenuProps, Table } from "antd";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import { Agents } from "./agents";
 import { Topics } from "./topics";
 import { Messages } from "./messages";
 import { Stake } from "./stake";
 import { AuthorizeAgent } from "@/components";
 import { AirDrop } from "./airdrop";
+import { Settings } from "./settings";
+import { WalletContext } from "@/context";
 
 const { Content, Sider } = Layout;
 
@@ -17,28 +19,38 @@ interface WalletMainLayoutProps {
   onCancel?: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 }
 export const WalletMainLayout = (props: WalletMainLayoutProps) => {
-  const { tab } = useParams();
+  const { tab, subnetId } = useParams();
   const router = useRouter();
+  const pathname = usePathname();
+  const { selectedSubnetId, setSelectedSubnetId } = useContext(WalletContext);
+  useEffect(() => {
+    console.log({ pathname });
+  }, [pathname]);
 
   useEffect(() => {
-    console.log({ tab });
-  }, [tab]);
+    if (selectedSubnetId == null) return;
+    // setSelectedSubnetId?.(subnetId);
+
+    const paths = pathname.split("/");
+    paths[2] = selectedSubnetId;
+    router.push(paths.join('/'), { scroll: false });
+  }, [selectedSubnetId]);
 
   const tabItems: MenuProps["items"] = [
-    {
-      key: "airdrop",
-      icon: <HeroIcons.GifIcon className="h-[20px]" />,
-      label: "Airdrop",
-      onClick: () => {
-        router.push("/wallet/airdrop", { scroll: false });
-      },
-    },
+    // {
+    //   key: "airdrop",
+    //   icon: <HeroIcons.GifIcon className="h-[20px]" />,
+    //   label: "Airdrop",
+    //   onClick: () => {
+    //     router.push("/wallet/airdrop", { scroll: false });
+    //   },
+    // },
     {
       key: "agents",
       icon: <HeroIcons.CpuChipIcon className="h-[20px]" />,
       label: "Agents/Devices",
       onClick: () => {
-        router.push("/wallet/agents", { scroll: false });
+        router.push(`/subnet/${selectedSubnetId}/agents`, { scroll: false });
       },
     },
     {
@@ -46,7 +58,7 @@ export const WalletMainLayout = (props: WalletMainLayoutProps) => {
       icon: <HeroIcons.NewspaperIcon className="h-[20px]" />,
       label: "Topics",
       onClick: () => {
-        router.push("/wallet/topics", { scroll: false });
+        router.push(`/subnet/${selectedSubnetId}/topics`, { scroll: false });
       },
     },
     {
@@ -54,7 +66,7 @@ export const WalletMainLayout = (props: WalletMainLayoutProps) => {
       icon: <HeroIcons.EnvelopeIcon className="h-[20px]" />,
       label: "Messages",
       onClick: () => {
-        router.push("/wallet/messages", { scroll: false });
+        router.push(`/subnet/${selectedSubnetId}/messages`, { scroll: false });
       },
     },
     {
@@ -62,7 +74,15 @@ export const WalletMainLayout = (props: WalletMainLayoutProps) => {
       icon: <HeroIcons.CircleStackIcon className="h-[20px]" />,
       label: "Stake",
       onClick: () => {
-        router.push("/wallet/stake", { scroll: false });
+        router.push(`/subnet/${selectedSubnetId}/stake`, { scroll: false });
+      },
+    },
+    {
+      key: "settings",
+      icon: <HeroIcons.Cog8ToothIcon className="h-[20px]" />,
+      label: "Settings",
+      onClick: () => {
+        router.push(`/subnet/${selectedSubnetId}/settings`, { scroll: false });
       },
     },
   ];
@@ -83,7 +103,8 @@ export const WalletMainLayout = (props: WalletMainLayoutProps) => {
           {"topics" == tab && <Topics />}
           {"messages" == tab && <Messages />}
           {"stake" == tab && <Stake />}
-          {"airdrop" == tab && <AirDrop />}
+          {"settings" == tab && <Settings />}
+          {/* {"airdrop" == tab && <AirDrop />} */}
         </Content>
       </Layout>
     </Layout>

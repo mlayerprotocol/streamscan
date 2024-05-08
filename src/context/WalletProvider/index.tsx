@@ -16,6 +16,7 @@ import {
   LOCAL_PRIVKEY_STORAGE_KEY,
   NODE_HTTP,
   SELECTED_AGENT_STORAGE_KEY,
+  SELECTED_SUBNET_STORAGE_KEY,
   Storage,
   VALIDATOR_PUBLIC_KEY,
   WALLET_ACCOUNTS_STORAGE_KEY,
@@ -29,6 +30,7 @@ import { Address } from "@mlayerprotocol/core/src/entities";
 import { BlockStatsListModel } from "@/model/block-stats";
 import { MessageListModel } from "@/model/message/list";
 import { MainStatsModel } from "@/model/main-stats/data";
+import { SubnetListModel } from "@/model/subnets";
 
 // import { Authorization } from "@mlayerprotocol/core/src/entities";
 // const { Authorization } = Entities;
@@ -48,6 +50,7 @@ interface WalletContextValues {
   loadingWalletConnections: Record<string, boolean>;
   walletConnectionState: Record<string, boolean>;
   connectedWallet?: string;
+  selectedSubnetId?: string;
   selectedAgent?: string;
   selectedMessagesTopicId?: string;
 
@@ -58,6 +61,7 @@ interface WalletContextValues {
   blockStatsList?: BlockStatsListModel;
   mainStatsData?: MainStatsModel;
   messagesList?: MessageListModel;
+  subnetListModelList?: SubnetListModel;
   accountTopicList?: TopicListModel;
   authenticationList?: AuthenticationListModel;
   authorizeAgent?: (
@@ -67,7 +71,6 @@ interface WalletContextValues {
   ) => Promise<void>;
   createTopic?: (
     agent: AddressData,
-    handle: string,
     name: string,
     description: string,
 
@@ -87,7 +90,16 @@ interface WalletContextValues {
     agent: AddressData,
     topicId: string
   ) => Promise<void>;
+
+  createSubnet?: (
+    // agent: AddressData,
+    name: string,
+    ref: string,
+    status: number
+  ) => Promise<void>;
   setSelectedMessagesTopicId?: Dispatch<SetStateAction<string | undefined>>;
+  setSelectedSubnetId?: Dispatch<SetStateAction<string | undefined>>;
+  setToggleGroupStats?: Dispatch<SetStateAction<boolean>>;
 }
 
 declare const TextEncoder: any;
@@ -161,9 +173,12 @@ export const WalletContextProvider = ({
     Record<string, boolean>
   >({});
   const [connectedWallet, setConnectedWallet] = useState<string>();
+  const [selectedSubnetId, setSelectedSubnetId] = useState<string>();
   const [toggleGroup1, setToggleGroup1] = useState<boolean>(false);
   const [toggleGroup2, setToggleGroup2] = useState<boolean>(false);
   const [toggleGroup3, setToggleGroup3] = useState<boolean>(false);
+  const [toggleGroup4, setToggleGroup4] = useState<boolean>(false);
+  const [toggleGroupStats, setToggleGroupStats] = useState<boolean>(false);
   const [selectedAgent, setSelectedAgent] = useState<string>();
   const [selectedMessagesTopicId, setSelectedMessagesTopicId] =
     useState<string>();
@@ -179,6 +194,7 @@ export const WalletContextProvider = ({
 
   const [topicList, setTopicList] = useState<TopicListModel>();
   const [accountTopicList, setAccountTopicList] = useState<TopicListModel>();
+  const [subnetListModelList, setSubnetListList] = useState<SubnetListModel>();
   const [blockStatsList, setBlockStatsList] = useState<BlockStatsListModel>();
   const [mainStatsData, setMainStatsData] = useState<MainStatsModel>();
   const [messagesList, setMessagesList] = useState<MessageListModel>();
@@ -194,8 +210,13 @@ export const WalletContextProvider = ({
     []
   );
 
-  const selecteAgentStorage = useMemo(
+  const selectedAgentStorage = useMemo(
     () => new Storage(SELECTED_AGENT_STORAGE_KEY),
+    []
+  );
+
+  const selectedSubnetStorage = useMemo(
+    () => new Storage(SELECTED_SUBNET_STORAGE_KEY),
     []
   );
 
@@ -281,24 +302,40 @@ export const WalletContextProvider = ({
     if (agents.length > 0) return;
     generateAgent(true);
     generateLocalPrivKeys(true);
-  }, []);
+  }, [selectedSubnetId]);
   useEffect(() => {
     initializeOldState();
+  }, []);
+  useEffect(() => {
     getBlockStats({});
     getMainStats({});
-  }, []);
+  }, [toggleGroupStats]);
 
   useEffect(() => {
-    getTopicMessages(selectedMessagesTopicId ?? "", {});
+    if (!selectedMessagesTopicId) return;
+    getTopicMessages(selectedMessagesTopicId, {});
   }, [selectedMessagesTopicId, toggleGroup3]);
+  useEffect(() => {
+    getAccountSubnets({
+      agt: selectedAgent,
+    });
+  }, [selectedAgent, toggleGroup4]);
 
   useEffect(() => {
     if (connectedWallet) connectedStorage?.set(connectedWallet);
     if (Object.keys(walletAccounts).length > 0)
       wallectAccountsStorage?.set(walletAccounts);
-    if (selectedAgent) selecteAgentStorage?.set(selectedAgent);
-    console.log({ connectedWallet, walletAccounts, selectedAgent });
-  }, [connectedWallet, selectedAgent, walletAccounts]);
+    if (selectedAgent) selectedAgentStorage?.set(selectedAgent);
+    if (selectedSubnetId) selectedSubnetStorage?.set(selectedSubnetId);
+    console.log({
+      connectedWallet,
+      walletAccounts,
+      selectedAgent,
+      selectedSubnetId,
+    });
+  }, [connectedWallet, selectedAgent, selectedSubnetId, walletAccounts]);
+
+  useEffect(() => {}, []);
 
   useEffect(() => {
     if (!connectedWallet) return;
@@ -322,7 +359,7 @@ export const WalletContextProvider = ({
     const localAgents: AddressData[] = [...agents];
     (authenticationList?.data ?? []).forEach((authEl) => {
       const idx: number = localAgents.findIndex(
-        (agt) => agt.address == authEl.agt
+        (agt) => agt.address == authEl.agt || `did:${agt.address}` == authEl.agt
       );
       if (idx != -1) {
         localAgents[idx].authData = authEl;
@@ -334,8 +371,11 @@ export const WalletContextProvider = ({
         } as AddressData);
       }
     });
-    setCombinedAgents([...localAgents, ...serverAgents]);
-  }, [agents, authenticationList]);
+    setCombinedAgents([
+      ...localAgents.filter((agt) => selectedSubnetId == agt.subnetId),
+      ...serverAgents.filter((agt) => selectedSubnetId == agt?.authData?.snet),
+    ]);
+  }, [agents, authenticationList, selectedSubnetId]);
 
   const ganerateAuthorizationMessage = async (
     validatorPublicKey: string,
@@ -344,6 +384,11 @@ export const WalletContextProvider = ({
     days: number = 30,
     privilege: 0 | 1 | 2 | 3 = 3
   ) => {
+    if (selectedSubnetId == null) {
+      notification.error({ message: "No Subnet Selected" });
+      throw Error("No Subnet Selected");
+      // return;
+    }
     const authority: Entities.Authorization = new Entities.Authorization();
     // console.log("keypairsss", Utils.generateKeyPairSecp());
     // console.log(
@@ -357,6 +402,7 @@ export const WalletContextProvider = ({
     authority.timestamp = Date.now();
     authority.topicIds = "*";
     authority.privilege = privilege;
+    authority.subnet = selectedSubnetId;
     authority.duration = days * 24 * 60 * 60 * 1000; // 30 days
     // console.log({ authority });
     const encoded = authority.encodeBytes();
@@ -437,7 +483,7 @@ export const WalletContextProvider = ({
           notification.error({ message: "Please install keplr extension" });
           return;
         }
-        
+
         const signature = await window.keplr.signArbitrary(
           chainIds[connectedWallet],
           account,
@@ -460,7 +506,7 @@ export const WalletContextProvider = ({
         });
       })
       .catch((r) => {
-        console.log({r})
+        console.log({ r });
         setLoaders((old) => ({ ...old, authorizeAgent: false }));
       });
   };
@@ -469,12 +515,16 @@ export const WalletContextProvider = ({
     if (typeof window !== "undefined") {
       const storage = new Storage(KEYPAIR_STORAGE_KEY);
       // console.log({ KEYPAIR_STORAGE_KEY, storage: storage.get() });
-
+      if (selectedSubnetId == null) {
+        return;
+        // return;
+      }
       if (asNew && storage.get()) {
         setAgents(storage.get());
         return;
       }
-      const kp = Utils.generateKeyPairEcc();
+      const kp: AddressData = Utils.generateKeyPairEcc();
+      kp.subnetId = selectedSubnetId;
       const newKps: AddressData[] = [...agents, kp];
 
       updateAgents(newKps);
@@ -519,8 +569,12 @@ export const WalletContextProvider = ({
         setWalletAccounts(wallectAccountsStorage.get());
       }
 
-      if (selecteAgentStorage.get()) {
-        setSelectedAgent(selecteAgentStorage.get());
+      if (selectedAgentStorage.get()) {
+        setSelectedAgent(selectedAgentStorage.get());
+      }
+
+      if (selectedSubnetStorage.get()) {
+        setSelectedSubnetId(selectedSubnetStorage.get());
       }
       // console.log({
       //   CONNECTED_WALLET_STORAGE_KEY,
@@ -532,7 +586,6 @@ export const WalletContextProvider = ({
 
   const createTopic = async (
     agent: AddressData,
-    handle: string,
     name: string,
     description: string,
 
@@ -553,6 +606,11 @@ export const WalletContextProvider = ({
       notification.error({ message: "No account found" });
       return;
     }
+    if (selectedSubnetId == null) {
+      notification.error({ message: "No Subnet Selected" });
+      throw Error("No Subnet Selected");
+      // return;
+    }
     const { loaderKey, isUpdate = false, id } = options ?? {};
     setLoaders((old) => ({ ...old, [loaderKey ?? "createTopic"]: true }));
     try {
@@ -563,18 +621,18 @@ export const WalletContextProvider = ({
       //   validator.publicKey,
       //   Utils.toAddress(Buffer.from(validator.publicKey, 'hex'))
       // );
-      topic.handle = handle;
-      topic.description = description;
 
-      topic.name = name;
-      topic.reference = reference;
+      topic.meta = JSON.stringify({ name, description });
+      topic.ref = reference;
       topic.isPublic = isPublic;
       topic.id = id ?? "";
+      topic.subnet = selectedSubnetId;
 
       const payload: Entities.ClientPayload<Entities.Topic> =
         new Entities.ClientPayload();
       payload.data = topic;
       payload.timestamp = Date.now();
+      payload.subnet = selectedSubnetId;
       payload.eventType = isUpdate
         ? Entities.AdminTopicEventType.UpdateTopic
         : Entities.AdminTopicEventType.CreateTopic;
@@ -776,6 +834,103 @@ export const WalletContextProvider = ({
     setLoaders((old) => ({ ...old, sendMessage: false }));
   };
 
+  const createSubnet = async (
+    agent: AddressData,
+    name: string,
+    ref: string,
+    status: number
+  ) => {
+    if (!window.keplr) {
+      notification.error({ message: "Please install keplr extension" });
+      return;
+    }
+    if (connectedWallet == null) {
+      notification.error({ message: "No wallet connected" });
+      return;
+    }
+    const account = walletAccounts[connectedWallet][0];
+    if (account == null || account == "") {
+      notification.error({ message: "No account found" });
+      return;
+    }
+    setLoaders((old) => ({ ...old, createSubnet: true }));
+
+    try {
+      const subNetwork: Entities.Subnet = new Entities.Subnet();
+      //console.log('keypairsss', Utils.generateKeyPairSecp());
+      // console.log(
+      //   'BECH32ADDRESS',
+      //   validator.publicKey,
+      //   Utils.toAddress(Buffer.from(validator.publicKey, 'hex'))
+      // );
+
+      subNetwork.meta = JSON.stringify({ name });
+      subNetwork.reference = ref;
+
+      const encoded = subNetwork.encodeBytes();
+      // console.log("ID::::", { authority, encoded });
+
+      const hash = Utils.sha256Hash(encoded).toString("base64");
+
+      const signatureResp = await window.keplr.signArbitrary(
+        chainIds[connectedWallet],
+        account,
+        `Create Subnet ${"ml"}:${subNetwork.reference}:${hash}`
+      );
+      subNetwork.signatureData = new Entities.SignatureData(
+        signatureResp.pub_key.type as any,
+        signatureResp.pub_key.value,
+        signatureResp.signature
+      );
+      subNetwork.account = Address.fromString(account);
+
+      const payload: Entities.ClientPayload<Entities.Subnet> =
+        new Entities.ClientPayload();
+
+      payload.data = subNetwork;
+      payload.timestamp = Date.now();
+      payload.eventType = Entities.AdminSubnetEventType.CreateSubnet;
+      payload.validator = VALIDATOR_PUBLIC_KEY;
+      payload.account = Address.fromString(account);
+      payload.nonce = 0;
+
+      const pb = payload.encodeBytes();
+      console.log("HEXDATA", pb.toString("hex"));
+      payload.signature = await Utils.signMessageEcc(pb, agent.privateKey);
+      console.log("Payload", JSON.stringify(payload.asPayload()));
+
+      const client = new Client(new RESTProvider(NODE_HTTP));
+      const resp: any = await client.createSubnet(payload);
+
+      const event = resp?.data?.event;
+      console.log("AUTHORIZE", "resp", resp, "event", event?.id, event?.t);
+      client.resolveEvent({ type: event?.t, id: event?.id }).then((e) => {
+        setToggleGroup4((old) => !old);
+      });
+    } catch (e: any) {
+      console.log("AUTHORIZE error", e);
+      notification.error({ message: e?.response?.data?.error + "" });
+    }
+    setLoaders((old) => ({ ...old, createSubnet: false }));
+  };
+
+  const getAccountSubnets = async (params: Record<string, unknown>) => {
+    if (loaders["getAccountSubnets"]) return;
+    setLoaders((old) => ({ ...old, getAccountSubnets: true }));
+    try {
+      const client = new Client(new RESTProvider(NODE_HTTP));
+      const respond: SubnetListModel = (await client.getSubnets(
+        params
+      )) as unknown as SubnetListModel;
+      if ((respond as any)?.error) {
+        notification.error({ message: (respond as any)?.error + "" });
+      }
+      setSubnetListList(respond);
+      // console.log("getAccountSubnets::::", respond);
+    } catch (error) {}
+    setLoaders((old) => ({ ...old, getAccountSubnets: false }));
+  };
+
   const getBlockStats = async (params: Record<string, unknown>) => {
     if (loaders["getBlockStats"]) return;
     setLoaders((old) => ({ ...old, getBlockStats: true }));
@@ -846,19 +1001,24 @@ export const WalletContextProvider = ({
         setSelectedAgent,
         setCombinedAgents,
         setSelectedMessagesTopicId,
+        setSelectedSubnetId,
         subcribeToTopic,
         sendMessage,
+        createSubnet,
+        setToggleGroupStats,
         walletAccounts,
         loadingWalletConnections,
         walletConnectionState,
         connectedWallet,
-        agents,
+        selectedSubnetId,
+        agents: agents.filter((agt) => selectedSubnetId == agt.subnetId),
         combinedAgents,
         topicList,
         blockStatsList,
         mainStatsData,
         accountTopicList,
         authenticationList,
+        subnetListModelList,
         selectedAgent,
         selectedMessagesTopicId,
         messagesList,

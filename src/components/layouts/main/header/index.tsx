@@ -34,7 +34,7 @@ export const AppHeader = (props: AppHeaderProps) => {
   const {
     connectedWallet,
     walletAccounts,
-    loadingWalletConnections,
+    selectedSubnetId,
     initializeKeplr,
     intializeMetamask,
   } = useContext(WalletContext);
@@ -51,8 +51,17 @@ export const AppHeader = (props: AppHeaderProps) => {
       key: "2",
       icon: <HeroIcons.UserCircleIcon className="ml-2 h-[20px]" />,
       label: (
-        <Link href={"/wallet/agents"} className="font-medium text-base ml-2">
-          Wallet
+        <Link href={"/subnet"} className="font-medium text-base ml-2">
+          Subnets
+        </Link>
+      ),
+    },
+    {
+      key: "2.5",
+      icon: <HeroIcons.UserCircleIcon className="ml-2 h-[20px]" />,
+      label: (
+        <Link href={"/airdrop"} className="font-medium text-base ml-2">
+          Airdrop
         </Link>
       ),
     },
@@ -132,9 +141,11 @@ export const AppHeader = (props: AppHeaderProps) => {
               }
               placeholder="Search by Account, Agent, Event Hash"
             />
-           <Button className="ml-6" type="primary" shape="round">
+            <Button className="ml-6" type="primary" shape="round">
               <div className="flex items-center gap-2">
-              <Typography.Text className="ml-0 !text-white text-nowrap">Mainnet</Typography.Text>
+                <Typography.Text className="ml-0 !text-white text-nowrap">
+                  Mainnet
+                </Typography.Text>
                 <HeroIcons.ChevronDownIcon className="h-[20px] text-white" />
               </div>
             </Button>
@@ -222,7 +233,7 @@ export const AppHeader = (props: AppHeaderProps) => {
                 Home
               </Link>
               <Link
-                href={"/wallet/airdrop"}
+                href={"/airdrop"}
                 className="text-2xl "
                 onClick={() => {
                   setShowMobilMoney((old) => !old);
@@ -231,7 +242,7 @@ export const AppHeader = (props: AppHeaderProps) => {
                 Airdrop
               </Link>
               <Link
-                href={"/wallet/agents"}
+                href={`/subnet/${selectedSubnetId}/agents`}
                 className="text-2xl "
                 onClick={() => {
                   setShowMobilMoney((old) => !old);
@@ -240,7 +251,7 @@ export const AppHeader = (props: AppHeaderProps) => {
                 Agents/Devices
               </Link>
               <Link
-                href={"/wallet/topics"}
+                href={`/subnet/${selectedSubnetId}/topics`}
                 className="text-2xl "
                 onClick={() => {
                   setShowMobilMoney((old) => !old);
@@ -249,7 +260,7 @@ export const AppHeader = (props: AppHeaderProps) => {
                 Topics
               </Link>
               <Link
-                href={"/wallet/messages"}
+                href={`/subnet/${selectedSubnetId}/messages`}
                 className="text-2xl "
                 onClick={() => {
                   setShowMobilMoney((old) => !old);
@@ -258,7 +269,7 @@ export const AppHeader = (props: AppHeaderProps) => {
                 Messages
               </Link>
               <Link
-                href={"/wallet/stake"}
+                href={`/subnet/${selectedSubnetId}/stake`}
                 className="text-2xl "
                 onClick={() => {
                   setShowMobilMoney((old) => !old);
@@ -326,7 +337,9 @@ export const AppHeader = (props: AppHeaderProps) => {
           <div className="flex gap-2 mx-10 items-center">
             <Link href={"/"}>Home</Link>
             <span className="text-gray-500">|</span>
-            <Link href={"/wallet/agents"}>Wallet</Link>
+            <Link href={"/subnet"}>Studio</Link>
+            <span className="text-gray-500">|</span>
+            <Link href={"/airdrop"}>Airdrop</Link>
             {/* <Link href={"/my-list"}>Validator</Link>
             <span className="text-gray-500">|</span>
             <Link href={"/"}>Name Service</Link> */}

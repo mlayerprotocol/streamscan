@@ -2,7 +2,7 @@
 import { WalletContext } from "@/context";
 import { Card, Divider, Table, Spin } from "antd";
 import Link from "next/link";
-import React, { useContext, useMemo } from "react";
+import React, { useContext, useEffect, useMemo } from "react";
 import * as HeroIcons from "@heroicons/react/24/solid";
 import { HomeStatCardOne } from "@/components";
 import { currencyFormat } from "@/utils";
@@ -36,11 +36,23 @@ const columns = [
 ];
 
 const DashboardPage = () => {
-  const { loaders, blockStatsList, mainStatsData } = useContext(WalletContext);
+  var intervalId: any;
+  const { loaders, blockStatsList, mainStatsData, setToggleGroupStats } =
+    useContext(WalletContext);
 
   const dataSource = useMemo(() => {
     return blockStatsList?.data ?? [];
   }, [blockStatsList]);
+
+  useEffect(() => {
+    intervalId = setInterval(() => {
+      setToggleGroupStats?.((old) => !old);
+    }, 2000);
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, []);
   return (
     <div className="flex flex-col gap-4">
       <div className="flex gap-4">
@@ -64,18 +76,15 @@ const DashboardPage = () => {
           <div className="flex flex-col grow gap-2">
             <HomeStatCardOne
               title="TVL"
-              amount={`${
-                mainStatsData?.data.topic_balance || 0
-              } MLT`} 
-             
-              offset={`${currencyFormat(
-                1232345
-              )}`}
+              amount={`${mainStatsData?.data.topic_balance || 0} MLT`}
+              offset={`${currencyFormat(1232345)}`}
               icon={<HeroIcons.BarsArrowUpIcon className="ml-2 h-[30px] " />}
             />
             <HomeStatCardOne
               title="Total Tranx Volume"
-              amount={`${'20,000'} MLT`}
+              amount={`${currencyFormat(
+                mainStatsData?.data.message_cost ?? 0
+              )} MLT`}
               // date="2h"
               offset="~$1,212,341"
               icon={<HeroIcons.WalletIcon className="ml-2 h-[30px] " />}
@@ -86,7 +95,6 @@ const DashboardPage = () => {
       <Card className="shadow-2xl !rounded-2xl">
         <div className="flex justify-between mb-4">
           <span className="font-bold text-xl">Recent Blocks</span>
-          <Link href={"/"}>View all</Link>
         </div>
         <Table
           dataSource={dataSource.filter(d=>d.blk != 0)}

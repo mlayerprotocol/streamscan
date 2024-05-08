@@ -3,7 +3,11 @@ export const KEYPAIR_STORAGE_KEY = "@@mlayer-storage/keypair-v4";
 export const LOCAL_PRIVKEY_STORAGE_KEY = "@@mlayer-storage/local-privkey-v4";
 export const CONNECTED_WALLET_STORAGE_KEY = "@@mlayer-storage/connected-wallet";
 export const WALLET_ACCOUNTS_STORAGE_KEY = "@@mlayer-storage/wallet-accounts";
-export const SELECTED_AGENT_STORAGE_KEY = '@@mlayer-storage/selected-agent-account';
+
+export const SELECTED_AGENT_STORAGE_KEY =
+  "@@mlayer-storage/selected-agent-account";
+export const SELECTED_SUBNET_STORAGE_KEY =
+  "@@mlayer-storage/selected-subnet-id";
 export const BASE_URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}`;
 // export const HOST_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 
@@ -30,3 +34,7 @@ export const formLayout = {
   labelCol: { span: 8 },
   wrapperCol: { span: 16 },
 };
+
+export const INFO_LINKS = {
+  subnetInfo: 'https://mlayer.gitbook.io/white-paper/technology#components-of-the-communication-layer'
+}

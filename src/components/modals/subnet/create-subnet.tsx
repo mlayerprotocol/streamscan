@@ -5,6 +5,7 @@ import {
   Form,
   Input,
   InputNumber,
+  MenuProps,
   Modal,
   Select,
   notification,
@@ -16,30 +17,33 @@ import { useForm } from "antd/es/form/Form";
 import { displayVariants, formLayout, shorternAddress } from "@/utils";
 import { WalletContext } from "@/context";
 
-interface CreateMessageProps {
-  topicId?: string;
+interface CreateSubnetProps {
   isModalOpen?: boolean;
   onCancel?: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 }
-export const CreateMessage = (props: CreateMessageProps) => {
+export const CreateSubnet = (props: CreateSubnetProps) => {
   const {
     combinedAgents,
     selectedAgent,
-    sendMessage,
+    createSubnet,
     loaders,
     agents,
     topicList,
   } = useContext(WalletContext);
-  const { isModalOpen = false, onCancel, topicId } = props;
+  const { isModalOpen = false, onCancel } = props;
   const [form] = useForm();
 
   const _selectedAgent = useMemo(() => {
     return combinedAgents.find((opt) => opt.address == selectedAgent)?.address;
   }, [combinedAgents, selectedAgent]);
 
+  const items = combinedAgents.filter(
+    (cAgt) => cAgt.privateKey && cAgt.authData
+  );
+
   useEffect(() => {
-    form.setFieldsValue({ address: _selectedAgent, topicId });
-  }, [topicId, _selectedAgent]);
+    form.setFieldsValue({ address: _selectedAgent });
+  }, [_selectedAgent]);
 
   return (
     <Modal
@@ -69,21 +73,22 @@ export const CreateMessage = (props: CreateMessageProps) => {
             className="flex flex-col"
             name="basic"
             form={form}
-            initialValues={{ address: _selectedAgent, topicId }}
+            initialValues={{}}
             onFinish={(data) => {
-              const agent: AddressData | undefined = agents.find(
-                (el) => el.address == data["address"]
-              );
-              if (!agent) {
-                notification.error({
-                  message: "Agent Private Key Not Accessable",
-                });
-                return;
-              }
-              const message: string = data["message"];
-              const topicId: string = data["topicId"];
+              // const agent: AddressData | undefined = agents.find(
+              //   (el) => el.address == data["address"]
+              // );
+              // if (!agent) {
+              //   notification.error({
+              //     message: "Agent Private Key Not Accessable",
+              //   });
+              //   return;
+              // }
+              const name: string = data["n"];
+              const ref: string = data["ref"];
+              const status: number = data["status"];
 
-              sendMessage?.(message, agent, topicId);
+              createSubnet?.(agent, name, ref, status);
               console.log({ data, agent });
               form.setFieldsValue({});
               onCancel?.({} as any);
@@ -98,48 +103,61 @@ export const CreateMessage = (props: CreateMessageProps) => {
                 { required: true, message: "Please input select an address!" },
               ]}
             >
-              <Input placeholder="Enter An Address" disabled />
+              <Select>
+                {items.map((val, index) => {
+                  return (
+                    <Select.Option key={index} value={val.address}>
+                      {shorternAddress(val.address)}
+                    </Select.Option>
+                  );
+                })}
+              </Select>
+              {/* <Input placeholder="Enter An Address" disabled /> */}
+            </Form.Item>
+            <Form.Item
+              label={`Name: `}
+              name="n"
+              rules={[{ required: true, message: "Please input a name!" }]}
+            >
+              <Input placeholder="Enter A Name" />
             </Form.Item>
 
             <Form.Item
-              label="Topic Id:"
-              name="topicId"
+              label={`Reference: `}
+              name="ref"
               rules={[
-                { required: true, message: "Please input select a topic!" },
+                { required: true, message: "Please input select a reference!" },
+              ]}
+            >
+              <Input placeholder="Enter A Reference" />
+            </Form.Item>
+
+            <Form.Item
+              label="Status:"
+              name="s"
+              rules={[
+                { required: true, message: "Please input select a status!" },
               ]}
             >
               <Select>
-                {topicList?.data.map((kp, index) => {
+                {["Disabled", "Running"].map((val, index) => {
                   return (
-                    <Select.Option key={index} value={kp.id}>
-                      {kp.n}
+                    <Select.Option key={index} value={index}>
+                      {val}
                     </Select.Option>
                   );
                 })}
               </Select>
             </Form.Item>
 
-            <Form.Item
-              label="Message:"
-              name="message"
-              rules={[
-                { required: true, message: "Please input your message!" },
-              ]}
-            >
-              <Input.TextArea
-                placeholder="Enter Your Message"
-                className="!h-40"
-              />
-            </Form.Item>
-
             <Button
-              loading={loaders["sendMessage"]}
+              loading={loaders["createSubnet"]}
               type="primary"
               htmlType="submit"
               className="w-full mt-[28px] self-end"
               shape="round"
             >
-              <span className="text-black">Send Message</span>
+              <span className="text-black">Create Subnet</span>
             </Button>
           </Form>
         </motion.div>
