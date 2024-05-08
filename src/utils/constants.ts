@@ -36,11 +36,12 @@ export const formLayout = {
   wrapperCol: { span: 16 },
 };
 
-<<<<<<< HEAD
+
 export const INFO_LINKS = {
-  subnetInfo: 'https://mlayer.gitbook.io/white-paper/technology#components-of-the-communication-layer'
-}
-=======
+  subnetInfo:
+    'https://mlayer.gitbook.io/white-paper/technology#components-of-the-communication-layer',
+};
+
 export const MIDDLEWARE_HTTP_URLS = {
   connect: {
     url: `${MIDDLEWARE_HTTP}/v1/activity/connect-wallet`,
@@ -55,4 +56,3 @@ export const MIDDLEWARE_HTTP_URLS = {
     method: `GET`,
   },
 };
->>>>>>> 997ae8869473b80055d3e47b2c711be0a70c1ba1
