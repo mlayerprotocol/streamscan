@@ -1,5 +1,5 @@
 "use client";
-import { displayVariants, metaToObject, shorternAddress } from "@/utils";
+import { ML_ACCOUNT_DID_STRING, displayVariants, metaToObject, shorternAddress } from "@/utils";
 import React, { useContext, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { CreateMessage, CreateTopic } from "@/components";
@@ -7,6 +7,7 @@ import { WalletContext } from "@/context";
 import { Button, Dropdown, MenuProps, Space, Table } from "antd";
 import * as HeroIcons from "@heroicons/react/24/solid";
 import moment from "moment";
+import { Address } from "@mlayerprotocol/core/src/entities";
 interface MessagesProps {
   onSuccess?: (values: any) => void;
   handleCreateAccount?: () => void;
@@ -29,7 +30,7 @@ export const Messages = (props: MessagesProps) => {
     () => walletAccounts[connectedWallet ?? ""]?.[0],
     [walletAccounts, connectedWallet]
   );
-
+  const  accountAsAddress = Address.fromString(account).toAddressString()
   const topic = useMemo(() => {
     if (!selectedMessagesTopicId && (accountTopicList?.data ?? []).length > 0) {
       setTimeout(() => {
@@ -40,7 +41,7 @@ export const Messages = (props: MessagesProps) => {
     return (accountTopicList?.data ?? []).find(
       (v) =>
         v.snet == selectedSubnetId &&
-        v.acct == `did:${account}` &&
+        v.acct == accountAsAddress &&
         v.id == selectedMessagesTopicId
     );
   }, [selectedMessagesTopicId, accountTopicList]);
@@ -48,7 +49,7 @@ export const Messages = (props: MessagesProps) => {
   const items: MenuProps["items"] = useMemo(() => {
     return (accountTopicList?.data ?? [])
       .filter(
-        (item) => item.snet == selectedSubnetId && item.acct == `did:${account}`
+        (item) => item.snet == selectedSubnetId && item.acct == accountAsAddress
       )
       .map((el, index) => ({
         key: index,

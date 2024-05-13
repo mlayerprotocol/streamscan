@@ -96,23 +96,17 @@ export const CreateSubnet = (props: CreateSubnetProps) => {
             // onFinishFailed={onFinishFailed}
             autoComplete="off"
           >
-            {/* <Form.Item
-              label={`Agent Address: `}
-              name="address"
+             <Form.Item
+              label={`Reference Id: `}
+              name="ref"
               rules={[
-                { required: true, message: "Please input select an address!" },
+                { required: true, message: "Reference Id is required" },
               ]}
             >
-              <Select>
-                {items.map((val, index) => {
-                  return (
-                    <Select.Option key={index} value={val.address}>
-                      {shorternAddress(val.address)}
-                    </Select.Option>
-                  );
-                })}
-              </Select>
-            </Form.Item> */}
+              <Input placeholder="e.g. unique id or code" />
+            </Form.Item>
+
+
             <Form.Item
               label={`Name: `}
               name="n"
@@ -121,15 +115,7 @@ export const CreateSubnet = (props: CreateSubnetProps) => {
               <Input placeholder="Enter A Name" />
             </Form.Item>
 
-            <Form.Item
-              label={`Reference: `}
-              name="ref"
-              rules={[
-                { required: true, message: "Please input select a reference!" },
-              ]}
-            >
-              <Input placeholder="Enter A Reference" />
-            </Form.Item>
+           
 
             <Form.Item
               label="Status:"

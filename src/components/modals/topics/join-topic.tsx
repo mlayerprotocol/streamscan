@@ -82,13 +82,13 @@ export const JoinTopic = (props: JoinTopicProps) => {
             autoComplete="off"
           >
             <Form.Item
-              label={`Agent Address: `}
+              label={`Active Agent: `}
               name="address"
               rules={[
                 { required: true, message: "Please input select an address!" },
               ]}
             >
-              <Input placeholder="Enter An Address" disabled />
+              <Input className="!border-[0px]" placeholder="No active agent selected" disabled />
             </Form.Item>
 
             <Form.Item

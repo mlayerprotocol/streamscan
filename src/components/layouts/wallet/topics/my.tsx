@@ -15,6 +15,7 @@ import {
 import { CreateMessage, CreateTopic } from "@/components";
 import { WalletContext } from "@/context";
 import { TopicData } from "@/model/topic";
+import { Address } from "@mlayerprotocol/core/src/entities";
 
 interface MyTopicsProps {
   onSuccess?: (values: any) => void;
@@ -43,7 +44,7 @@ export const MyTopics = (props: MyTopicsProps) => {
   );
   const dataSource = useMemo(() => {
     return (accountTopicList?.data ?? []).filter(
-      (item) => item.snet == selectedSubnetId && item.acct == `did:${account}`
+      (item) => item.snet == selectedSubnetId && item.acct == Address.fromString(account).toAddressString()
     );
   }, [accountTopicList, account]);
   const agent = useMemo(() => {
@@ -185,10 +186,7 @@ export const MyTopics = (props: MyTopicsProps) => {
       }}
       // transition={{ duration: 1, delay: 1 }}
     >
-      <span className="text-xs text-gray-500">
-        Topic are communication channel streams. Every subscriber to a topic
-        receives the data/messages streamed to that topic.
-      </span>
+     
       <Button
         loading={loaders["createTopic"]}
         onClick={() => {

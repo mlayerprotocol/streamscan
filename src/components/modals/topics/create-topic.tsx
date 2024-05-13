@@ -7,6 +7,8 @@ import {
   InputNumber,
   Modal,
   Select,
+  Space,
+  Tooltip,
   Typography,
   notification,
 } from "antd";
@@ -23,6 +25,7 @@ import {
 } from "@/utils";
 import { WalletContext } from "@/context";
 import { TopicData } from "@/model/topic";
+import { InformationCircleIcon } from "@heroicons/react/24/solid";
 
 interface CreateTopicProps {
   isModalOpen?: boolean;
@@ -108,29 +111,29 @@ export const CreateTopic = (props: CreateTopicProps) => {
           >
             <Typography.Title level={3}>Create A Topic</Typography.Title>
             <Form.Item
-              label={`Agent Address: `}
+              label={`Active Agent: `}
               name="address"
               rules={[
                 { required: true, message: "Please input select an address!" },
               ]}
             >
-              <Input placeholder="Enter An Address" disabled />
+              <Input className="!border-[0px] !bg-transparent" placeholder="No agent selected" disabled />
             </Form.Item>
 
             <Form.Item
-              label="Ref:"
+              label="Reference Id:"
               name="ref"
-              rules={[{ required: true, message: "Please input a reference!" }]}
+              rules={[{ required: true, message: "Please input a reference id!" }]}
             >
-              <Input placeholder="Enter Your Handle" />
+              <Input placeholder="Unique Id or handle" />
             </Form.Item>
 
             <Form.Item
-              label="Title:"
+              label="Name:"
               name="n"
-              rules={[{ required: true, message: "Please input your title!" }]}
+              rules={[{ required: true, message: "Please input your topics name!" }]}
             >
-              <Input placeholder="Enter Your Title" />
+              <Input placeholder="Name of topic" />
             </Form.Item>
 
             <Form.Item
@@ -138,11 +141,11 @@ export const CreateTopic = (props: CreateTopicProps) => {
               name="desc"
               rules={[{ message: "Please input your description!" }]}
             >
-              <Input placeholder="Enter Your Description" />
+              <Input placeholder="Describe this topic" />
             </Form.Item>
 
             <Form.Item label="Public:" name="pub" valuePropName="checked">
-              <Checkbox />
+              <Space><Checkbox /> <Tooltip title="Public topics can be subscribed to by any device" ><InformationCircleIcon className="w-[16px]"/></Tooltip></Space>
             </Form.Item>
 
             <Button

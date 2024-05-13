@@ -47,7 +47,7 @@ const SubnetPage = () => {
         />
       </div>
      
-      {subnetListModelList?.data?.length != 0 &&  <Empty description="No subnet created"/>}
+      {subnetListModelList?.data?.length == 0 &&  <Empty description="No subnet created"/>}
       <div className="flex items-center justify-center flex-wrap gap-2">
        
         {subnetListModelList?.data?.map((subnet, index) => (
@@ -56,13 +56,13 @@ const SubnetPage = () => {
               setSelectedSubnetId?.(subnet.id);
               router.push(`subnet/${subnet.id}/agents`, { scroll: false });
             }}
-            className=" w-[400px] "
+            className=" w-[400px] cursor-pointer "
             key={index}
             bordered={subnet.id == selectedSubnetId}
           >
             <div className="flex flex-col">
-              <span className="text-lg">{subnet?.ref}</span>
-              <span className="">{metaToObject(subnet?.meta)?.name}</span>
+              <span className="">{subnet?.ref}</span>
+              <span className="text-lg">{metaToObject(subnet?.meta)?.name}</span>
             </div>
           </Card>
         ))}

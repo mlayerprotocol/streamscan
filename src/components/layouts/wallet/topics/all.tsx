@@ -136,10 +136,7 @@ export const AllTopics = (props: AllTopicsProps) => {
       }}
       // transition={{ duration: 1, delay: 1 }}
     >
-      <span className="text-xs text-gray-500">
-        Topic are communication channels. Every subscriber to a topic receives
-        the data/messages sent to that topic.
-      </span>
+     
       <Button
         loading={loaders["createTopic"]}
         onClick={() => {

@@ -17,6 +17,7 @@ export interface SubnetData {
   e: E;
   h: string;
   meta: any;
+  balance?: number | BigInt;
   CreatedAt: Date;
   UpdatedAt: Date;
   DeletedAt: null;

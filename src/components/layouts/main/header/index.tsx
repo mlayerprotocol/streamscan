@@ -116,7 +116,7 @@ export const AppHeader = (props: AppHeaderProps) => {
                     <Avatar
                       size={32}
                       className="!bg-[#CBD5E1]"
-                      src={`/icons/${connectedWallet}.svg`}
+                      src={connectedWallet? `/icons/${connectedWallet}.svg`: ''}
                       icon={initialLoading ? <Spin /> : <UserOutlined />}
                     />
                   </motion.div>
@@ -248,7 +248,7 @@ export const AppHeader = (props: AppHeaderProps) => {
                   setShowMobilMoney((old) => !old);
                 }}
               >
-                Agents/Devices
+                Agents
               </Link>
               <Link
                 href={`/subnet/${selectedSubnetId}/topics`}

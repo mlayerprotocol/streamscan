@@ -10,6 +10,17 @@ export const SELECTED_SUBNET_STORAGE_KEY =
   "@@mlayer-storage/selected-subnet-id";
 export const BASE_URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}`;
 // export const HOST_URL = process.env.NEXT_PUBLIC_API_BASE_URL
+export const ML_ADDRESS_PREFIX = `${
+  process.env.NEXT_PUBLIC_MLAYER_ADDRESS_PREFIX ?? 'mldev'
+}`;
+
+export const ML_ACCOUNT_DID_STRING = `${
+  process.env.NEXT_PUBLIC_MLAYER_ACCOUNT_DID_STRING ?? 'mid'
+}`;
+
+export const ML_AGENT_DID_STRING = `${
+  process.env.NEXT_PUBLIC_MLAYER_ACCOUNT_DID_STRING ?? 'did'
+}`;
 
 export const AUTH_URL = '/auth';
 export const ACCOUNT_URL = '/account';
@@ -41,6 +52,10 @@ export const formLayout = {
 
 export const INFO_LINKS = {
   subnetInfo:
+    'https://mlayer.gitbook.io/white-paper/technology#components-of-the-communication-layer',
+  agentInfo:
+    'https://mlayer.gitbook.io/white-paper/technology#components-of-the-communication-layer',
+  topicInfo:
     'https://mlayer.gitbook.io/white-paper/technology#components-of-the-communication-layer',
 };
 
