@@ -11,6 +11,8 @@ import { AuthorizeAgent } from "@/components";
 import { AirDrop } from "./airdrop";
 import { Settings } from "./settings";
 import { WalletContext } from "@/context";
+import { Smartlets } from "./smartlet";
+import { Tokens } from "./token";
 
 const { Content, Sider } = Layout;
 
@@ -33,7 +35,7 @@ export const WalletMainLayout = (props: WalletMainLayoutProps) => {
 
     const paths = pathname.split("/");
     paths[2] = selectedSubnetId;
-    router.push(paths.join('/'), { scroll: false });
+    router.push(paths.join("/"), { scroll: false });
   }, [selectedSubnetId]);
 
   const tabItems: MenuProps["items"] = [
@@ -62,6 +64,14 @@ export const WalletMainLayout = (props: WalletMainLayoutProps) => {
       },
     },
     {
+      key: "tokens",
+      icon: <HeroIcons.CurrencyYenIcon className="h-[20px]" />,
+      label: "Tokens",
+      onClick: () => {
+        router.push(`/subnet/${selectedSubnetId}/tokens`, { scroll: false });
+      },
+    },
+    {
       key: "messages",
       icon: <HeroIcons.EnvelopeIcon className="h-[20px]" />,
       label: "Messages",
@@ -75,6 +85,14 @@ export const WalletMainLayout = (props: WalletMainLayoutProps) => {
       label: "Stake",
       onClick: () => {
         router.push(`/subnet/${selectedSubnetId}/stake`, { scroll: false });
+      },
+    },
+    {
+      key: "smartlet",
+      icon: <HeroIcons.CogIcon className="h-[20px]" />,
+      label: "Smartlet",
+      onClick: () => {
+        router.push(`/subnet/${selectedSubnetId}/smartlet`, { scroll: false });
       },
     },
     {
@@ -104,6 +122,8 @@ export const WalletMainLayout = (props: WalletMainLayoutProps) => {
           {"messages" == tab && <Messages />}
           {"stake" == tab && <Stake />}
           {"settings" == tab && <Settings />}
+          {"smartlet" == tab && <Smartlets />}
+          {"tokens" == tab && <Tokens />}
           {/* {"airdrop" == tab && <AirDrop />} */}
         </Content>
       </Layout>
