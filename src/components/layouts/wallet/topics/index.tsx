@@ -1,13 +1,13 @@
 "use client";
-import { displayVariants } from "@/utils";
+import { INFO_LINKS, displayVariants } from "@/utils";
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Tabs } from "antd";
+import { Space, Tabs } from "antd";
 import { MyTopics } from "./my";
 import { SubscribedTopics } from "./subscribed";
 import { AllTopics } from "./all";
 import { useSearchParams } from "next/navigation";
-
+import { InformationCircleIcon } from "@heroicons/react/24/solid";
 interface TopicsProps {
   onSuccess?: (values: any) => void;
   handleCreateAccount?: () => void;
@@ -37,6 +37,14 @@ export const Topics = (props: TopicsProps) => {
       }}
       // transition={{ duration: 1, delay: 1 }}
     >
+      <div>
+      <Space className="mb-10">
+       <InformationCircleIcon  className="w-[32px]"/> 
+<span className="text-xs text-gray-500 ml-5">
+        Topics are communication channels. Every subscriber to a topic receives
+        the data/messages sent to that topic. <a href={INFO_LINKS.topicInfo} target="_blank">Learn more...</a>
+          </span>
+          </Space>
       <Tabs
         onChange={onChange}
         activeKey={activeTab}
@@ -58,7 +66,8 @@ export const Topics = (props: TopicsProps) => {
           //     children: <AllTopics />,
           //   },
         ]}
-      />
+        />
+        </div>
     </motion.div>
   );
 };

@@ -103,6 +103,15 @@ export const Settings = (props: SettingsProps) => {
               
             </Form.Item> */}
             <Form.Item
+              label={`Reference Id: `}
+              name="ref"
+              rules={[
+                { required: true, message: "Reference Id is required" },
+              ]}
+            >
+              <Input placeholder="e.g. unique id or code" />
+            </Form.Item>
+            <Form.Item
               label={`Name: `}
               name="n"
               rules={[{ required: true, message: "Please input a name!" }]}
@@ -110,15 +119,7 @@ export const Settings = (props: SettingsProps) => {
               <Input placeholder="Enter A Name" />
             </Form.Item>
 
-            <Form.Item
-              label={`Reference: `}
-              name="ref"
-              rules={[
-                { required: true, message: "Please input select a reference!" },
-              ]}
-            >
-              <Input placeholder="Enter A Reference" />
-            </Form.Item>
+            
 
             <Form.Item
               label="Status:"

@@ -1,5 +1,6 @@
 import { AuthModelData } from "@/model";
 import * as HeroIcons from "@heroicons/react/24/solid";
+import { Spin } from "antd";
 import { ReactNode } from "react";
 
 interface HomeStatCardOneProps {
@@ -16,7 +17,7 @@ export const HomeStatCardOne = (props: HomeStatCardOneProps) => {
       {icon ?? <HeroIcons.UsersIcon className="ml-2 h-[30px] " />}
       <div className="flex flex-col grow">
         <span className="text-gray-500 text-xs">{title}</span>
-        <span className="font-normal">{amount}</span>
+        <span className="font-normal">{amount === ""?<Spin  size="small"/>:amount}</span>
       </div>
       {(!!date || !!offset) && <div className="flex flex-col items-end">
         <span className="text-gray-500 text-sm">{date}</span>

@@ -1,6 +1,6 @@
 "use client";
 import { WalletContext } from "@/context";
-import { Card, Divider, Table } from "antd";
+import { Card, Divider, Table, Spin } from "antd";
 import Link from "next/link";
 import React, { useContext, useEffect, useMemo } from "react";
 import * as HeroIcons from "@heroicons/react/24/solid";
@@ -15,18 +15,18 @@ const columns = [
   },
   {
     title: "Cycle",
-    dataIndex: "c",
-    key: "c",
+    dataIndex: "cy",
+    key: "cy",
   },
   {
     title: "Events",
-    dataIndex: "t",
-    key: "t",
+    dataIndex: "eC",
+    key: "eC",
   },
   {
-    title: "MLT Value",
-    dataIndex: "id",
-    key: "id",
+    title: "Volume",
+    dataIndex: "vol",
+    key: "vol",
   },
   // {
   //   title: "Finalized",
@@ -60,12 +60,13 @@ const DashboardPage = () => {
           <div className="flex flex-col grow gap-2">
             <HomeStatCardOne
               title="Total Accounts"
-              amount={`${mainStatsData?.data.accounts ?? "---"}`}
+              amount={`${mainStatsData?.data.accounts ?? ""}`}
+             
               icon={<HeroIcons.UsersIcon className="ml-2 h-[30px] " />}
             />
             <HomeStatCardOne
-              title="Total Messages"
-              amount={`${mainStatsData?.data.messages ?? "---"}`}
+              title="Total Events"
+              amount={`${mainStatsData?.data.messages ?? ""}`}
               // date="2h"
               // offset="+2,341"
               icon={<HeroIcons.EnvelopeIcon className="ml-2 h-[30px] " />}
@@ -96,7 +97,7 @@ const DashboardPage = () => {
           <span className="font-bold text-xl">Recent Blocks</span>
         </div>
         <Table
-          dataSource={dataSource}
+          dataSource={dataSource.filter(d=>d.blk != 0)}
           columns={columns}
           loading={loaders["getBlockStats"]}
         />
