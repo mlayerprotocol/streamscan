@@ -15,6 +15,7 @@ import {
 import { CreateMessage, CreateTopic } from "@/components";
 import { WalletContext } from "@/context";
 import { TopicData } from "@/model/topic";
+import { PreviewTopic } from "./preview";
 
 interface MyTopicsProps {
   onSuccess?: (values: any) => void;
@@ -37,6 +38,7 @@ export const MyTopics = (props: MyTopicsProps) => {
     selectedSubnetId,
   } = useContext(WalletContext);
   const [selectedTopicId, setSelectedTopicId] = useState<string | undefined>();
+  const [previewTopicId, setPreviewTopicId] = useState<string | undefined>();
   const account = useMemo(
     () => walletAccounts[connectedWallet ?? ""]?.[0],
     [walletAccounts, connectedWallet]
@@ -158,6 +160,14 @@ export const MyTopics = (props: MyTopicsProps) => {
               <Button type="link">
                 <HeroIcons.XMarkIcon className="h-[20px]" />
               </Button>
+              <Button
+                type="link"
+                onClick={async () => {
+                  setPreviewTopicId(record.id);
+                }}
+              >
+                <HeroIcons.Bars4Icon className="h-[20px]" />
+              </Button>
             </div>
           );
         },
@@ -165,6 +175,10 @@ export const MyTopics = (props: MyTopicsProps) => {
     ];
   }, [accountTopicList]);
   console.log({ account });
+
+  if (previewTopicId) {
+    return <PreviewTopic topicId={previewTopicId} />;
+  }
   return (
     <motion.div
       className="inline-flex w-full flex-col gap-6"

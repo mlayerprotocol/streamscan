@@ -838,6 +838,11 @@ export const WalletContextProvider = ({
       notification.error({ message: "No account found" });
       return;
     }
+    if (selectedSubnetId == null) {
+      notification.error({ message: "No Subnet Selected" });
+      throw Error("No Subnet Selected");
+      // return;
+    }
     setLoaders((old) => ({ ...old, sendMessage: true }));
     try {
       const message: Entities.Message = new Entities.Message();
@@ -872,6 +877,7 @@ export const WalletContextProvider = ({
       payload.validator = VALIDATOR_PUBLIC_KEY;
       payload.account = Address.fromString(account);
       payload.nonce = 0;
+      payload.subnet = selectedSubnetId;
       const pb = payload.encodeBytes();
       console.log("HEXDATA", pb.toString("hex"));
       payload.signature = await Utils.signMessageEcc(pb, agent.privateKey);

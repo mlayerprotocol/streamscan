@@ -63,14 +63,14 @@ export const WalletMainLayout = (props: WalletMainLayoutProps) => {
         router.push(`/subnet/${selectedSubnetId}/topics`, { scroll: false });
       },
     },
-    {
-      key: "tokens",
-      icon: <HeroIcons.CurrencyYenIcon className="h-[20px]" />,
-      label: "Tokens",
-      onClick: () => {
-        router.push(`/subnet/${selectedSubnetId}/tokens`, { scroll: false });
-      },
-    },
+    // {
+    //   key: "tokens",
+    //   icon: <HeroIcons.CurrencyYenIcon className="h-[20px]" />,
+    //   label: "Tokens",
+    //   onClick: () => {
+    //     router.push(`/subnet/${selectedSubnetId}/tokens`, { scroll: false });
+    //   },
+    // },
     {
       key: "messages",
       icon: <HeroIcons.EnvelopeIcon className="h-[20px]" />,
@@ -123,7 +123,7 @@ export const WalletMainLayout = (props: WalletMainLayoutProps) => {
           {"stake" == tab && <Stake />}
           {"settings" == tab && <Settings />}
           {"smartlet" == tab && <Smartlets />}
-          {"tokens" == tab && <Tokens />}
+          {/* {"tokens" == tab && <Tokens />} */}
           {/* {"airdrop" == tab && <AirDrop />} */}
         </Content>
       </Layout>
