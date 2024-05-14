@@ -38,7 +38,7 @@ export const MainAuth = (props: MainAuthProps) => {
             transition={{ duration: 2 }}
             className="text-[32px]"
           >
-            Welcome to mLayer Wallets!
+            Welcome to mLayer stream studio!
           </motion.span>
         )}
         {page == 1 && (
@@ -52,7 +52,7 @@ export const MainAuth = (props: MainAuthProps) => {
           </motion.span>
         )}
         <span className="text-gray-500 mb-11">
-          Lorem ipsum dolor sit amet consectetur. Egestas leo.
+          mLayer's stream studio allows developer create and manage their subnet applications.
         </span>
 
         {/* <SocialAuth /> */}

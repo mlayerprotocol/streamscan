@@ -16,6 +16,7 @@ import { CreateMessage, CreateTopic, JoinTopic } from "@/components";
 import { WalletContext } from "@/context";
 import { TopicData } from "@/model/topic";
 import { useSearchParams } from "next/navigation";
+import { Address } from "@mlayerprotocol/core/src/entities";
 
 interface SubscribedTopicsProps {
   onSuccess?: (values: any) => void;
@@ -57,7 +58,7 @@ export const SubscribedTopics = (props: SubscribedTopicsProps) => {
   );
   const dataSource = useMemo(() => {
     return (accountTopicList?.data ?? []).filter(
-      (item) => item.acct != `did:${account}`
+      (item) => item.acct != Address.fromString(account).toAddressString()
     );
   }, [accountTopicList, account]);
 
@@ -97,7 +98,7 @@ export const SubscribedTopics = (props: SubscribedTopicsProps) => {
       //   key: "subscribers",
       // },
       {
-        title: "MLT Balance",
+        title: "MLT Consumed",
         dataIndex: "bal",
         key: "bal",
       },
@@ -176,10 +177,7 @@ export const SubscribedTopics = (props: SubscribedTopicsProps) => {
       }}
       // transition={{ duration: 1, delay: 1 }}
     >
-      <span className="text-xs text-gray-500">
-        Topic are communication channels. Every subscriber to a topic receives
-        the data/messages sent to that topic.
-      </span>
+      
       <div className="flex gap-4 justify-end">
         {/* <Button
           loading={loaders["createTopic"]}

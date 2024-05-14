@@ -116,7 +116,7 @@ export const AppHeader = (props: AppHeaderProps) => {
                     <Avatar
                       size={32}
                       className="!bg-[#CBD5E1]"
-                      src={`/icons/${connectedWallet}.svg`}
+                      src={connectedWallet? `/icons/${connectedWallet}.svg`: ''}
                       icon={initialLoading ? <Spin /> : <UserOutlined />}
                     />
                   </motion.div>
@@ -248,7 +248,7 @@ export const AppHeader = (props: AppHeaderProps) => {
                   setShowMobilMoney((old) => !old);
                 }}
               >
-                Agents/Devices
+                Agents
               </Link>
               <Link
                 href={`/subnet/${selectedSubnetId}/topics`}
@@ -321,21 +321,23 @@ export const AppHeader = (props: AppHeaderProps) => {
         <Divider className="!hidden lg:!block !border-t-2 !mb-2 !mt-2" />
         <div className=" hidden lg:flex justify-between grow items-center w-full px-7  md:px-20">
           <div className="flex items-center gap-2 mx-10">
-            <Image
+           <a href="/"><Image
               src="/logo.png"
               alt="Vercel Logo"
               // className="light:invert"
               width={48}
               height={48}
               priority
-            />
-            <span className="text-2xl">MLStream</span>
+            /> </a>
+            <a href="/">
+              <span className="text-2xl">MLStream</span>
+             </a>
           </div>
 
           <div className="flex gap-2 mx-10 items-center">
             <Link href={"/"}>Home</Link>
             <span className="text-gray-500">|</span>
-            <Link href={"/subnet"}>Subnets</Link>
+            <Link href={"/subnet"}>Studio</Link>
             <span className="text-gray-500">|</span>
             <Link href={"/airdrop"}>Airdrop</Link>
             {/* <Link href={"/my-list"}>Validator</Link>

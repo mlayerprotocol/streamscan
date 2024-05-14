@@ -1,5 +1,5 @@
 "use client";
-import { PREVILEDGES, displayVariants, shorternAddress } from "@/utils";
+import { INFO_LINKS, PREVILEDGES, displayVariants, shorternAddress } from "@/utils";
 import * as HeroIcons from "@heroicons/react/24/solid";
 import React, { useContext, useMemo, useState } from "react";
 import { motion } from "framer-motion";
@@ -78,7 +78,7 @@ export const Agents = (props: AgentsProps) => {
               shape="round"
             >
               <div className="flex gap-2">
-                <span>Update Private Key</span>
+                <span>Import Private Key</span>
                 <HeroIcons.KeyIcon className="h-[20px]" />
               </div>
             </Button>
@@ -91,7 +91,7 @@ export const Agents = (props: AgentsProps) => {
               notification.open({ message: "Key Copied" });
             }}
             type="link"
-            ghost
+            
             shape="round"
           >
             <div className="flex gap-2">
@@ -145,13 +145,16 @@ export const Agents = (props: AgentsProps) => {
       }}
       // transition={{ duration: 1, delay: 1 }}
     >
-      <span className="text-xs text-gray-500">
-        For security and flexibility, Agents act on behalf of Accounts on the
-        mLayer network. For example, a compromised agent can quickly be
-        deauthorized to prevent further attack. Learn more...
-      </span>
+      <div className="flex">
+       <HeroIcons.InformationCircleIcon  className="w-[32px]"/> 
+      <span className="text-xs text-gray-500 ml-10">
+     Agents act on behalf of Accounts on the
+        mLayer network. This is important for security and flexibility. For example, a compromised agent can quickly be
+          deauthorized to prevent further attack. <a href={INFO_LINKS.agentInfo} >Learn more...</a>
+        </span>
+        </div>
       <div className="flex gap-4 justify-end">
-        <Button
+        {/* <Button
           onClick={() => {
             setShowModal((old) => !old);
           }}
@@ -162,7 +165,7 @@ export const Agents = (props: AgentsProps) => {
           shape="round"
         >
           <span>Authorize Agent</span>
-        </Button>
+        </Button> */}
 
         <Button
           onClick={() => {

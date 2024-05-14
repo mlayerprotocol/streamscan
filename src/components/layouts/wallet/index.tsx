@@ -48,7 +48,7 @@ export const WalletMainLayout = (props: WalletMainLayoutProps) => {
     {
       key: "agents",
       icon: <HeroIcons.CpuChipIcon className="h-[20px]" />,
-      label: "Agents/Devices",
+      label: "Agents",
       onClick: () => {
         router.push(`/subnet/${selectedSubnetId}/agents`, { scroll: false });
       },
