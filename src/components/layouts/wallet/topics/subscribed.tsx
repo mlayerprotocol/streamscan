@@ -98,7 +98,7 @@ export const SubscribedTopics = (props: SubscribedTopicsProps) => {
       //   key: "subscribers",
       // },
       {
-        title: "MLT Balance",
+        title: "MLT Consumed",
         dataIndex: "bal",
         key: "bal",
       },

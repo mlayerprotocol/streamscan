@@ -15,6 +15,7 @@ import {
   KEYPAIR_STORAGE_KEY,
   LOCAL_PRIVKEY_STORAGE_KEY,
   makeRequest,
+  metaToObject,
   MIDDLEWARE_HTTP_URLS,
   ML_ACCOUNT_DID_STRING,
   ML_ADDRESS_PREFIX,
@@ -35,7 +36,7 @@ import { Address } from "@mlayerprotocol/core/src/entities";
 import { BlockStatsListModel } from "@/model/block-stats";
 import { MessageListModel } from "@/model/message/list";
 import { MainStatsModel } from "@/model/main-stats/data";
-import { SubnetListModel } from "@/model/subnets";
+import { SubnetData, SubnetListModel } from "@/model/subnets";
 import { PointListModel } from "@/model/points";
 
 // import { Authorization } from "@mlayerprotocol/core/src/entities";
@@ -57,6 +58,7 @@ interface WalletContextValues {
   walletConnectionState: Record<string, boolean>;
   connectedWallet?: string;
   selectedSubnetId?: string;
+  selectedSubnet?: SubnetData;
   selectedAgent?: string;
   selectedMessagesTopicId?: string;
 
@@ -182,6 +184,7 @@ export const WalletContextProvider = ({
   >({});
   const [connectedWallet, setConnectedWallet] = useState<string>();
   const [selectedSubnetId, setSelectedSubnetId] = useState<string>();
+  const [selectedSubnet, setSelectedSubnet] = useState<SubnetData>();
   const [toggleGroup1, setToggleGroup1] = useState<boolean>(false);
   const [toggleGroup2, setToggleGroup2] = useState<boolean>(false);
   const [toggleGroup3, setToggleGroup3] = useState<boolean>(false);
@@ -229,6 +232,8 @@ export const WalletContextProvider = ({
     () => new Storage(SELECTED_SUBNET_STORAGE_KEY),
     []
   );
+
+  
 
   const initializeKeplr = async () => {
     if (!window.keplr) {
@@ -328,6 +333,12 @@ export const WalletContextProvider = ({
     getBlockStats({});
     getMainStats({});
   }, [toggleGroupStats]);
+
+  useEffect(() => {
+    const subnet = (subnetListModelList?.data ?? [])
+          .find((opt) => opt.id == selectedSubnetId)
+       setSelectedSubnet(subnet)
+  }, [selectedSubnetId, subnetListModelList])
 
   useEffect(() => {
     if (!selectedMessagesTopicId) return;
@@ -441,7 +452,7 @@ export const WalletContextProvider = ({
 
     const hash = Utils.sha256Hash(encoded).toString("base64");
     
-    const message = JSON.stringify({ action: `AuthorizeAgent`, network: ML_ADDRESS_PREFIX, data: `${Address.fromString(authority.agent).address}`, hash: `${hash}` }).replace(/\\s+/g, '');
+    const message = JSON.stringify({ action: `AuthorizeAgent`, network: ML_ADDRESS_PREFIX, identifier: `${Address.fromString(authority.agent).address}`, hash: `${hash}` }).replace(/\\s+/g, '');
     console.log("Hash string", message);
     return {
       message,
@@ -929,12 +940,13 @@ export const WalletContextProvider = ({
       subNetwork.meta = JSON.stringify({ name });
       subNetwork.reference = ref;
       subNetwork.status = status;
+      subNetwork.timestamp = Date.now()
 
       const encoded = subNetwork.encodeBytes();
       // console.log("ID::::", { authority, encoded });
 
       const hash = Utils.sha256Hash(encoded).toString("base64");
-      const message = JSON.stringify({ action: `CreateSubnet`, network: ML_ADDRESS_PREFIX, data: `${subNetwork.reference}`, hash: `${hash}` }).replace(/\\s+/g, '');
+      const message = JSON.stringify({ action: `CreateSubnet`, network: ML_ADDRESS_PREFIX, identifier: `${subNetwork.reference}`, hash: `${hash}` }).replace(/\\s+/g, '');
 
       const signatureResp = await window.keplr.signArbitrary(
         chainIds[connectedWallet],
@@ -1078,6 +1090,7 @@ export const WalletContextProvider = ({
         setCombinedAgents,
         setSelectedMessagesTopicId,
         setSelectedSubnetId,
+        
         subcribeToTopic,
         sendMessage,
         createSubnet,
@@ -1087,6 +1100,7 @@ export const WalletContextProvider = ({
         walletConnectionState,
         connectedWallet,
         selectedSubnetId,
+        selectedSubnet,
         agents: agents.filter((agt) => selectedSubnetId == agt.subnetId),
         combinedAgents,
         topicList,

@@ -32,6 +32,7 @@ interface CreateTopicProps {
   topicData?: TopicData;
   onCancel?: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 }
+
 export const CreateTopic = (props: CreateTopicProps) => {
   const { combinedAgents, selectedAgent, createTopic, loaders, agents } =
     useContext(WalletContext);
@@ -44,8 +45,15 @@ export const CreateTopic = (props: CreateTopicProps) => {
 
   useEffect(() => {
     form.setFieldsValue({ address: selectedAgentObj?.address, ...topicData });
+    try {
+      const meta = JSON.parse(String(topicData?.meta ?? ''));
+      form.setFieldsValue({  n: meta?.name ?? '', desc: meta?.desc ?? ''});
+    } catch (e) {
+      
+    }
     console.log("APPPP", { ...topicData, address: selectedAgentObj?.address });
   }, [topicData, selectedAgentObj]);
+
 
   return (
     <Modal
@@ -109,7 +117,7 @@ export const CreateTopic = (props: CreateTopicProps) => {
             // onFinishFailed={onFinishFailed}
             autoComplete="off"
           >
-            <Typography.Title level={3}>Create A Topic</Typography.Title>
+            <Typography.Title level={3}>{topicData?.id ? 'Update Topic' : 'Create Topic'}</Typography.Title>
             <Form.Item
               label={`Active Agent: `}
               name="address"

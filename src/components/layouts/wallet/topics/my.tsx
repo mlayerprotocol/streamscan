@@ -62,9 +62,9 @@ export const MyTopics = (props: MyTopicsProps) => {
         },
       },
       {
-        title: "Handle",
-        dataIndex: "hand",
-        key: "hand",
+        title: "Ref Id",
+        dataIndex: "ref",
+        key: "ref",
         render(value, record, index) {
           return `@${value}`
         }
@@ -98,7 +98,7 @@ export const MyTopics = (props: MyTopicsProps) => {
       //   key: "subscribers",
       // },
       {
-        title: "MLT Balance",
+        title: "MLT Consumed",
         dataIndex: "bal",
         key: "bal",
       },

@@ -103,7 +103,7 @@ export const CreateSubnet = (props: CreateSubnetProps) => {
                 { required: true, message: "Reference Id is required" },
               ]}
             >
-              <Input placeholder="e.g. unique id or code" />
+              <Input placeholder="e.g. unique id or code (no space)" />
             </Form.Item>
 
 
