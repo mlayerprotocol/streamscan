@@ -12,7 +12,7 @@ interface AirDropProps {
 export const AirDrop = (props: AirDropProps) => {
   const [showCreateMessageModal, setShowCreateMessageModal] =
     useState<boolean>(false);
-  const { pointsList } = useContext(WalletContext);
+  const { pointsList, pointsDetail } = useContext(WalletContext);
   const activites = useMemo(() => {
     // return (pointsList?.data ?? []).map((point) => ({
     //   title: point.activityName,
@@ -47,6 +47,14 @@ export const AirDrop = (props: AirDropProps) => {
         <span>
           Complete the following activities to earn points towards our airdrop
         </span>
+      </div>
+      <div className="flex my-2 text-lg justify-between">
+        <span>Total Points Earned</span>
+        <span>{pointsDetail?.data.account.totalPoints ?? "---"}</span>
+      </div>
+      <div className="flex my-1 text-sm justify-end">
+        <span className="text-blue-500">View Leader Board</span>
+        {/* <span>{pointsDetail?.data.account.totalPoints ?? "---"}</span> */}
       </div>
       {/*  */}
       <div className="flex flex-col">
