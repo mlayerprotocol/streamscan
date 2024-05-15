@@ -38,6 +38,7 @@ import { MessageListModel } from "@/model/message/list";
 import { MainStatsModel } from "@/model/main-stats/data";
 import { SubnetData, SubnetListModel } from "@/model/subnets";
 import { PointListModel } from "@/model/points";
+import { PointDetailModel } from "@/model/points/detail";
 
 // import { Authorization } from "@mlayerprotocol/core/src/entities";
 // const { Authorization } = Entities;
@@ -70,6 +71,7 @@ interface WalletContextValues {
   mainStatsData?: MainStatsModel;
   messagesList?: MessageListModel;
   pointsList?: PointListModel;
+  pointsDetail?: PointDetailModel;
   subnetListModelList?: SubnetListModel;
   accountTopicList?: TopicListModel;
   authenticationList?: AuthenticationListModel;
@@ -211,6 +213,7 @@ export const WalletContextProvider = ({
   const [mainStatsData, setMainStatsData] = useState<MainStatsModel>();
   const [messagesList, setMessagesList] = useState<MessageListModel>();
   const [pointsList, setPointsList] = useState<PointListModel>();
+  const [pointsDetail, setPointsDetail] = useState<PointDetailModel>();
   const [authenticationList, setAuthenticationList] =
     useState<AuthenticationListModel>();
 
@@ -415,6 +418,15 @@ export const WalletContextProvider = ({
       .then((b) => b?.json())
       .then((resp) => {
         setPointsList(resp);
+        console.log({ resp: resp.data });
+      })
+      .catch((e) => notification.error({ message: e }));
+    makeRequest(`${MIDDLEWARE_HTTP_URLS.account.url}/did:${account}`, {
+      method: MIDDLEWARE_HTTP_URLS.account.method,
+    })
+      .then((b) => b?.json())
+      .then((resp) => {
+        setPointsDetail(resp);
         console.log({ resp: resp.data });
       })
       .catch((e) => notification.error({ message: e }));
@@ -843,6 +855,11 @@ export const WalletContextProvider = ({
       notification.error({ message: "No account found" });
       return;
     }
+    if (selectedSubnetId == null) {
+      notification.error({ message: "No Subnet Selected" });
+      throw Error("No Subnet Selected");
+      // return;
+    }
     setLoaders((old) => ({ ...old, sendMessage: true }));
     try {
       const message: Entities.Message = new Entities.Message();
@@ -877,6 +894,7 @@ export const WalletContextProvider = ({
       payload.validator = VALIDATOR_PUBLIC_KEY;
       payload.account = Address.fromString(account);
       payload.nonce = 0;
+      payload.subnet = selectedSubnetId;
       const pb = payload.encodeBytes();
       console.log("HEXDATA", pb.toString("hex"));
       payload.signature = await Utils.signMessageEcc(pb, agent.privateKey);
@@ -1113,6 +1131,7 @@ export const WalletContextProvider = ({
         selectedMessagesTopicId,
         messagesList,
         pointsList,
+        pointsDetail,
       }}
     >
       {children}
