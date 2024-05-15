@@ -236,8 +236,6 @@ export const WalletContextProvider = ({
     []
   );
 
-  
-
   const initializeKeplr = async () => {
     if (!window.keplr) {
       notification.error({ message: "Please install keplr extension" });
@@ -338,20 +336,26 @@ export const WalletContextProvider = ({
   }, [toggleGroupStats]);
 
   useEffect(() => {
-    const subnet = (subnetListModelList?.data ?? [])
-          .find((opt) => opt.id == selectedSubnetId)
-       setSelectedSubnet(subnet)
-  }, [selectedSubnetId, subnetListModelList])
+    const subnet = (subnetListModelList?.data ?? []).find(
+      (opt) => opt.id == selectedSubnetId
+    );
+    setSelectedSubnet(subnet);
+  }, [selectedSubnetId, subnetListModelList]);
 
   useEffect(() => {
     if (!selectedMessagesTopicId) return;
     getTopicMessages(selectedMessagesTopicId, {});
   }, [selectedMessagesTopicId, toggleGroup3]);
   useEffect(() => {
+    if (!connectedWallet) return;
     getAccountSubnets({
-      agt: selectedAgent,
+      params: {
+        acct: Address.fromString(
+          walletAccounts[connectedWallet]?.[0]
+        ).toAddressString(),
+      },
     });
-  }, [selectedAgent, toggleGroup4]);
+  }, [connectedWallet, toggleGroup4]);
 
   useEffect(() => {
     if (connectedWallet) connectedStorage?.set(connectedWallet);
@@ -368,12 +372,16 @@ export const WalletContextProvider = ({
   }, [connectedWallet, selectedAgent, selectedSubnetId, walletAccounts]);
 
   useEffect(() => {}, []);
-  
+
   useEffect(() => {
     if (!connectedWallet) return;
     if (Object.keys(walletAccounts).length == 0) return;
     getAuthorizations({
-      params: { acct: Address.fromString(walletAccounts[connectedWallet]?.[0]).toAddressString() },
+      params: {
+        acct: Address.fromString(
+          walletAccounts[connectedWallet]?.[0]
+        ).toAddressString(),
+      },
     });
   }, [connectedWallet, walletAccounts, toggleGroup1]);
 
@@ -382,7 +390,11 @@ export const WalletContextProvider = ({
     if (Object.keys(walletAccounts).length == 0) return;
 
     getAccountSubscriptions({
-      params: { acct: Address.fromString(walletAccounts[connectedWallet]?.[0]).toAddressString() },
+      params: {
+        acct: Address.fromString(
+          walletAccounts[connectedWallet]?.[0]
+        ).toAddressString(),
+      },
     });
   }, [connectedWallet, walletAccounts, toggleGroup2]);
 
@@ -391,7 +403,9 @@ export const WalletContextProvider = ({
     const localAgents: AddressData[] = [...agents];
     (authenticationList?.data ?? []).forEach((authEl) => {
       const idx: number = localAgents.findIndex(
-        (agt) => agt.address == authEl.agt || `${ML_AGENT_DID_STRING}:${agt.address}` == authEl.agt
+        (agt) =>
+          agt.address == authEl.agt ||
+          `${ML_AGENT_DID_STRING}:${agt.address}` == authEl.agt
       );
       if (idx != -1) {
         localAgents[idx].authData = authEl;
@@ -412,9 +426,14 @@ export const WalletContextProvider = ({
     if (!connectedWallet) return;
     const account = walletAccounts?.[connectedWallet]?.[0];
     if (!account) return;
-    makeRequest(`${MIDDLEWARE_HTTP_URLS.account.url}/${Address.fromString(account).toAddressString()}/points`, {
-      method: MIDDLEWARE_HTTP_URLS.account.method,
-    })
+    makeRequest(
+      `${MIDDLEWARE_HTTP_URLS.account.url}/${Address.fromString(
+        account
+      ).toAddressString()}/points`,
+      {
+        method: MIDDLEWARE_HTTP_URLS.account.method,
+      }
+    )
       .then((b) => b?.json())
       .then((resp) => {
         setPointsList(resp);
@@ -463,8 +482,13 @@ export const WalletContextProvider = ({
     // console.log("ID::::", { authority, encoded });
 
     const hash = Utils.sha256Hash(encoded).toString("base64");
-    
-    const message = JSON.stringify({ action: `AuthorizeAgent`, network: ML_ADDRESS_PREFIX, identifier: `${Address.fromString(authority.agent).address}`, hash: `${hash}` }).replace(/\\s+/g, '');
+
+    const message = JSON.stringify({
+      action: `AuthorizeAgent`,
+      network: ML_ADDRESS_PREFIX,
+      identifier: `${Address.fromString(authority.agent).address}`,
+      hash: `${hash}`,
+    }).replace(/\\s+/g, "");
     console.log("Hash string", message);
     return {
       message,
@@ -696,7 +720,7 @@ export const WalletContextProvider = ({
       payload.account = Entities.Address.fromString(account);
       payload.nonce = 0;
       const pb = payload.encodeBytes();
-      console.log('PAYLLOAD', payload, pb)
+      console.log("PAYLLOAD", payload, pb);
       console.log("HEXDATA", pb.toString("hex"));
       payload.signature = await Utils.signMessageEcc(pb, agent.privateKey);
       console.log("Payload", JSON.stringify(payload.asPayload()));
@@ -958,13 +982,18 @@ export const WalletContextProvider = ({
       subNetwork.meta = JSON.stringify({ name });
       subNetwork.reference = ref;
       subNetwork.status = status;
-      subNetwork.timestamp = Date.now()
+      subNetwork.timestamp = Date.now();
 
       const encoded = subNetwork.encodeBytes();
       // console.log("ID::::", { authority, encoded });
 
       const hash = Utils.sha256Hash(encoded).toString("base64");
-      const message = JSON.stringify({ action: `CreateSubnet`, network: ML_ADDRESS_PREFIX, identifier: `${subNetwork.reference}`, hash: `${hash}` }).replace(/\\s+/g, '');
+      const message = JSON.stringify({
+        action: `CreateSubnet`,
+        network: ML_ADDRESS_PREFIX,
+        identifier: `${subNetwork.reference}`,
+        hash: `${hash}`,
+      }).replace(/\\s+/g, "");
 
       const signatureResp = await window.keplr.signArbitrary(
         chainIds[connectedWallet],
@@ -1108,7 +1137,7 @@ export const WalletContextProvider = ({
         setCombinedAgents,
         setSelectedMessagesTopicId,
         setSelectedSubnetId,
-        
+
         subcribeToTopic,
         sendMessage,
         createSubnet,

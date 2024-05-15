@@ -894,10 +894,10 @@
     semver "^7.3.8"
     superstruct "^1.0.3"
 
-"@mlayerprotocol/core@^1.0.145":
-  version "1.0.145"
-  resolved "https://registry.yarnpkg.com/@mlayerprotocol/core/-/core-1.0.145.tgz#ff1f56e1d601a66831d1a9a7b86844cc4326cb09"
-  integrity sha512-vJZfMt/t6iKd6+Ctw3eXRBnmQB0H7UZHXE7/N+D81f8qA775CLStJLLW3YjweAs2q1TiMFfqzW78a9TpvNsLhg==
+"@mlayerprotocol/core@^1.0.147":
+  version "1.0.147"
+  resolved "https://registry.yarnpkg.com/@mlayerprotocol/core/-/core-1.0.147.tgz#d61f00bddea8c3ed2610652167526da8a0022592"
+  integrity sha512-BS2peI0Ro+qFDvXMp5au3L2RjmqgrLeGK8lGmW4/GPjcpE+TYofP8/bMQh02vJ2JeWt99ew6jqiy5VCjdYmwzA==
   dependencies:
     "@cosmjs/crypto" "^0.32.3"
     axios "^1.6.5"
