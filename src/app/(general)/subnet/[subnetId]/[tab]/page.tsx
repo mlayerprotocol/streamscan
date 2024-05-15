@@ -83,7 +83,7 @@ const WalletPage = () => {
                       name: metaToObject(e.meta)?.name ?? e.ref,
                     };
                   })?.[0]?.name ?? selectedSubnet.ref
-              : "No subnet selected"} [selectedSubnet.ref]
+                : "No subnet selected"} [{selectedSubnet?.ref}]
             <HeroIcons.ChevronDownIcon className="ml-2 h-[20px]" />
           </Space>
           </Dropdown>
