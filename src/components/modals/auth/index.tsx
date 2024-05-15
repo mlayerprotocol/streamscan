@@ -52,7 +52,7 @@ export const MainAuth = (props: MainAuthProps) => {
           </motion.span>
         )}
         <span className="text-gray-500 mb-11">
-          mLayer's stream studio allows developer create and manage their subnet applications.
+          mLayer&apos;s stream studio allows developer create and manage their subnet applications.
         </span>
 
         {/* <SocialAuth /> */}
