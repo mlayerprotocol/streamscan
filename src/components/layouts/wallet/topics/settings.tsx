@@ -1,19 +1,19 @@
 "use client";
-import { ML_ACCOUNT_DID_STRING, displayVariants, metaToObject, shorternAddress } from "@/utils";
+import { ML_ACCOUNT_DID_STRING, displayVariants, formLayout, metaToObject, shorternAddress } from "@/utils";
 import React, { useContext, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { CreateMessage, CreateTopic } from "@/components";
 import { WalletContext } from "@/context";
-import { Button, Dropdown, MenuProps, Space, Table } from "antd";
+import { Button, Dropdown, Form, Input, MenuProps, Space, Table } from "antd";
 import * as HeroIcons from "@heroicons/react/24/solid";
 import moment from "moment";
 import { Address } from "@mlayerprotocol/core/src/entities";
-interface MessagesProps {
+interface TopicSettingsProps {
   topicId: string;
   onSuccess?: (values: any) => void;
   handleCreateAccount?: () => void;
 }
-export const Messages = (props: MessagesProps) => {
+export const TopicSetting = (props: TopicSettingsProps) => {
   const [showCreateMessageModal, setShowCreateMessageModal] =
     useState<boolean>(false);
   const {
@@ -55,8 +55,6 @@ export const Messages = (props: MessagesProps) => {
         key: index,
         sender: msg.s,
         message: msg.d,
-        id: msg.id,
-        agent: msg.agt,
         date: moment(Date.parse(msg.CreatedAt)).fromNow(),
       };
     });
@@ -74,73 +72,48 @@ export const Messages = (props: MessagesProps) => {
       }}
       // transition={{ duration: 1, delay: 1 }}
     >
-      <div className="flex justify-end">
-        <Button
-          loading={loaders["sendMessage"]}
-          onClick={() => {
-            setShowCreateMessageModal((old) => !old);
-          }}
-          className=""
-          ghost
-          type="primary"
-          shape="round"
-        >
-          <span>Send Message</span>
-        </Button>
-      </div>
-      <Table
-        loading={loaders["getTopicMessages"]}
-        dataSource={dataSource}
-        columns={columns}
-      />
-
-      <CreateMessage
-        isModalOpen={showCreateMessageModal}
-        topicId={selectedMessagesTopicId}
-        onCancel={() => {
-          setShowCreateMessageModal((old) => !old);
-        }}
-      />
+      <Form
+              {...formLayout}
+              className="flex flex-col"
+              name="basic"
+              // form={form}
+              initialValues={{}}
+              onFinish={(data) => {
+                const name: string = data["n"];
+                const ref: string = data["ref"];
+                const status: number = data["status"];
+              }}
+              // onFinishFailed={onFinishFailed}
+              autoComplete="off"
+            >
+              <Form.Item
+                label={`Name: `}
+                name="n"
+                rules={[{ required: true, message: "Please input a name!" }]}
+              >
+                <Input placeholder="Enter A Name" />
+              </Form.Item>
+  
+              <Form.Item
+                label={`Reference: `}
+                name="ref"
+                rules={[
+                  { required: true, message: "Please input select a reference!" },
+                ]}
+              >
+                <Input placeholder="Enter A Reference" />
+              </Form.Item>
+  
+              <Button
+                type="primary"
+                htmlType="submit"
+                className="w-full mt-[28px] self-end"
+                shape="round"
+              >
+                <span className="text-black">Update</span>
+              </Button>
+            </Form>
     </motion.div>
   );
 };
 
-const columns = [
-  {
-    title: "Id",
-    dataIndex: "id",
-    key: "id",
-    render: (text: any) => {
-      return <span>{shorternAddress(text ?? '')}</span>;
-    },
-  },
-  {
-    title: "Device",
-    dataIndex: "agent",
-    key: "agt",
-    render: (text: any) => {
-      return <span>{shorternAddress(text ?? '')}</span>;
-    },
-  },
-  {
-    title: "Account",
-    dataIndex: "sender",
-    key: "sender",
-    render: (text: any) => {
-      return <span>{shorternAddress(text)}</span>;
-    },
-  },
-  {
-    title: "Message",
-    dataIndex: "message",
-    key: "message",
-    render: (text: any) => {
-      return <span>{Buffer.from(text, "hex").toString()}</span>;
-    },
-  },
-  {
-    title: "Date",
-    dataIndex: "date",
-    key: "date",
-  },
-];

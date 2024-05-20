@@ -6,6 +6,7 @@ import { WalletContext } from "@/context";
 import { Button, Card, Dropdown, MenuProps, Space } from "antd";
 import * as HeroIcons from "@heroicons/react/24/solid";
 import { shorternAddress, metaToObject } from "@/utils";
+import {ethers} from "ethers"
 
 const WalletPage = () => {
   const [showModal, setShowModal] = useState<boolean>(false);
@@ -69,6 +70,7 @@ const WalletPage = () => {
     <Card className="shadow-2xl !rounded-2xl">
       <div className="flex justify-between mb-4 ">
         <div>
+          <Space size={20}>
         <Dropdown
           menu={{ items: subnetItems }}
           className="!border !border-gray-600 p-2 !rounded-md"
@@ -83,11 +85,12 @@ const WalletPage = () => {
                       name: metaToObject(e.meta)?.name ?? e.ref,
                     };
                   })?.[0]?.name ?? selectedSubnet.ref
-                : "No subnet selected"} [{selectedSubnet?.ref}]
+                : "No subnet selected"} {`[${selectedSubnet?.ref}]`}
             <HeroIcons.ChevronDownIcon className="ml-2 h-[20px]" />
           </Space>
           </Dropdown>
-          Balance: 
+         <div><span className="text-gray-400">Balance:</span> {ethers.formatEther(String(selectedSubnet?.balance?.toString() ?? '0'))}  $MLT</div> 
+            </Space>
           </div>
         <Dropdown
           menu={{ items }}

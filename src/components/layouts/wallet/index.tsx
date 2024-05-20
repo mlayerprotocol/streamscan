@@ -71,14 +71,14 @@ export const WalletMainLayout = (props: WalletMainLayoutProps) => {
     //     router.push(`/subnet/${selectedSubnetId}/tokens`, { scroll: false });
     //   },
     // },
-    {
-      key: "messages",
-      icon: <HeroIcons.EnvelopeIcon className="h-[20px]" />,
-      label: "Messages",
-      onClick: () => {
-        router.push(`/subnet/${selectedSubnetId}/messages`, { scroll: false });
-      },
-    },
+    // {
+    //   key: "messages",
+    //   icon: <HeroIcons.EnvelopeIcon className="h-[20px]" />,
+    //   label: "Messages",
+    //   onClick: () => {
+    //     router.push(`/subnet/${selectedSubnetId}/messages`, { scroll: false });
+    //   },
+    // },
     {
       key: "stake",
       icon: <HeroIcons.CircleStackIcon className="h-[20px]" />,
@@ -87,14 +87,14 @@ export const WalletMainLayout = (props: WalletMainLayoutProps) => {
         router.push(`/subnet/${selectedSubnetId}/stake`, { scroll: false });
       },
     },
-    {
-      key: "smartlet",
-      icon: <HeroIcons.CogIcon className="h-[20px]" />,
-      label: "Smartlet",
-      onClick: () => {
-        router.push(`/subnet/${selectedSubnetId}/smartlet`, { scroll: false });
-      },
-    },
+    // {
+    //   key: "smartlet",
+    //   icon: <HeroIcons.CogIcon className="h-[20px]" />,
+    //   label: "Smartlet",
+    //   onClick: () => {
+    //     router.push(`/subnet/${selectedSubnetId}/smartlet`, { scroll: false });
+    //   },
+    // },
     {
       key: "settings",
       icon: <HeroIcons.Cog8ToothIcon className="h-[20px]" />,
@@ -119,7 +119,7 @@ export const WalletMainLayout = (props: WalletMainLayoutProps) => {
         <Content style={{}}>
           {"agents" == tab && <Agents />}
           {"topics" == tab && <Topics />}
-          {"messages" == tab && <Messages />}
+          {/* {"messages" == tab && <Messages topicId="" />} */}
           {"stake" == tab && <Stake />}
           {"settings" == tab && <Settings />}
           {"smartlet" == tab && <Smartlets />}

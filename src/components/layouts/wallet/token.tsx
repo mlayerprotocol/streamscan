@@ -80,12 +80,12 @@ const onChange = (key: string) => {
 const items: TabsProps["items"] = [
   {
     key: "1",
-    label: "Events",
+    label: "Messages",
     children: "Content of Tab Pane Events",
   },
   {
     key: "2",
-    label: "Publishers",
+    label: "Devices",
     children: "Content of Tab Pane Publishers",
   },
   {

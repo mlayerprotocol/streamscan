@@ -1,5 +1,5 @@
 "use client";
-import {
+import { 
   displayVariants,
   formLayout,
   metaToObject,
@@ -21,6 +21,9 @@ import {
 } from "antd";
 import * as HeroIcons from "@heroicons/react/24/solid";
 import moment from "moment";
+import { useRouter } from "next/navigation";
+import { Messages } from "../messages";
+import { TopicSetting } from "./settings";
 interface PreviewTopicProps {
   topicId: string;
   onSuccess?: (values: any) => void;
@@ -28,6 +31,7 @@ interface PreviewTopicProps {
 }
 export const PreviewTopic = (props: PreviewTopicProps) => {
   const { topicId } = props;
+  const router = useRouter()
   const {
     loaders,
     accountTopicList,
@@ -53,8 +57,6 @@ export const PreviewTopic = (props: PreviewTopicProps) => {
     }
     return (accountTopicList?.data ?? []).find(
       (v) =>
-        v.snet == selectedSubnetId &&
-        v.acct == `did:${account}` &&
         v.id == selectedMessagesTopicId
     );
   }, [selectedMessagesTopicId, accountTopicList]);
@@ -66,9 +68,10 @@ export const PreviewTopic = (props: PreviewTopicProps) => {
       )
       .map((el, index) => ({
         key: index,
-        label: <span>{metaToObject(el.meta)?.name ?? el.ref}</span>,
+        label: <span>{(metaToObject(el.meta)?.name ?? '') + ` [${el.ref ?? ''}]`}</span>,
         onClick: () => {
-          setSelectedMessagesTopicId?.(el.id);
+          // setSelectedMessagesTopicId?.(el.id);
+          router.push(`?id=${el.id}`)
         },
       }));
   }, [accountTopicList]);
@@ -76,9 +79,27 @@ export const PreviewTopic = (props: PreviewTopicProps) => {
   useEffect(() => {
     setSelectedMessagesTopicId?.(topicId);
   }, [topicId]);
+  const items: TabsProps["items"] = [
+    {
+      key: "1",
+      label: "Messages",
+      children: <Messages topicId={topicId} />,
+    },
+    {
+      key: "2",
+      label: "Devices",
+      children: "Content of Tab Pane Publishers",
+    },
+    {
+      key: "3",
+      label: "Settings",
+      children: <TopicSetting topicId={topicId} />
+    },
+  ];
+  
   return (
     <motion.div
-      className="inline-flex flex-col w-full gap-6 py-8"
+      className="inline-flex flex-col w-full gap-6 py-0"
       variants={displayVariants}
       initial={"hidden"}
       animate={"show"}
@@ -88,16 +109,24 @@ export const PreviewTopic = (props: PreviewTopicProps) => {
       }}
       // transition={{ duration: 1, delay: 1 }}
     >
+       <Button
+              type="text"
+              htmlType="submit"
+              className="self-start"
+        shape="round"
+        icon={<HeroIcons.ArrowLeftIcon className="ml-2 h-[30px] " />}
+        onClick={()=>router.push(`/subnet/${selectedSubnetId}/topics`)}
+      />
       <div className="flex justify-between">
-        <Dropdown menu={{ items: dropdownItems }}>
+        <Dropdown menu={{ items: dropdownItems }} className="!border !border-gray-600 p-2 !rounded-md">
           <Space>
-            Select topic:{" "}
-            {metaToObject(topic?.meta)?.name ?? topic?.ref ?? "--"}
+            <span className="text-gray-400">Select topic:{" "}</span>
+            {metaToObject(topic?.meta)?.name ?? ''}{`[${topic?.ref ?? ''}]`}
             <HeroIcons.ChevronDownIcon className="ml-2 h-[20px]" />
           </Space>
         </Dropdown>
 
-        <span>{topicId}</span>
+       <div> <span className="text-gray-400">Topic Id: </span>{topicId}</div>
       </div>
       {/* <Table dataSource={[]} columns={columns} /> */}
       <Tabs defaultActiveKey="1" items={items} onChange={onChange} />
@@ -137,76 +166,3 @@ const onChange = (key: string) => {
   console.log(key);
 };
 
-const items: TabsProps["items"] = [
-  {
-    key: "1",
-    label: "Events",
-    children: "Content of Tab Pane Events",
-  },
-  {
-    key: "2",
-    label: "Publishers",
-    children: "Content of Tab Pane Publishers",
-  },
-  {
-    key: "3",
-    label: "Settings",
-    children: (
-      <div className="flex flex-col my-8">
-        <motion.div
-          className="inline-block w-1/2 mx-auto"
-          variants={displayVariants}
-          initial={"hidden"}
-          animate={"show"}
-          exit={{
-            opacity: 0,
-            scale: 0,
-          }}
-          // transition={{ duration: 1, delay: 1 }}
-        >
-          <Form
-            {...formLayout}
-            className="flex flex-col"
-            name="basic"
-            // form={form}
-            initialValues={{}}
-            onFinish={(data) => {
-              const name: string = data["n"];
-              const ref: string = data["ref"];
-              const status: number = data["status"];
-            }}
-            // onFinishFailed={onFinishFailed}
-            autoComplete="off"
-          >
-            <Form.Item
-              label={`Name: `}
-              name="n"
-              rules={[{ required: true, message: "Please input a name!" }]}
-            >
-              <Input placeholder="Enter A Name" />
-            </Form.Item>
-
-            <Form.Item
-              label={`Reference: `}
-              name="ref"
-              rules={[
-                { required: true, message: "Please input select a reference!" },
-              ]}
-            >
-              <Input placeholder="Enter A Reference" />
-            </Form.Item>
-
-            <Button
-              type="primary"
-              htmlType="submit"
-              className="w-full mt-[28px] self-end"
-              shape="round"
-            >
-              <span className="text-black">Update</span>
-            </Button>
-          </Form>
-        </motion.div>
-      </div>
-    ),
-  },
-];

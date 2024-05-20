@@ -4,6 +4,7 @@ import * as HeroIcons from "@heroicons/react/24/solid";
 import * as OutlineHeroIcons from "@heroicons/react/24/outline";
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
+
 import {
   Button,
   Popconfirm,
@@ -19,6 +20,7 @@ import { TopicData } from "@/model/topic";
 import { PreviewTopic } from "./preview";
 
 import { Address } from "@mlayerprotocol/core/src/entities";
+import { useRouter } from "next/navigation";
 
 
 interface MyTopicsProps {
@@ -26,6 +28,7 @@ interface MyTopicsProps {
   handleCreateAccount?: () => void;
 }
 export const MyTopics = (props: MyTopicsProps) => {
+  const router = useRouter();
   const [showCreateTopicModal, setShowCreateTopicModal] =
     useState<boolean>(false);
   const [showCreateMessageModal, setShowCreateMessageModal] =
@@ -59,27 +62,27 @@ export const MyTopics = (props: MyTopicsProps) => {
   const columns: TableProps<TopicData>["columns"] = useMemo(() => {
     return [
       {
-        title: "Hash",
-        dataIndex: "h",
-        key: "address",
+        title: "Id",
+        dataIndex: "id",
+        key: "id",
         render(value, record, index) {
           return shorternAddress(value);
         },
       },
       {
-        title: "Ref Id",
+        title: "Ref",
         dataIndex: "ref",
         key: "ref",
         render(value, record, index) {
-          return `@${value}`
+          return `${value}`
         }
       },
       {
-        title: "Title",
+        title: "Name",
         dataIndex: "n",
         key: "n",
         render(value, record, index) {
-          return metaToObject(record.meta)?.name ?? value;
+          return metaToObject(record.meta)?.name ?? value ?? '';
         },
       },
       {
@@ -102,11 +105,11 @@ export const MyTopics = (props: MyTopicsProps) => {
       //   dataIndex: "subscribers",
       //   key: "subscribers",
       // },
-      {
-        title: "MLT Consumed",
-        dataIndex: "bal",
-        key: "bal",
-      },
+      // {
+      //   title: "MLT Consumed",
+      //   dataIndex: "bal",
+      //   key: "bal",
+      // },
       {
         title: "",
         dataIndex: "",
@@ -175,7 +178,8 @@ export const MyTopics = (props: MyTopicsProps) => {
               <Button
                 type="link"
                 onClick={async () => {
-                  setPreviewTopicId(record.id);
+                  // setPreviewTopicId(record.id);
+                  router.push(`?id=${record?.id}`, { scroll: false });
                 }}
               >
                 <HeroIcons.Bars4Icon className="h-[20px]" />
@@ -188,9 +192,7 @@ export const MyTopics = (props: MyTopicsProps) => {
   }, [accountTopicList]);
   console.log({ account });
 
-  if (previewTopicId) {
-    return <PreviewTopic topicId={previewTopicId} />;
-  }
+ 
   return (
     <motion.div
       className="inline-flex w-full flex-col gap-6"

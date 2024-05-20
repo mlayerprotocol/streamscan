@@ -61,8 +61,8 @@ const SubnetPage = () => {
             bordered={subnet.id == selectedSubnetId}
           >
             <div className="flex flex-col">
-              <span className="">{subnet?.ref}</span>
-              <span className="text-lg">{metaToObject(subnet?.meta)?.name}</span>
+              <span className="">{subnet?.ref ?? ''}</span>
+              <span className="text-lg">{metaToObject(subnet?.meta)?.name ?? ''}</span>
             </div>
           </Card>
         ))}

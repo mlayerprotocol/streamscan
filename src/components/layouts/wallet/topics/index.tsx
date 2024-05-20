@@ -8,6 +8,7 @@ import { SubscribedTopics } from "./subscribed";
 import { AllTopics } from "./all";
 import { useSearchParams } from "next/navigation";
 import { InformationCircleIcon } from "@heroicons/react/24/solid";
+import { PreviewTopic } from "./preview";
 interface TopicsProps {
   onSuccess?: (values: any) => void;
   handleCreateAccount?: () => void;
@@ -16,10 +17,16 @@ export const Topics = (props: TopicsProps) => {
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<string>('my');
 
-  useEffect(() => {
-    console.log({ searchParams: searchParams.get("topicTab") });
-    setActiveTab(searchParams.get("topicTab") ?? activeTab);
-  }, [searchParams]);
+ 
+const [selectedTopic, setSelectedTopic] = useState<string>();
+
+useEffect(() => {
+  console.log({ searchParams: searchParams.get("topicTab") });
+  setActiveTab(searchParams.get("topicTab") ?? activeTab);
+  setSelectedTopic(searchParams.get("id") ?? undefined)
+}, [searchParams]);
+
+  
 
   const onChange = (key: string) => {
     console.log({activeTab, key})
@@ -44,29 +51,31 @@ export const Topics = (props: TopicsProps) => {
         Topics are communication channels. Every subscriber to a topic receives
         the data/messages sent to that topic. <a href={INFO_LINKS.topicInfo} target="_blank">Learn more...</a>
           </span>
-          </Space>
-      <Tabs
-        onChange={onChange}
-        activeKey={activeTab}
-        type="card"
-        items={[
-          {
-            label: `My Topics`,
-            key: "my",
-            children: <MyTopics />,
-          },
-          {
-            label: `Subscribed Topics`,
-            key: "sub",
-            children: <SubscribedTopics />,
-          },
-          //   {
-          //     label: `All Topics`,
-          //     key: "all",
-          //     children: <AllTopics />,
-          //   },
-        ]}
-        />
+        </Space>
+        {!!selectedTopic && <PreviewTopic topicId={selectedTopic} />}
+
+        {!selectedTopic && <Tabs
+          onChange={onChange}
+          activeKey={activeTab}
+          type="card"
+          items={[
+            {
+              label: `My Topics`,
+              key: "my",
+              children: <MyTopics />,
+            },
+            {
+              label: `Subscribed Topics`,
+              key: "sub",
+              children: <SubscribedTopics />,
+            },
+            //   {
+            //     label: `All Topics`,
+            //     key: "all",
+            //     children: <AllTopics />,
+            //   },
+          ]}
+        />}
         </div>
     </motion.div>
   );
