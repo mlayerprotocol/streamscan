@@ -22,6 +22,7 @@ import { PreviewTopic } from "./preview";
 import { Address } from "@mlayerprotocol/core/src/entities";
 import { useRouter } from "next/navigation";
 
+import { useSearchParams } from "next/navigation";
 
 interface MyTopicsProps {
   onSuccess?: (values: any) => void;
@@ -29,15 +30,24 @@ interface MyTopicsProps {
 }
 export const MyTopics = (props: MyTopicsProps) => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [showCreateTopicModal, setShowCreateTopicModal] =
     useState<boolean>(false);
   const [showCreateMessageModal, setShowCreateMessageModal] =
     useState<boolean>(false);
   const [selectedTopic, setSelectedTopic] = useState<TopicData>();
+  const _topic = searchParams.get("topic");
+  useEffect(() => {
+    //
+    if (!_topic) {
+      setShowPreview(false);
+    }
+    console.log({ _topic });
+  }, [_topic]);
   const {
     loaders,
     accountTopicList,
-    subcribeToTopic,
+    setSelectedMessagesTopicId,
     agents,
     selectedAgent,
     walletAccounts,
@@ -45,14 +55,17 @@ export const MyTopics = (props: MyTopicsProps) => {
     selectedSubnetId,
   } = useContext(WalletContext);
   const [selectedTopicId, setSelectedTopicId] = useState<string | undefined>();
-  const [previewTopicId, setPreviewTopicId] = useState<string | undefined>();
+  // const [previewTopicId, setPreviewTopicId] = useState<string | undefined>();
+  const [showPreview, setShowPreview] = useState<boolean>(false);
   const account = useMemo(
     () => walletAccounts[connectedWallet ?? ""]?.[0],
     [walletAccounts, connectedWallet]
   );
   const dataSource = useMemo(() => {
     return (accountTopicList?.data ?? []).filter(
-      (item) => item.snet == selectedSubnetId && item.acct == Address.fromString(account).toAddressString()
+      (item) =>
+        item.snet == selectedSubnetId &&
+        item.acct == Address.fromString(account).toAddressString()
     );
   }, [accountTopicList, account]);
   const agent = useMemo(() => {
@@ -205,7 +218,6 @@ export const MyTopics = (props: MyTopicsProps) => {
       }}
       // transition={{ duration: 1, delay: 1 }}
     >
-     
       <Button
         loading={loaders["createTopic"]}
         onClick={() => {

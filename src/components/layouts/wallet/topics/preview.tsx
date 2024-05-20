@@ -16,22 +16,21 @@ import {
   Input,
   MenuProps,
   Space,
+  Table,
   Tabs,
   TabsProps,
 } from "antd";
 import * as HeroIcons from "@heroicons/react/24/solid";
 import moment from "moment";
-import { useRouter } from "next/navigation";
 import { Messages } from "../messages";
 import { TopicSetting } from "./settings";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 interface PreviewTopicProps {
-  topicId: string;
   onSuccess?: (values: any) => void;
   handleCreateAccount?: () => void;
 }
 export const PreviewTopic = (props: PreviewTopicProps) => {
   const { topicId } = props;
-  const router = useRouter()
   const {
     loaders,
     accountTopicList,
@@ -42,6 +41,21 @@ export const PreviewTopic = (props: PreviewTopicProps) => {
     messagesList,
     setSelectedMessagesTopicId,
   } = useContext(WalletContext);
+
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const params = new URLSearchParams(searchParams.toString());
+
+  const pathname = usePathname();
+
+  useEffect(() => {
+    if (!selectedMessagesTopicId) return;
+
+    params.set("topic", selectedMessagesTopicId);
+    console.log({ pathname, params: params.toString() });
+    router.push(pathname + "?" + params.toString());
+  }, [selectedMessagesTopicId]);
 
   const account = useMemo(
     () => walletAccounts[connectedWallet ?? ""]?.[0],
@@ -76,9 +90,11 @@ export const PreviewTopic = (props: PreviewTopicProps) => {
       }));
   }, [accountTopicList]);
 
+
   useEffect(() => {
     setSelectedMessagesTopicId?.(topicId);
   }, [topicId]);
+
   const items: TabsProps["items"] = [
     {
       key: "1",
@@ -165,4 +181,3 @@ const columns = [
 const onChange = (key: string) => {
   console.log(key);
 };
-
