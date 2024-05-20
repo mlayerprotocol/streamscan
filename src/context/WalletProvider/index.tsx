@@ -112,6 +112,7 @@ interface WalletContextValues {
   setSelectedMessagesTopicId?: Dispatch<SetStateAction<string | undefined>>;
   setSelectedSubnetId?: Dispatch<SetStateAction<string | undefined>>;
   setToggleGroupStats?: Dispatch<SetStateAction<boolean>>;
+  setPointToggleGroup?: Dispatch<SetStateAction<boolean>>;
 }
 
 declare const TextEncoder: any;
@@ -191,7 +192,7 @@ export const WalletContextProvider = ({
   const [toggleGroup2, setToggleGroup2] = useState<boolean>(false);
   const [toggleGroup3, setToggleGroup3] = useState<boolean>(false);
   const [toggleGroup4, setToggleGroup4] = useState<boolean>(false);
-  const [toggleGroup5, setToggleGroup5] = useState<boolean>(false);
+  const [pointToggleGroup, setPointToggleGroup] = useState<boolean>(false);
   const [toggleGroupStats, setToggleGroupStats] = useState<boolean>(false);
   const [selectedAgent, setSelectedAgent] = useState<string>();
   const [selectedMessagesTopicId, setSelectedMessagesTopicId] =
@@ -288,7 +289,7 @@ export const WalletContextProvider = ({
           account: `mid:${accounts[0].address}`,
         }),
       }).then((b) => {
-        setToggleGroup5((old) => !old);
+        setPointToggleGroup((old) => !old);
       });
     }
   };
@@ -449,7 +450,7 @@ export const WalletContextProvider = ({
         console.log({ resp: resp.data });
       })
       .catch((e) => notification.error({ message: e }));
-  }, [connectedWallet, toggleGroup5]);
+  }, [connectedWallet, pointToggleGroup]);
   const ganerateAuthorizationMessage = async (
     validatorPublicKey: string,
     account: AddressData,
@@ -745,7 +746,7 @@ export const WalletContextProvider = ({
             account: `${Address.fromString(account).toAddressString()}`,
           }),
         }).then((b) => {
-          setToggleGroup5((old) => !old);
+          setPointToggleGroup((old) => !old);
         });
       });
     } catch (e: any) {
@@ -839,7 +840,7 @@ export const WalletContextProvider = ({
             account: `${Address.fromString(account).toAddressString()}`,
           }),
         }).then((b) => {
-          setToggleGroup5((old) => !old);
+          setPointToggleGroup((old) => !old);
         });
       });
     } catch (e: any) {
@@ -938,7 +939,7 @@ export const WalletContextProvider = ({
             account: Address.fromString(account).toAddressString(),
           }),
         }).then((b) => {
-          setToggleGroup5((old) => !old);
+          setPointToggleGroup((old) => !old);
         });
       });
     } catch (e: any) {
@@ -1142,6 +1143,7 @@ export const WalletContextProvider = ({
         sendMessage,
         createSubnet,
         setToggleGroupStats,
+        setPointToggleGroup,
         walletAccounts,
         loadingWalletConnections,
         walletConnectionState,

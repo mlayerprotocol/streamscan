@@ -9,6 +9,7 @@ export interface Data {
 }
 
 export interface Account {
+  socials: Socials;
   _id: string;
   projectId: number;
   walletAddress: string;
@@ -18,4 +19,9 @@ export interface Account {
   updatedAt: Date;
   __v: number;
   id: string;
+}
+
+export interface Socials {
+  discord: string;
+  twitter: string;
 }
