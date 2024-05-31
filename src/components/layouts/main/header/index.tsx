@@ -330,7 +330,7 @@ export const AppHeader = (props: AppHeaderProps) => {
               priority
             /> </a>
             <a href="/">
-              <span className="text-2xl">MLStream</span>
+              <span className="text-2xl"><span className="text-[#ffffff] bg-opacity-40 bg-[#7C3AED] font-bold">ml</span>studio</span>
              </a>
           </div>
 

@@ -54,11 +54,13 @@ export const formLayout = {
 
 export const INFO_LINKS = {
   subnetInfo:
-    "https://mlayer.gitbook.io/white-paper/technology#components-of-the-communication-layer",
+    'https://mlayer.gitbook.io/white-paper/technology#components-of-the-communication-layer',
   agentInfo:
-    "https://mlayer.gitbook.io/white-paper/technology#components-of-the-communication-layer",
+    'https://mlayer.gitbook.io/white-paper/technology#components-of-the-communication-layer',
   topicInfo:
-    "https://mlayer.gitbook.io/white-paper/technology#components-of-the-communication-layer",
+    'https://mlayer.gitbook.io/white-paper/technology#components-of-the-communication-layer',
+  airdrop:
+    'https://mlayer.gitbook.io/white-paper/technology#components-of-the-communication-layer',
 };
 
 export const MIDDLEWARE_HTTP_URLS = {
