@@ -932,6 +932,7 @@ export const WalletContextProvider = ({
         notification.error({ message: (respond as any)?.error + "" });
       }
       console.log('RSPONESSS--->', respond)
+      respond.data = Array.isArray(respond.data) ? respond.data : [respond.data]
       setAccountTopicList(respond);
       // console.log("getAccountSubscriptions::::", respond);
     } catch (error) {}
