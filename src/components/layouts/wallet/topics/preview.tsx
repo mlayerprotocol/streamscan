@@ -28,6 +28,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 interface PreviewTopicProps {
   onSuccess?: (values: any) => void;
   handleCreateAccount?: () => void;
+  topicId: string;
 }
 export const PreviewTopic = (props: PreviewTopicProps) => {
   const { topicId } = props;
