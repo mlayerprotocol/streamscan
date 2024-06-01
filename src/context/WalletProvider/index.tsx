@@ -231,7 +231,7 @@ export const WalletContextProvider = ({
   const [loaders, setLoaders] = useState<Record<string, boolean>>({});
 
   const [topicList, setTopicList] = useState<TopicListModel>();
-  const [accountTopicList, setAccountTopicList] = useState<TopicListModel>();
+  const [accountTopicList, setAccountTopicList] = useState<TopicListModel>({data:[]});
 
   const [recordTopicList, setRecordTopicList] =
     useState<Record<string, TopicListModel>>();
