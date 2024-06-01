@@ -1,5 +1,5 @@
 "use client";
-import { 
+import {
   displayVariants,
   formLayout,
   metaToObject,
@@ -25,9 +25,11 @@ import moment from "moment";
 import { Messages } from "../messages";
 import { TopicSetting } from "./settings";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { TopicAgents } from "./agents";
 interface PreviewTopicProps {
   onSuccess?: (values: any) => void;
   handleCreateAccount?: () => void;
+  topicId: string;
 }
 export const PreviewTopic = (props: PreviewTopicProps) => {
   const { topicId } = props;
@@ -63,15 +65,14 @@ export const PreviewTopic = (props: PreviewTopicProps) => {
   );
 
   const topic = useMemo(() => {
-    if (!selectedMessagesTopicId && (accountTopicList?.data ?? []).length > 0) {
-      setTimeout(() => {
-        setSelectedMessagesTopicId?.((accountTopicList?.data ?? [])[0].id);
-      }, 2000);
-      return undefined;
-    }
+    // if (!selectedMessagesTopicId && (accountTopicList?.data ?? []).length > 0) {
+    //   setTimeout(() => {
+    //     setSelectedMessagesTopicId?.((accountTopicList?.data ?? [])[0].id);
+    //   }, 2000);
+    //   return undefined;
+    // }
     return (accountTopicList?.data ?? []).find(
-      (v) =>
-        v.id == selectedMessagesTopicId
+      (v) => v.id == selectedMessagesTopicId
     );
   }, [selectedMessagesTopicId, accountTopicList]);
 
@@ -82,14 +83,17 @@ export const PreviewTopic = (props: PreviewTopicProps) => {
       )
       .map((el, index) => ({
         key: index,
-        label: <span>{(metaToObject(el.meta)?.name ?? '') + ` [${el.ref ?? ''}]`}</span>,
+        label: (
+          <span>
+            {(metaToObject(el.meta)?.name ?? "") + ` [${el.ref ?? ""}]`}
+          </span>
+        ),
         onClick: () => {
           // setSelectedMessagesTopicId?.(el.id);
-          router.push(`?id=${el.id}`)
+          router.push(`?id=${el.id}`);
         },
       }));
   }, [accountTopicList]);
-
 
   useEffect(() => {
     setSelectedMessagesTopicId?.(topicId);
@@ -104,15 +108,15 @@ export const PreviewTopic = (props: PreviewTopicProps) => {
     {
       key: "2",
       label: "Devices",
-      children: "Content of Tab Pane Publishers",
+      children: <TopicAgents topicId={topicId} />,
     },
     {
       key: "3",
       label: "Settings",
-      children: <TopicSetting topicId={topicId} />
+      children: <TopicSetting topicId={topicId} />,
     },
   ];
-  
+
   return (
     <motion.div
       className="inline-flex flex-col w-full gap-6 py-0"
@@ -125,24 +129,32 @@ export const PreviewTopic = (props: PreviewTopicProps) => {
       }}
       // transition={{ duration: 1, delay: 1 }}
     >
-       <Button
-              type="text"
-              htmlType="submit"
-              className="self-start"
+      <Button
+        type="text"
+        htmlType="submit"
+        className="self-start"
         shape="round"
         icon={<HeroIcons.ArrowLeftIcon className="ml-2 h-[30px] " />}
-        onClick={()=>router.push(`/subnet/${selectedSubnetId}/topics`)}
+        onClick={() => router.push(`/subnet/${selectedSubnetId}/topics`)}
       />
       <div className="flex justify-between">
-        <Dropdown menu={{ items: dropdownItems }} className="!border !border-gray-600 p-2 !rounded-md">
+        <Dropdown
+          menu={{ items: dropdownItems }}
+          className="!border !border-gray-600 p-2 !rounded-md"
+        >
           <Space>
-            <span className="text-gray-400">Select topic:{" "}</span>
-            {metaToObject(topic?.meta)?.name ?? ''}{`[${topic?.ref ?? ''}]`}
+            <span className="text-gray-400">Select topic: </span>
+            {metaToObject(topic?.meta)?.name ?? ""}
+            {`[${topic?.ref ?? ""}]`}
             <HeroIcons.ChevronDownIcon className="ml-2 h-[20px]" />
           </Space>
         </Dropdown>
 
-       <div> <span className="text-gray-400">Topic Id: </span>{topicId}</div>
+        <div>
+          {" "}
+          <span className="text-gray-400">Topic Id: </span>
+          {topicId}
+        </div>
       </div>
       {/* <Table dataSource={[]} columns={columns} /> */}
       <Tabs defaultActiveKey="1" items={items} onChange={onChange} />

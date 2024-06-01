@@ -62,6 +62,7 @@ export const MyTopics = (props: MyTopicsProps) => {
     [walletAccounts, connectedWallet]
   );
   const dataSource = useMemo(() => {
+    console.log({ accountTopicList });
     return (accountTopicList?.data ?? []).filter(
       (item) =>
         item.snet == selectedSubnetId &&
@@ -87,15 +88,15 @@ export const MyTopics = (props: MyTopicsProps) => {
         dataIndex: "ref",
         key: "ref",
         render(value, record, index) {
-          return `${value}`
-        }
+          return `${value}`;
+        },
       },
       {
         title: "Name",
         dataIndex: "n",
         key: "n",
         render(value, record, index) {
-          return metaToObject(record.meta)?.name ?? value ?? '';
+          return metaToObject(record.meta)?.name ?? value ?? "";
         },
       },
       {
@@ -205,7 +206,6 @@ export const MyTopics = (props: MyTopicsProps) => {
   }, [accountTopicList]);
   console.log({ account });
 
- 
   return (
     <motion.div
       className="inline-flex w-full flex-col gap-6"
