@@ -21,7 +21,7 @@ const WalletPage = () => {
     selectedSubnet,
   } = useContext(WalletContext);
   const items: MenuProps["items"] =
-    combinedAgents
+    (combinedAgents ?? [])
       .filter((cAgt) => cAgt.privateKey && cAgt.authData)
       .map((item, index) => {
         return {

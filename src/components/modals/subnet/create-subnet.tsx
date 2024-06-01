@@ -37,7 +37,7 @@ export const CreateSubnet = (props: CreateSubnetProps) => {
     return combinedAgents.find((opt) => opt.address == selectedAgent)?.address;
   }, [combinedAgents, selectedAgent]);
 
-  const items = combinedAgents.filter(
+  const items = (combinedAgents ?? []).filter(
     (cAgt) => cAgt.privateKey && cAgt.authData
   );
 

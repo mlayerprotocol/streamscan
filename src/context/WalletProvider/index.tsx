@@ -419,8 +419,8 @@ export const WalletContextProvider = ({
       }
     });
     setCombinedAgents([
-      ...localAgents.filter((agt) => selectedSubnetId == agt.subnetId),
-      ...serverAgents.filter((agt) => selectedSubnetId == agt?.authData?.snet),
+      ...(localAgents ?? []).filter((agt) => selectedSubnetId == agt.subnetId),
+      ...(serverAgents ?? []).filter((agt) => selectedSubnetId == agt?.authData?.snet),
     ]);
   }, [agents, authenticationList, selectedSubnetId]);
   useEffect(() => {
@@ -1150,7 +1150,7 @@ export const WalletContextProvider = ({
         connectedWallet,
         selectedSubnetId,
         selectedSubnet,
-        agents: agents.filter((agt) => selectedSubnetId == agt.subnetId),
+        agents: (agents ?? []).filter((agt) => selectedSubnetId == agt.subnetId),
         combinedAgents,
         topicList,
         blockStatsList,

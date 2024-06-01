@@ -26,7 +26,7 @@ export const Settings = (props: SettingsProps) => {
     subnetListModelList,
   } = useContext(WalletContext);
 
-  const items = combinedAgents.filter(
+  const items = (combinedAgents ?? []).filter(
     (cAgt) => cAgt.privateKey && cAgt.authData
   );
 

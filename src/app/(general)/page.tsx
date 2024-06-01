@@ -97,7 +97,7 @@ const DashboardPage = () => {
           <span className="font-bold text-xl">Recent Blocks</span>
         </div>
         <Table
-          dataSource={dataSource.filter(d=>d.blk != 0)}
+          dataSource={(dataSource ?? []).filter(d=>d.blk != 0)}
           columns={columns}
           loading={loaders["getBlockStats"]}
         />
