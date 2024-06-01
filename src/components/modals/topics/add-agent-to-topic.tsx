@@ -15,25 +15,35 @@ import { motion } from "framer-motion";
 import { useForm } from "antd/es/form/Form";
 import { displayVariants, formLayout, shorternAddress } from "@/utils";
 import { WalletContext } from "@/context";
+import { SubscriptionStatus } from "@mlayerprotocol/core/src/entities";
 
-interface JoinTopicProps {
+interface AddAgentToTopicProps {
   topicId?: string;
-  useSub?: boolean;
   isModalOpen?: boolean;
   onCancel?: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 }
-export const JoinTopic = (props: JoinTopicProps) => {
-  const { subcribeToTopic, loaders, agents, combinedAgents, selectedAgent } =
-    useContext(WalletContext);
-  const { isModalOpen = false, onCancel, topicId, useSub = false } = props;
+export const AddAgentToTopic = (props: AddAgentToTopicProps) => {
+  const {
+    subcribeToTopic,
+    loaders,
+    agents,
+    combinedAgents,
+    selectedAgent,
+    selectedSubnet,
+  } = useContext(WalletContext);
+  const { isModalOpen = false, onCancel, topicId } = props;
   const [form] = useForm();
   const selectedAgentObj = useMemo(() => {
     return combinedAgents.find((opt) => opt.address == selectedAgent);
   }, [combinedAgents, selectedAgent]);
 
   useEffect(() => {
-    form.setFieldsValue({ address: selectedAgentObj?.address, topicId });
-  }, [topicId, selectedAgentObj]);
+    form.setFieldsValue({
+      address: selectedAgentObj?.address,
+      topicId,
+      subnetId: selectedSubnet?.id,
+    });
+  }, [topicId, selectedAgentObj, selectedSubnet]);
 
   return (
     <Modal
@@ -76,8 +86,9 @@ export const JoinTopic = (props: JoinTopicProps) => {
               }
               const topicId: string = data["topicId"];
               const subnetId: string = data["subnetId"];
-              const sub: string | undefined = useSub ? data["sub"] : null;
-              subcribeToTopic?.(agent, { subnetId, topicId, sub });
+              const sub: string = data["sub"];
+              const status: SubscriptionStatus = data["status"];
+              subcribeToTopic?.(agent, { subnetId, topicId, sub, status });
               form.setFieldsValue({});
               onCancel?.({} as any);
             }}
@@ -98,17 +109,13 @@ export const JoinTopic = (props: JoinTopicProps) => {
               />
             </Form.Item>
 
-            {useSub && (
-              <Form.Item
-                label="Subscriber Address:"
-                name="sub"
-                rules={[
-                  { required: true, message: "Please input an address!" },
-                ]}
-              >
-                <Input placeholder="Enter A Subscriber Address" />
-              </Form.Item>
-            )}
+            <Form.Item
+              label="Subscriber Address:"
+              name="sub"
+              rules={[{ required: true, message: "Please input an address!" }]}
+            >
+              <Input placeholder="Enter A Subscriber Address" />
+            </Form.Item>
 
             <Form.Item
               label="Topic Id:"
@@ -123,6 +130,24 @@ export const JoinTopic = (props: JoinTopicProps) => {
               rules={[{ required: true, message: "Please input a subnet id!" }]}
             >
               <Input placeholder="Enter Your Subnet Id" />
+            </Form.Item>
+
+            <Form.Item
+              label={"Status" + Object.values(SubscriptionStatus)[7]}
+              name="status"
+              rules={[{ required: true, message: "Please select a status!" }]}
+            >
+              <Select>
+                {Object.values(SubscriptionStatus)
+                  .filter((e) => typeof e == "string")
+                  .map((val, index) => {
+                    return (
+                      <Select.Option key={index} value={index}>
+                        {val}
+                      </Select.Option>
+                    );
+                  })}
+              </Select>
             </Form.Item>
 
             <Button

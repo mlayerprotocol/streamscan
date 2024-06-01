@@ -39,6 +39,7 @@ import { MainStatsModel } from "@/model/main-stats/data";
 import { SubnetData, SubnetListModel } from "@/model/subnets";
 import { PointListModel } from "@/model/points";
 import { PointDetailModel } from "@/model/points/detail";
+import { SubscriberListModel } from "@/model/subscribers";
 
 // import { Authorization } from "@mlayerprotocol/core/src/entities";
 // const { Authorization } = Entities;
@@ -67,6 +68,7 @@ interface WalletContextValues {
   combinedAgents: AddressData[];
   loaders: Record<string, boolean>;
   topicList?: TopicListModel;
+
   blockStatsList?: BlockStatsListModel;
   mainStatsData?: MainStatsModel;
   messagesList?: MessageListModel;
@@ -75,10 +77,13 @@ interface WalletContextValues {
   subnetListModelList?: SubnetListModel;
   accountTopicList?: TopicListModel;
   authenticationList?: AuthenticationListModel;
+  subscriberTopicList: Record<string, SubscriberListModel> | undefined;
+  recordTopicList: Record<string, TopicListModel> | undefined;
   authorizeAgent?: (
     agent: AddressData,
     days: number,
-    privilege: 0 | 1 | 2 | 3
+    privilege: 0 | 1 | 2 | 3,
+    subnetId?: string
   ) => Promise<void>;
   createTopic?: (
     agent: AddressData,
@@ -95,7 +100,15 @@ interface WalletContextValues {
   ) => Promise<void>;
   setSelectedAgent?: Dispatch<SetStateAction<string | undefined>>;
   setCombinedAgents?: Dispatch<SetStateAction<AddressData[]>>;
-  subcribeToTopic?: (agent: AddressData, topicId: string) => Promise<void>;
+  subcribeToTopic?: (
+    agent: AddressData,
+    data: {
+      subnetId: string;
+      topicId: string;
+      sub?: string;
+      status?: Entities.SubscriptionStatus;
+    }
+  ) => Promise<void>;
   sendMessage?: (
     messageString: string,
     agent: AddressData,
@@ -113,6 +126,14 @@ interface WalletContextValues {
   setSelectedSubnetId?: Dispatch<SetStateAction<string | undefined>>;
   setToggleGroupStats?: Dispatch<SetStateAction<boolean>>;
   setPointToggleGroup?: Dispatch<SetStateAction<boolean>>;
+  getTopicSubscribers?: (
+    topicId: string,
+    params: Record<string, unknown>
+  ) => Promise<void>;
+  getRecordTopicV2?: (
+    status: string,
+    params: Record<string, unknown>
+  ) => Promise<void>;
 }
 
 declare const TextEncoder: any;
@@ -169,6 +190,8 @@ export const WalletContext = createContext<WalletContextValues>({
   walletConnectionState: {},
   agents: [],
   combinedAgents: [],
+  subscriberTopicList: {},
+  recordTopicList: {},
 });
 
 export const WalletContextProvider = ({
@@ -209,6 +232,11 @@ export const WalletContextProvider = ({
 
   const [topicList, setTopicList] = useState<TopicListModel>();
   const [accountTopicList, setAccountTopicList] = useState<TopicListModel>();
+
+  const [recordTopicList, setRecordTopicList] =
+    useState<Record<string, TopicListModel>>();
+  const [subscriberTopicList, setSubscriberTopicList] =
+    useState<Record<string, SubscriberListModel>>();
   const [subnetListModelList, setSubnetListList] = useState<SubnetListModel>();
   const [blockStatsList, setBlockStatsList] = useState<BlockStatsListModel>();
   const [mainStatsData, setMainStatsData] = useState<MainStatsModel>();
@@ -331,6 +359,7 @@ export const WalletContextProvider = ({
   useEffect(() => {
     initializeOldState();
   }, []);
+
   useEffect(() => {
     getBlockStats({});
     getMainStats({});
@@ -456,9 +485,11 @@ export const WalletContextProvider = ({
     account: AddressData,
     agent: AddressData,
     days: number = 30,
-    privilege: 0 | 1 | 2 | 3 = 3
+    privilege: 0 | 1 | 2 | 3 = 3,
+    subnetId?: string
   ) => {
-    if (selectedSubnetId == null) {
+    subnetId ??= selectedSubnetId;
+    if (subnetId == null) {
       notification.error({ message: "No Subnet Selected" });
       throw Error("No Subnet Selected");
       // return;
@@ -476,7 +507,7 @@ export const WalletContextProvider = ({
     authority.timestamp = Date.now();
     authority.topicIds = "*";
     authority.privilege = privilege;
-    authority.subnet = selectedSubnetId;
+    authority.subnet = subnetId;
     authority.duration = days * 24 * 60 * 60 * 1000; // 30 days
     // console.log({ authority });
     const encoded = authority.encodeBytes();
@@ -529,13 +560,15 @@ export const WalletContextProvider = ({
     if (auth.error) {
       notification.error({ message: auth.error + "" });
     }
+    return auth;
     // console.log("AUTHORIZE", auth, "rr", auth.error);
   };
 
   const authorizeAgent = async (
     agent: AddressData,
     days: number = 30,
-    privilege: 0 | 1 | 2 | 3 = 3
+    privilege: 0 | 1 | 2 | 3 = 3,
+    subnetId?: string
   ) => {
     if (connectedWallet == null) {
       notification.error({ message: "No wallet connected" });
@@ -547,7 +580,7 @@ export const WalletContextProvider = ({
       return;
     }
     setLoaders((old) => ({ ...old, authorizeAgent: true }));
-    ganerateAuthorizationMessage(
+    await ganerateAuthorizationMessage(
       String(VALIDATOR_PUBLIC_KEY),
       {
         address: account,
@@ -556,7 +589,8 @@ export const WalletContextProvider = ({
       },
       agent,
       days,
-      privilege
+      privilege,
+      subnetId
     )
       .then(async (messageObj) => {
         console.log({ messageObj });
@@ -570,7 +604,7 @@ export const WalletContextProvider = ({
           account,
           messageObj.message
         );
-        connectToClient(
+        await connectToClient(
           signature.signature,
           signature.pub_key.type,
           messageObj.authority,
@@ -581,10 +615,29 @@ export const WalletContextProvider = ({
             privateKey: "",
           },
           agent
-        ).finally(() => {
-          setLoaders((old) => ({ ...old, authorizeAgent: false }));
-          setToggleGroup1((old) => !old);
-        });
+        )
+          .then((ev: any) => {
+            const client = new Client(new RESTProvider(NODE_HTTP));
+
+            const event = ev?.data?.event;
+            client.resolveEvent({ type: event?.t, id: event?.id }).then((e) => {
+              getTopics();
+              setToggleGroup2((old) => !old);
+              makeRequest(MIDDLEWARE_HTTP_URLS.claim.url, {
+                method: MIDDLEWARE_HTTP_URLS.claim.method,
+                body: JSON.stringify({
+                  event: event.t,
+                  account: `${Address.fromString(account).toAddressString()}`,
+                }),
+              }).then((b) => {
+                setPointToggleGroup((old) => !old);
+              });
+            });
+          })
+          .finally(() => {
+            setLoaders((old) => ({ ...old, authorizeAgent: false }));
+            setToggleGroup1((old) => !old);
+          });
       })
       .catch((r) => {
         console.log({ r });
@@ -705,7 +758,7 @@ export const WalletContextProvider = ({
 
       topic.meta = JSON.stringify({ name, description });
       topic.ref = reference;
-      topic.isPublic = isPublic;
+      topic.public = isPublic;
       topic.id = id ?? "";
       topic.subnet = selectedSubnetId;
 
@@ -761,8 +814,9 @@ export const WalletContextProvider = ({
     setLoaders((old) => ({ ...old, getTopic: true }));
     try {
       const client = new Client(new RESTProvider(NODE_HTTP));
-      const respond: TopicListModel =
-        (await client.getTopic()) as unknown as TopicListModel;
+      const respond: TopicListModel = (await client.getTopic(
+        {}
+      )) as unknown as TopicListModel;
       if ((respond as any)?.error) {
         notification.error({ message: (respond as any)?.error + "" });
       }
@@ -771,6 +825,7 @@ export const WalletContextProvider = ({
     } catch (error) {}
     setLoaders((old) => ({ ...old, getTopic: false }));
   };
+
   const getAuthorizations = async (params: Record<string, unknown>) => {
     if (loaders["getAuthorizations"]) return;
     setLoaders((old) => ({ ...old, getAuthorizations: true }));
@@ -788,7 +843,21 @@ export const WalletContextProvider = ({
     setLoaders((old) => ({ ...old, getAuthorizations: false }));
   };
 
-  const subcribeToTopic = async (agent: AddressData, topicId: string) => {
+  const subcribeToTopic = async (
+    agent: AddressData,
+
+    {
+      subnetId,
+      topicId,
+      sub,
+      status,
+    }: {
+      subnetId: string;
+      topicId: string;
+      sub?: string;
+      status?: Entities.SubscriptionStatus;
+    }
+  ) => {
     if (connectedWallet == null) {
       notification.error({ message: "No wallet connected" });
       return;
@@ -807,17 +876,19 @@ export const WalletContextProvider = ({
       //   validator.publicKey,
       //   Utils.toAddress(Buffer.from(validator.publicKey, 'hex'))
       // );
-      // subscribe.status = 1;
+      subscribe.status = status ?? 1;
+      subscribe.subnet = subnetId;
       subscribe.topic = topicId;
-      subscribe.account = Address.fromString(account);
+      subscribe.subscriber = Address.fromString(sub ?? account);
       //   subscribe.agent = "Bitcoin world";
       //   subscribe.reference = "898989";
 
       const payload: Entities.ClientPayload<Entities.Subscription> =
         new Entities.ClientPayload();
       payload.data = subscribe;
+      payload.subnet = subnetId;
       payload.timestamp = Date.now();
-      payload.eventType = Entities.MemberTopicEventType.JoinEvent;
+      payload.eventType = Entities.MemberTopicEventType.SubscribeEvent;
       payload.validator = String(VALIDATOR_PUBLIC_KEY);
       payload.account = Address.fromString(account);
       const pb = payload.encodeBytes();
@@ -864,6 +935,47 @@ export const WalletContextProvider = ({
       // console.log("getAccountSubscriptions::::", respond);
     } catch (error) {}
     setLoaders((old) => ({ ...old, getAccountSubscriptions: false }));
+  };
+
+  const getRecordTopicV2 = async (
+    status: string,
+    params: Record<string, unknown>
+  ) => {
+    if (loaders["getRecordTopicV2"]) return;
+    setLoaders((old) => ({ ...old, getRecordTopicV2: true }));
+    try {
+      const client = new Client(new RESTProvider(NODE_HTTP));
+      const respond: TopicListModel = (await client.getAccountSubscriptionsV2(
+        params
+      )) as unknown as TopicListModel;
+      if ((respond as any)?.error) {
+        notification.error({ message: (respond as any)?.error + "" });
+      }
+      setRecordTopicList((old) => ({ ...old, [status]: respond }));
+      // setAccountTopicList(respond);
+      // console.log("getRecordTopicV2::::", respond);setRecordTopicList
+    } catch (error) {}
+    setLoaders((old) => ({ ...old, getRecordTopicV2: false }));
+  };
+
+  const getTopicSubscribers = async (
+    topicId: string,
+    params: Record<string, unknown>
+  ) => {
+    if (loaders["getTopicSubscribers"]) return;
+    setLoaders((old) => ({ ...old, getTopicSubscribers: true }));
+    try {
+      const client = new Client(new RESTProvider(NODE_HTTP));
+      const respond: SubscriberListModel = (await client.getTopicSubscribers(
+        params
+      )) as unknown as SubscriberListModel;
+      if ((respond as any)?.error) {
+        notification.error({ message: (respond as any)?.error + "" });
+      }
+      setSubscriberTopicList((old) => ({ ...old, [topicId]: respond }));
+      // console.log("getTopicSubscribers::::", respond);
+    } catch (error) {}
+    setLoaders((old) => ({ ...old, getTopicSubscribers: false }));
   };
 
   const sendMessage = async (
@@ -983,6 +1095,7 @@ export const WalletContextProvider = ({
       subNetwork.meta = JSON.stringify({ name });
       subNetwork.reference = ref;
       subNetwork.status = status;
+      subNetwork.owner = Address.fromString(account);
       subNetwork.timestamp = Date.now();
 
       const encoded = subNetwork.encodeBytes();
@@ -1144,6 +1257,8 @@ export const WalletContextProvider = ({
         createSubnet,
         setToggleGroupStats,
         setPointToggleGroup,
+        getTopicSubscribers,
+        getRecordTopicV2,
         walletAccounts,
         loadingWalletConnections,
         walletConnectionState,
@@ -1163,6 +1278,8 @@ export const WalletContextProvider = ({
         messagesList,
         pointsList,
         pointsDetail,
+        subscriberTopicList,
+        recordTopicList,
       }}
     >
       {children}
