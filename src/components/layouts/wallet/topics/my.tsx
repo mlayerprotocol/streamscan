@@ -120,7 +120,7 @@ export const MyTopics = (props: MyTopicsProps) => {
       //   key: "subscribers",
       // },
       // {
-      //   title: "MLT Consumed",
+      //   title: "MSG Consumed",
       //   dataIndex: "bal",
       //   key: "bal",
       // },

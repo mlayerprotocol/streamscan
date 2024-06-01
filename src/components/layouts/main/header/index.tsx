@@ -97,8 +97,8 @@ export const AppHeader = (props: AppHeaderProps) => {
           priority
         /> */}
           <div className="flex gap-3 md:gap-4 items-center !text-xs !text-gray-400">
-            <span>MLT PRICE: $0.0001</span>
-            <span>MSG PRICE: 0.002MLT (~$0.00002)</span>
+            <span>MSG PRICE: $0.0001</span>
+            <span>MSG PRICE: 0.002MSG (~$0.00002)</span>
           </div>
           <div className="ml-auto flex lg:hidden">
             <AnimatePresence>

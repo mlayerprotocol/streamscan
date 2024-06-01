@@ -68,7 +68,7 @@ export const AllTopics = (props: AllTopicsProps) => {
       //   key: "subscribers",
       // },
       {
-        title: "MLT Consumption",
+        title: "MSG Consumption",
         dataIndex: "bal",
         key: "bal",
       },
