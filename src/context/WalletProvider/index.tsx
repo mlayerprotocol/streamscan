@@ -937,7 +937,6 @@ export const WalletContextProvider = ({
     } catch (error) {}
     setLoaders((old) => ({ ...old, getAccountSubscriptions: false }));
   };
-
   const getRecordTopicV2 = async (
     status: string,
     params: Record<string, unknown>
