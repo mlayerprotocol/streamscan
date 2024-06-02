@@ -231,7 +231,7 @@ export const WalletContextProvider = ({
   const [loaders, setLoaders] = useState<Record<string, boolean>>({});
 
   const [topicList, setTopicList] = useState<TopicListModel>();
-  const [accountTopicList, setAccountTopicList] = useState<TopicListModel>();
+  const [accountTopicList, setAccountTopicList] = useState<TopicListModel>({data:[]});
 
   const [recordTopicList, setRecordTopicList] =
     useState<Record<string, TopicListModel>>();
@@ -448,8 +448,8 @@ export const WalletContextProvider = ({
       }
     });
     setCombinedAgents([
-      ...localAgents.filter((agt) => selectedSubnetId == agt.subnetId),
-      ...serverAgents.filter((agt) => selectedSubnetId == agt?.authData?.snet),
+      ...(localAgents ?? []).filter((agt) => selectedSubnetId == agt.subnetId),
+      ...(serverAgents ?? []).filter((agt) => selectedSubnetId == agt?.authData?.snet),
     ]);
   }, [agents, authenticationList, selectedSubnetId]);
   useEffect(() => {
@@ -931,12 +931,13 @@ export const WalletContextProvider = ({
       if ((respond as any)?.error) {
         notification.error({ message: (respond as any)?.error + "" });
       }
+      console.log('RSPONESSS--->', respond)
+      respond.data = Array.isArray(respond.data) ? respond.data : [respond.data]
       setAccountTopicList(respond);
       // console.log("getAccountSubscriptions::::", respond);
     } catch (error) {}
     setLoaders((old) => ({ ...old, getAccountSubscriptions: false }));
   };
-
   const getRecordTopicV2 = async (
     status: string,
     params: Record<string, unknown>
@@ -1265,7 +1266,7 @@ export const WalletContextProvider = ({
         connectedWallet,
         selectedSubnetId,
         selectedSubnet,
-        agents: agents.filter((agt) => selectedSubnetId == agt.subnetId),
+        agents: (agents ?? []).filter((agt) => selectedSubnetId == agt.subnetId),
         combinedAgents,
         topicList,
         blockStatsList,

@@ -2,7 +2,7 @@
 
 export interface TopicListModel {
   data: TopicData[];
-  _meta: Meta;
+  _meta?: Meta;
 }
 
 export interface Meta {

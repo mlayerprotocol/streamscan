@@ -62,7 +62,7 @@ export const MyTopics = (props: MyTopicsProps) => {
     [walletAccounts, connectedWallet]
   );
   const dataSource = useMemo(() => {
-    console.log({ accountTopicList });
+    console.log('TOPICICCS--->', { accountTopicList });
     return (accountTopicList?.data ?? []).filter(
       (item) =>
         item.snet == selectedSubnetId &&
@@ -120,7 +120,7 @@ export const MyTopics = (props: MyTopicsProps) => {
       //   key: "subscribers",
       // },
       // {
-      //   title: "MLT Consumed",
+      //   title: "MSG Consumed",
       //   dataIndex: "bal",
       //   key: "bal",
       // },

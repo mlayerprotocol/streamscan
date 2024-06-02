@@ -2,6 +2,7 @@
 import {
   FOLLOW_DISCORD_HTTP,
   FOLLOW_TWITTER_HTTP,
+  INFO_LINKS,
   MIDDLEWARE_HTTP_URLS,
   displayVariants,
   makeRequest,
@@ -176,8 +177,9 @@ export const AirDrop = (props: AirDropProps) => {
     return obj.actionText ?? "";
   };
   return (
+  
     <motion.div
-      className="inline-flex w-full flex-col gap-6 py-8"
+      className="inline-flex w-full  py-8 content-center justify-center"
       variants={displayVariants}
       initial={"hidden"}
       animate={"show"}
@@ -186,64 +188,83 @@ export const AirDrop = (props: AirDropProps) => {
         scale: 0,
       }}
       // transition={{ duration: 1, delay: 1 }}
-    >
-      <div className="flex my-2">
-        <span>
-          Complete the following activities to earn points towards our airdrop
-        </span>
-      </div>
-      <div className="flex my-2 text-lg justify-between">
-        <span>Total Points Earned</span>
-        <span>{pointsDetail?.data?.account.totalPoints ?? "---"}</span>
-      </div>
-      <div className="flex my-1 text-sm justify-end">
-        <span className="text-blue-500">View Leader Board</span>
-        {/* <span>{pointsDetail?.data.account.totalPoints ?? "---"}</span> */}
-      </div>
-      {/*  */}
-      <div className="flex flex-col">
-        {activites.map((e, i) => {
-          let showCheck = false;
-          if (i < 4 && parseInt(e.amount.toString()) > 0) {
-            showCheck = true;
-          }
-
-          return (
-            <Fragment key={i}>
-              <div className="flex items-center gap-2">
-                <div className="flex flex-col w-1/2">
-                  <span className="text-lg text-gray-500 flex gap-2 items-center">
-                    <span>{e.title}</span>
-                    {showCheck && (
-                      <HeroIcons.CheckCircleIcon className="h-[20px] text-green-500" />
-                    )}
-                  </span>
-                  {e.actionText && (
-                    <span
-                      onClick={() => {
-                        handleAction(e as any, pointsDetail);
-                      }}
-                      className="text-sm text-blue-500 cursor-pointer"
-                    >
-                      {loaders[e.title] ? (
-                        <Spin />
-                      ) : (
-                        renderSubtext(e as any, pointsDetail)
-                      )}
+      >
+        <div className="w-full max-w-[800px]">
+          <div className="flex my-2">
+            <span className="text-gray-400">
+              Complete the following activities to earn points towards our airdrop. <a className="text-blue-500" href={INFO_LINKS.airdrop} target="_blank">Learn more...</a>
+            </span>
+          </div>
+          <div className="flex my-3 text-lg justify-between bg-gray-900 p-5 radius-10">
+            <span>Total Points Earned</span>
+            <span>{pointsDetail?.data?.account.totalPoints ?? "---"}</span>
+          </div>
+          <div className="flex my-1 text-sm justify-end mb-10">
+            <span className="text-blue-500">View Leader Board</span>
+            {/* <span>{pointsDetail?.data.account.totalPoints ?? "---"}</span> */}
+          </div>
+          {/*  */}
+        <div className="flex flex-col">
+        <Fragment key="00">
+                  <div className="flex items-center gap-2">
+                    <div className="flex flex-col w-1/2">
+                      <span className="text-xl text-gray-300 flex gap-2 items-center">
+                        <span>Activity</span>
+                       
+                      </span>
+            
+                    </div>
+                    <span className="text-gray-300 text-xl">Points Accruable</span>
+                    <span className="text-gray-300 text-xl ml-auto">
+                     Points Earned
                     </span>
-                  )}
-                </div>
-                <span className="text-gray-400">{e.point}</span>
-                <span className="text-gray-500 text-2xl ml-auto">
-                  {e.amount}
-                </span>
-              </div>
-              <Divider className="!border-t-4 !border-gray-300 !mt-2" />
-            </Fragment>
-          );
-        })}
-      </div>
-    </motion.div>
+                  </div>
+                  <Divider className="!border-t-4 !border-gray-300 !mt-2" />
+                </Fragment>
+            {activites.map((e, i) => {
+              let showCheck = false;
+              if (i < 4 && parseInt(e.amount.toString()) > 0) {
+                showCheck = true;
+              }
+
+              return (
+                <Fragment key={i}>
+                  <div className="flex items-center gap-2">
+                    <div className="flex flex-col w-1/2">
+                      <span className="text-lg text-gray-500 flex gap-2 items-center">
+                        <span>{e.title}</span>
+                        {showCheck && (
+                          <HeroIcons.CheckCircleIcon className="h-[20px] text-green-500" />
+                        )}
+                      </span>
+                      {e.actionText && (
+                        <span
+                          onClick={() => {
+                            handleAction(e as any, pointsDetail);
+                          }}
+                          className="text-sm text-blue-500 cursor-pointer"
+                        >
+                          {loaders[e.title] ? (
+                            <Spin />
+                          ) : (
+                            renderSubtext(e as any, pointsDetail)
+                          )}
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-gray-500">{e.point}</span>
+                    <span className="text-gray-200 text-2xl ml-auto">
+                      {e.amount}
+                    </span>
+                  </div>
+                  <Divider className="!border-t-4 !border-gray-500 !mt-2" />
+                </Fragment>
+              );
+            })}
+            </div>
+        </div>
+      </motion.div>
+     
   );
 };
 

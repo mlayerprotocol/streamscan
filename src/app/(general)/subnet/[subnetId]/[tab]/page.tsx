@@ -21,7 +21,7 @@ const WalletPage = () => {
     selectedSubnet,
   } = useContext(WalletContext);
   const items: MenuProps["items"] =
-    combinedAgents
+    (combinedAgents ?? [])
       .filter((cAgt) => cAgt.privateKey && cAgt.authData)
       .map((item, index) => {
         return {
@@ -89,7 +89,7 @@ const WalletPage = () => {
             <HeroIcons.ChevronDownIcon className="ml-2 h-[20px]" />
           </Space>
           </Dropdown>
-         <div><span className="text-gray-400">Balance:</span> {ethers.formatEther(String(selectedSubnet?.balance?.toString() ?? '0'))}  $MLT</div> 
+         <div><span className="text-gray-400">Balance:</span> {ethers.formatEther(String(selectedSubnet?.balance?.toString() ?? '0'))}  $MSG</div> 
             </Space>
           </div>
         <Dropdown
