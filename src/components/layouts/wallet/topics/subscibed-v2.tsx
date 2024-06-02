@@ -53,6 +53,7 @@ export const SubscribedV2Topics = (props: SubscribedV2TopicsProps) => {
     subcribeToTopic,
     walletAccounts,
     connectedWallet,
+    selectedSubnetId,
   } = useContext(WalletContext);
   const [selectedTopicId, setSelectedTopicId] = useState<string | undefined>();
 
@@ -69,6 +70,7 @@ export const SubscribedV2Topics = (props: SubscribedV2TopicsProps) => {
           walletAccounts[connectedWallet]?.[0]
         ).toAddressString(),
         status,
+        snet: selectedSubnetId,
       },
     });
   }, [walletAccounts, connectedWallet, toggleState1]);
