@@ -1,12 +1,14 @@
-import { AirDrop } from "@/components/layouts/wallet/airdrop";
+"use client";
 import { PendingTopics } from "@/components/layouts/wallet/topics/pending";
-import React from "react";
+import React, { Suspense } from "react";
 
 const PendingTopicPage = () => {
   return (
-    <div className="flex flex-col gap-4">
-      <PendingTopics />
-    </div>
+    <Suspense>
+      <div className="flex flex-col gap-4">
+        <PendingTopics />
+      </div>
+    </Suspense>
   );
 };
 
