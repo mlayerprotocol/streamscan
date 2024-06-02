@@ -66,6 +66,15 @@ export const AppHeader = (props: AppHeaderProps) => {
       ),
     },
     {
+      key: "2.6",
+      icon: <HeroIcons.UserCircleIcon className="ml-2 h-[20px]" />,
+      label: (
+        <Link href={"/pending-topic"} className="font-medium text-base ml-2">
+          Pending Topic
+        </Link>
+      ),
+    },
+    {
       icon: <HeroIcons.Cog8ToothIcon className="ml-2 h-[20px]" />,
       label: <span className="font-medium text-base ml-2">Switch Wallet</span>,
       key: "3",
@@ -116,7 +125,9 @@ export const AppHeader = (props: AppHeaderProps) => {
                     <Avatar
                       size={32}
                       className="!bg-[#CBD5E1]"
-                      src={connectedWallet? `/icons/${connectedWallet}.svg`: ''}
+                      src={
+                        connectedWallet ? `/icons/${connectedWallet}.svg` : ""
+                      }
                       icon={initialLoading ? <Spin /> : <UserOutlined />}
                     />
                   </motion.div>
@@ -321,17 +332,19 @@ export const AppHeader = (props: AppHeaderProps) => {
         <Divider className="!hidden lg:!block !border-t-2 !mb-2 !mt-2" />
         <div className=" hidden lg:flex justify-between grow items-center w-full px-7  md:px-20">
           <div className="flex items-center gap-2 mx-10">
-           <a href="/"><Image
-              src="/logo.png"
-              alt="Vercel Logo"
-              // className="light:invert"
-              width={48}
-              height={48}
-              priority
-            /> </a>
+            <a href="/">
+              <Image
+                src="/logo.png"
+                alt="Vercel Logo"
+                // className="light:invert"
+                width={48}
+                height={48}
+                priority
+              />{" "}
+            </a>
             <a href="/">
               <span className="text-2xl">MLStream</span>
-             </a>
+            </a>
           </div>
 
           <div className="flex gap-2 mx-10 items-center">
@@ -340,6 +353,8 @@ export const AppHeader = (props: AppHeaderProps) => {
             <Link href={"/subnet"}>Studio</Link>
             <span className="text-gray-500">|</span>
             <Link href={"/airdrop"}>Airdrop</Link>
+            <span className="text-gray-500">|</span>
+            <Link href={"/pending-topic"}>Pending Topic</Link>
             {/* <Link href={"/my-list"}>Validator</Link>
             <span className="text-gray-500">|</span>
             <Link href={"/"}>Name Service</Link> */}

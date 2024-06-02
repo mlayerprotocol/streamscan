@@ -22,8 +22,10 @@ const status = "1";
 interface PendingTopicsProps {
   onSuccess?: (values: any) => void;
   handleCreateAccount?: () => void;
+  useSubnet?: boolean;
 }
 export const PendingTopics = (props: PendingTopicsProps) => {
+  const { useSubnet = false } = props;
   const [showCreateTopicModal, setShowCreateTopicModal] =
     useState<boolean>(false);
   const [showJoinTopicModal, setShowJoinTopicModal] = useState<boolean>(false);
@@ -53,6 +55,7 @@ export const PendingTopics = (props: PendingTopicsProps) => {
     subcribeToTopic,
     walletAccounts,
     connectedWallet,
+    selectedSubnetId,
   } = useContext(WalletContext);
   const [selectedTopicId, setSelectedTopicId] = useState<string | undefined>();
 
@@ -63,13 +66,17 @@ export const PendingTopics = (props: PendingTopicsProps) => {
 
   useEffect(() => {
     if (!connectedWallet) return;
+    const params: Record<string, any> = {
+      sub: Address.fromString(
+        walletAccounts[connectedWallet]?.[0]
+      ).toAddressString(),
+      status,
+    };
+    if (useSubnet) {
+      params["snet"] = selectedSubnetId;
+    }
     getRecordTopicV2?.(status, {
-      params: {
-        sub: Address.fromString(
-          walletAccounts[connectedWallet]?.[0]
-        ).toAddressString(),
-        status,
-      },
+      params,
     });
   }, [walletAccounts, connectedWallet, toggleState1]);
 
@@ -150,6 +157,8 @@ export const PendingTopics = (props: PendingTopicsProps) => {
                       topicId: record.id,
                       sub: account,
                       status: Entities.SubscriptionStatus.Subscribed,
+                    }).then((e) => {
+                      setToggleState1((old) => !old);
                     });
                   });
                 }}

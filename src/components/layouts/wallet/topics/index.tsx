@@ -80,7 +80,7 @@ export const Topics = (props: TopicsProps) => {
               {
                 label: `Pending Topics`,
                 key: "pending",
-                children: <PendingTopics />,
+                children: <PendingTopics useSubnet />,
               },
             ]}
           />

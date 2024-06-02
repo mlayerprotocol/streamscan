@@ -901,7 +901,7 @@ export const WalletContextProvider = ({
 
       const event = auth?.data;
       console.log("AUTHORIZE", "auth", auth, "event", event?.id, event?.t);
-      client.resolveEvent({ type: event?.t, id: event?.id }).then((e) => {
+      await client.resolveEvent({ type: event?.t, id: event?.id }).then((e) => {
         getTopics();
         setToggleGroup2((old) => !old);
         makeRequest(MIDDLEWARE_HTTP_URLS.claim.url, {
