@@ -167,10 +167,11 @@ export const PendingTopics = (props: PendingTopicsProps) => {
                 cancelText="No"
               >
                 <Button
-                  type="link"
+                  type="primary"
+                  shape="round"
                   loading={loaders[`subcribeToTopic-${record.id}`]}
                 >
-                  <HeroIcons.CheckCircleIcon className="h-[20px]" />
+                  Accept
                 </Button>
               </Popconfirm>
               <Popconfirm
@@ -179,16 +180,31 @@ export const PendingTopics = (props: PendingTopicsProps) => {
                 onConfirm={() => {
                   //
                   // if (agent) subcribeToTopic?.(agent, record.id);
+                  const agent: AddressData =
+                    agents.find((agt) => agt.address == selectedAgent) ??
+                    agents[0];
+                  authorizeAgent?.(agent, 0, 3, record.snet).then((e) => {
+                    subcribeToTopic?.(agent, {
+                      subnetId: record.snet,
+                      topicId: record.id,
+                      sub: account,
+                      status: Entities.SubscriptionStatus.Subscribed,
+                    }).then((e) => {
+                      setToggleState1((old) => !old);
+                    });
+                  });
                 }}
                 // onCancel={cancel}
                 okText="Yes"
                 cancelText="No"
               >
                 <Button
-                  type="link"
+                  type="primary"
+                  shape="round"
+                  danger
                   loading={loaders[`subcribeToTopic-${record.id}`]}
                 >
-                  <HeroIcons.XMarkIcon className="h-[20px]" />
+                  Reject
                 </Button>
               </Popconfirm>
               {/* <Button
