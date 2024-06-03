@@ -231,7 +231,9 @@ export const WalletContextProvider = ({
   const [loaders, setLoaders] = useState<Record<string, boolean>>({});
 
   const [topicList, setTopicList] = useState<TopicListModel>();
-  const [accountTopicList, setAccountTopicList] = useState<TopicListModel>({data:[]});
+  const [accountTopicList, setAccountTopicList] = useState<TopicListModel>({
+    data: [],
+  });
 
   const [recordTopicList, setRecordTopicList] =
     useState<Record<string, TopicListModel>>();
@@ -424,6 +426,7 @@ export const WalletContextProvider = ({
         acct: Address.fromString(
           walletAccounts[connectedWallet]?.[0]
         ).toAddressString(),
+        snet: selectedSubnetId,
       },
     });
   }, [connectedWallet, walletAccounts, toggleGroup2]);
@@ -449,7 +452,9 @@ export const WalletContextProvider = ({
     });
     setCombinedAgents([
       ...(localAgents ?? []).filter((agt) => selectedSubnetId == agt.subnetId),
-      ...(serverAgents ?? []).filter((agt) => selectedSubnetId == agt?.authData?.snet),
+      ...(serverAgents ?? []).filter(
+        (agt) => selectedSubnetId == agt?.authData?.snet
+      ),
     ]);
   }, [agents, authenticationList, selectedSubnetId]);
   useEffect(() => {
@@ -814,7 +819,7 @@ export const WalletContextProvider = ({
     setLoaders((old) => ({ ...old, getTopic: true }));
     try {
       const client = new Client(new RESTProvider(NODE_HTTP));
-      const respond: TopicListModel = (await client.getTopic(
+      const respond: TopicListModel = (await client.getTopics(
         {}
       )) as unknown as TopicListModel;
       if ((respond as any)?.error) {
@@ -925,14 +930,16 @@ export const WalletContextProvider = ({
     setLoaders((old) => ({ ...old, getAccountSubscriptions: true }));
     try {
       const client = new Client(new RESTProvider(NODE_HTTP));
-      const respond: TopicListModel = (await client.getAccountSubscriptions(
+      const respond: TopicListModel = (await client.getTopics(
         params
       )) as unknown as TopicListModel;
       if ((respond as any)?.error) {
         notification.error({ message: (respond as any)?.error + "" });
       }
-      console.log('RSPONESSS--->', respond)
-      respond.data = Array.isArray(respond.data) ? respond.data : [respond.data]
+      console.log("RSPONESSS--->", respond);
+      respond.data = Array.isArray(respond.data)
+        ? respond.data
+        : [respond.data];
       setAccountTopicList(respond);
       // console.log("getAccountSubscriptions::::", respond);
     } catch (error) {}
@@ -1266,7 +1273,9 @@ export const WalletContextProvider = ({
         connectedWallet,
         selectedSubnetId,
         selectedSubnet,
-        agents: (agents ?? []).filter((agt) => selectedSubnetId == agt.subnetId),
+        agents: (agents ?? []).filter(
+          (agt) => selectedSubnetId == agt.subnetId
+        ),
         combinedAgents,
         topicList,
         blockStatsList,
