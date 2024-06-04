@@ -70,7 +70,7 @@ export const AppHeader = (props: AppHeaderProps) => {
       icon: <HeroIcons.UserCircleIcon className="ml-2 h-[20px]" />,
       label: (
         <Link href={"/pending-topic"} className="font-medium text-base ml-2">
-          Pending Topic
+          Invitations
         </Link>
       ),
     },
