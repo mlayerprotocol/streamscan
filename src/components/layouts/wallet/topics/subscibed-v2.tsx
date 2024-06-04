@@ -15,7 +15,7 @@ import {
 import { CreateMessage, CreateTopic, JoinTopic } from "@/components";
 import { WalletContext } from "@/context";
 import { TopicData, TopicListModel } from "@/model/topic";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Address } from "@mlayerprotocol/core/src/entities";
 import { Entities } from "@mlayerprotocol/core";
 const status = "2";
@@ -24,6 +24,7 @@ interface SubscribedV2TopicsProps {
   handleCreateAccount?: () => void;
 }
 export const SubscribedV2Topics = (props: SubscribedV2TopicsProps) => {
+  const router = useRouter();
   const [showCreateTopicModal, setShowCreateTopicModal] =
     useState<boolean>(false);
   const [showJoinTopicModal, setShowJoinTopicModal] = useState<boolean>(false);
@@ -89,26 +90,33 @@ export const SubscribedV2Topics = (props: SubscribedV2TopicsProps) => {
     });
   }, [recordTopicList]);
 
+  
+
+
   const columns: TableProps<TopicData>["columns"] = useMemo(() => {
     return [
       {
-        title: "Hash",
-        dataIndex: "h",
-        key: "address",
+        title: "Id",
+        dataIndex: "id",
+        key: "id",
         render(value, record, index) {
           return shorternAddress(value);
         },
       },
       {
-        title: "Title",
-        dataIndex: "",
-        key: "value",
-        render: (text, record) => {
-          return (
-            <span className="text-lg">
-              {metaToObject(record?.meta)?.name ?? ""}
-            </span>
-          );
+        title: "Ref",
+        dataIndex: "ref",
+        key: "ref",
+        render(value, record, index) {
+          return `${value}`;
+        },
+      },
+      {
+        title: "Name",
+        dataIndex: "n",
+        key: "n",
+        render(value, record, index) {
+          return metaToObject(record.meta)?.name ?? value ?? "";
         },
       },
       {
@@ -126,7 +134,16 @@ export const SubscribedV2Topics = (props: SubscribedV2TopicsProps) => {
           );
         },
       },
-
+      // {
+      //   title: "Subscribers",
+      //   dataIndex: "subscribers",
+      //   key: "subscribers",
+      // },
+      // {
+      //   title: "MSG Consumed",
+      //   dataIndex: "bal",
+      //   key: "bal",
+      // },
       {
         title: "",
         dataIndex: "",
@@ -134,93 +151,23 @@ export const SubscribedV2Topics = (props: SubscribedV2TopicsProps) => {
         render: (text, record) => {
           return (
             <div className="flex gap-6">
-              <Popconfirm
-                title="Accept"
-                description="Are you sure?"
-                icon={
-                  <HeroIcons.QuestionMarkCircleIcon className="h-[20px] text-green-500 mr-1" />
-                }
-                onConfirm={() => {
-                  //
-                  // if (agent) subcribeToTopic?.(agent, record.id);
-                  const agent: AddressData =
-                    agents.find((agt) => agt.address == selectedAgent) ??
-                    agents[0];
-                  authorizeAgent?.(agent, 0, 2, record.snet).then((e) => {
-                    subcribeToTopic?.(agent, {
-                      subnetId: record.snet,
-                      topicId: record.id,
-                      sub: account,
-                      status: Entities.SubscriptionStatus.Subscribed,
-                    });
-                  });
-                }}
-                // onCancel={cancel}
-                okText="Yes"
-                cancelText="No"
-              >
-                <Button
-                  type="link"
-                  loading={loaders[`subcribeToTopic-${record.id}`]}
-                >
-                  <HeroIcons.CheckCircleIcon className="h-[20px]" />
-                </Button>
-              </Popconfirm>
-              <Popconfirm
-                title="Decline"
-                description="Are you sure?"
-                onConfirm={() => {
-                  //
-                  // if (agent) subcribeToTopic?.(agent, record.id);
-                }}
-                // onCancel={cancel}
-                okText="Yes"
-                cancelText="No"
-              >
-                <Button
-                  type="link"
-                  loading={loaders[`subcribeToTopic-${record.id}`]}
-                >
-                  <HeroIcons.XMarkIcon className="h-[20px]" />
-                </Button>
-              </Popconfirm>
-              {/* <Button
-                type="link"
-                loading={loaders[`sendMessage-${record.id}`]}
-                onClick={async () => {
-                  setSelectedTopicId(record.id);
-                  setShowCreateMessageModal((old) => !old);
-                }}
-              >
-                <HeroIcons.ChatBubbleOvalLeftEllipsisIcon className="h-[20px]" />
-              </Button>
+              
+            
               <Button
                 type="link"
                 onClick={async () => {
-                  await navigator.clipboard.writeText(
-                    `${window.location.protocol}//${window.location.host}/wallet/topics?topicTab=sub&topicId=${record.id}`
-                  );
-                  notification.info({
-                    message: "Invitation Url copied",
-                    icon: (
-                      <HeroIcons.ArrowUpTrayIcon className="h-[20px] text-green-500" />
-                    ),
-                  });
+                  // setPreviewTopicId(record.id);
+                  router.push(`?id=${record?.id}`, { scroll: false });
                 }}
               >
-                <HeroIcons.ArrowUpTrayIcon className="h-[20px]" />
+                <HeroIcons.Bars4Icon className="h-[20px]" />
               </Button>
-              
-              <Button type="link">
-                <HeroIcons.XMarkIcon className="h-[20px]" />
-              </Button> */}
             </div>
           );
         },
       },
     ];
   }, [topicListModel]);
-
   return (
     <motion.div
       className="inline-flex w-full flex-col gap-6"
