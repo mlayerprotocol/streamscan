@@ -107,14 +107,14 @@ export const PreviewTopic = (props: PreviewTopicProps) => {
     },
     {
       key: "2",
-      label: "Devices",
+      label: "Subscribers",
       children: <TopicAgents topicId={topicId} />,
     },
-    {
-      key: "3",
-      label: "Settings",
-      children: <TopicSetting topicId={topicId} />,
-    },
+    // {
+    //   key: "3",
+    //   label: "Settings",
+    //   children: <TopicSetting topicId={topicId} />,
+    // },
   ];
 
   return (

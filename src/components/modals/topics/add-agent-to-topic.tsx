@@ -48,7 +48,7 @@ export const AddAgentToTopic = (props: AddAgentToTopicProps) => {
   return (
     <Modal
       className="rounded-lg"
-      title={"Join Topic"}
+      title={"Subscribe To Topic"}
       open={isModalOpen}
       // onOk={handleOk}
       onCancel={(e) => {
@@ -133,7 +133,7 @@ export const AddAgentToTopic = (props: AddAgentToTopicProps) => {
             </Form.Item>
 
             <Form.Item
-              label={"Status" + Object.values(SubscriptionStatus)[7]}
+              label={"Status"}
               name="status"
               rules={[{ required: true, message: "Please select a status!" }]}
             >

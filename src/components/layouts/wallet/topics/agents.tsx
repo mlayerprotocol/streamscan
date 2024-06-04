@@ -84,7 +84,8 @@ export const TopicAgents = (props: TopicAgentsProps) => {
       render: (_, record) => {
         return (
           <div className="flex gap-6">
-            {Object.values(SubscriptionStatus)[record.st]}
+            {/* {Object.keys.filter((k)=>SubscriptionStatus[k] == Object.values(SubscriptionStatus)[record.st]==} */}
+            {Object.keys(SubscriptionStatus).map(k=>k)}
           </div>
         );
       },
@@ -115,10 +116,8 @@ export const TopicAgents = (props: TopicAgentsProps) => {
       <div className="flex">
         <HeroIcons.InformationCircleIcon className="w-[32px]" />
         <span className="text-xs text-gray-500 ml-10">
-          TopicAgents act on behalf of Accounts on the mLayer network. This is
-          important for security and flexibility. For example, a compromised
-          agent can quickly be deauthorized to prevent further attack.{" "}
-          <a href={INFO_LINKS.agentInfo}>Learn more...</a>
+          Subscribers are accounts or devices that can read from and publish messages to topics.{' '}
+          <a href={INFO_LINKS.subscribers}>Learn more...</a>
         </span>
       </div>
       <div className="flex gap-4 justify-end">
@@ -147,7 +146,7 @@ export const TopicAgents = (props: TopicAgentsProps) => {
           shape="round"
         >
           {/* <HeroIcons.PlusCircleIcon className="h-[20px]" /> */}
-          Add Agent
+          Add Subscriber
         </Button>
       </div>
       <Table dataSource={dataSource} columns={columns} />

@@ -31,6 +31,7 @@ export const TopicSetting = (props: TopicSettingsProps) => {
     () => walletAccounts[connectedWallet ?? ""]?.[0],
     [walletAccounts, connectedWallet]
   );
+ 
   const  accountAsAddress = Address.fromString(account).toAddressString()
   const topic = useMemo(() => {
     if (!selectedMessagesTopicId && (accountTopicList?.data ?? []).length > 0) {
@@ -47,7 +48,7 @@ export const TopicSetting = (props: TopicSettingsProps) => {
     );
   }, [topicId, accountTopicList]);
 
-  
+ 
 
   const dataSource = useMemo(() => {
     return (messagesList?.data ?? []).map((msg, index) => {
@@ -77,7 +78,7 @@ export const TopicSetting = (props: TopicSettingsProps) => {
               className="flex flex-col"
               name="basic"
               // form={form}
-              initialValues={{}}
+        initialValues={topic ? { ...topic, n: metaToObject(topic.meta)?.name } : {}}
               onFinish={(data) => {
                 const name: string = data["n"];
                 const ref: string = data["ref"];
@@ -100,6 +101,7 @@ export const TopicSetting = (props: TopicSettingsProps) => {
                 rules={[
                   { required: true, message: "Please input select a reference!" },
                 ]}
+              
               >
                 <Input placeholder="Enter A Reference" />
               </Form.Item>
@@ -107,7 +109,7 @@ export const TopicSetting = (props: TopicSettingsProps) => {
               <Button
                 type="primary"
                 htmlType="submit"
-                className="w-full mt-[28px] self-end"
+                className=" mt-[28px] self-end"
                 shape="round"
               >
                 <span className="text-black">Update</span>

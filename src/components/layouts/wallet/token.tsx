@@ -85,7 +85,7 @@ const items: TabsProps["items"] = [
   },
   {
     key: "2",
-    label: "Devices",
+    label: "Subscribers",
     children: "Content of Tab Pane Publishers",
   },
   {
@@ -139,7 +139,7 @@ const items: TabsProps["items"] = [
             <Button
               type="primary"
               htmlType="submit"
-              className="w-full mt-[28px] self-end"
+              className=" mt-[28px] self-end"
               shape="round"
             >
               <span className="text-black">Update</span>

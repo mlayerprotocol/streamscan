@@ -143,7 +143,7 @@ export const Settings = (props: SettingsProps) => {
               loading={loaders["createSubnet"]}
               type="primary"
               htmlType="submit"
-              className="w-full mt-[28px] self-end"
+              className=" mt-[28px] self-end"
               shape="round"
             >
               <span className="text-black">Update</span>

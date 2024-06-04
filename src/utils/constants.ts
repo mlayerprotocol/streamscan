@@ -61,6 +61,8 @@ export const INFO_LINKS = {
     'https://mlayer.gitbook.io/white-paper/technology#components-of-the-communication-layer',
   airdrop:
     'https://mlayer.gitbook.io/white-paper/technology#components-of-the-communication-layer',
+  subscribers:
+    'https://mlayer.gitbook.io/white-paper/technology#components-of-the-communication-layer',
 };
 
 export const MIDDLEWARE_HTTP_URLS = {

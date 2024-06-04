@@ -128,7 +128,7 @@ export const SubscribedTopics = (props: SubscribedTopicsProps) => {
                   <HeroIcons.PlayCircleIcon className="h-[20px]" />
                 </Button>
               </Popconfirm> */}
-              <Button
+              {/* <Button
                 type="link"
                 loading={loaders[`sendMessage-${record.id}`]}
                 onClick={async () => {
@@ -153,11 +153,11 @@ export const SubscribedTopics = (props: SubscribedTopicsProps) => {
                 }}
               >
                 <HeroIcons.ArrowUpTrayIcon className="h-[20px]" />
-              </Button>
+              </Button> */}
 
-              <Button type="link">
+              {/* <Button type="link">
                 <HeroIcons.XMarkIcon className="h-[20px]" />
-              </Button>
+              </Button> */}
             </div>
           );
         },

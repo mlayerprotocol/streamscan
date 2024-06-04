@@ -23,6 +23,7 @@ import { Address } from "@mlayerprotocol/core/src/entities";
 import { useRouter } from "next/navigation";
 
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 
 interface MyTopicsProps {
   onSuccess?: (values: any) => void;
@@ -80,7 +81,7 @@ export const MyTopics = (props: MyTopicsProps) => {
         dataIndex: "id",
         key: "id",
         render(value, record, index) {
-          return shorternAddress(value);
+          return <Link href={`?id=${record?.id}`} scroll={false}>{shorternAddress(value)}</Link>;
         },
       },
       {
@@ -150,7 +151,7 @@ export const MyTopics = (props: MyTopicsProps) => {
                   <HeroIcons.PlayCircleIcon className="h-[20px]" />
                 </Button>
               </Popconfirm> */}
-              <Button
+              {/* <Button
                 type="link"
                 loading={loaders[`sendMessage-${record.id}`]}
                 onClick={async () => {
@@ -159,8 +160,8 @@ export const MyTopics = (props: MyTopicsProps) => {
                 }}
               >
                 <HeroIcons.ChatBubbleOvalLeftEllipsisIcon className="h-[20px]" />
-              </Button>
-              <Button
+              </Button> */}
+              {/* <Button
                 type="link"
                 onClick={async () => {
                   await navigator.clipboard.writeText(
@@ -175,7 +176,7 @@ export const MyTopics = (props: MyTopicsProps) => {
                 }}
               >
                 <HeroIcons.ArrowUpTrayIcon className="h-[20px]" />
-              </Button>
+              </Button> */}
               <Button
                 type="link"
                 loading={loaders[`createTopic-${record?.id}`]}
@@ -186,9 +187,9 @@ export const MyTopics = (props: MyTopicsProps) => {
               >
                 <HeroIcons.PencilIcon className="h-[20px]" />
               </Button>
-              <Button type="link">
+              {/* <Button type="link">
                 <HeroIcons.XMarkIcon className="h-[20px]" />
-              </Button>
+              </Button> */}
               <Button
                 type="link"
                 onClick={async () => {
