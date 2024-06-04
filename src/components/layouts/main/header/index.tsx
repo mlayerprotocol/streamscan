@@ -356,7 +356,7 @@ export const AppHeader = (props: AppHeaderProps) => {
             <span className="text-gray-500">|</span>
             <Link href={"/airdrop"}>Airdrop</Link>
             <span className="text-gray-500">|</span>
-            <Link href={"/pending-topic"}>Pending Topic</Link>
+            <Link href={"/pending-topic"}>Invitations</Link>
             {/* <Link href={"/my-list"}>Validator</Link>
             <span className="text-gray-500">|</span>
             <Link href={"/"}>Name Service</Link> */}
