@@ -79,14 +79,14 @@ export const WalletMainLayout = (props: WalletMainLayoutProps) => {
     //     router.push(`/subnet/${selectedSubnetId}/messages`, { scroll: false });
     //   },
     // },
-    {
-      key: "stake",
-      icon: <HeroIcons.CircleStackIcon className="h-[20px]" />,
-      label: "Stake",
-      onClick: () => {
-        router.push(`/subnet/${selectedSubnetId}/stake`, { scroll: false });
-      },
-    },
+    // {
+    //   key: "stake",
+    //   icon: <HeroIcons.CircleStackIcon className="h-[20px]" />,
+    //   label: "Stake",
+    //   onClick: () => {
+    //     router.push(`/subnet/${selectedSubnetId}/stake`, { scroll: false });
+    //   },
+   // },
     // {
     //   key: "smartlet",
     //   icon: <HeroIcons.CogIcon className="h-[20px]" />,

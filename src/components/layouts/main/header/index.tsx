@@ -279,7 +279,7 @@ export const AppHeader = (props: AppHeaderProps) => {
               >
                 Messages
               </Link>
-              <Link
+              {/* <Link
                 href={`/subnet/${selectedSubnetId}/stake`}
                 className="text-2xl "
                 onClick={() => {
@@ -287,7 +287,7 @@ export const AppHeader = (props: AppHeaderProps) => {
                 }}
               >
                 Stake
-              </Link>
+              </Link> */}
               {connectedWallet && (
                 <>
                   <Link href={"/"} className="text-2xl ">
@@ -344,7 +344,7 @@ export const AppHeader = (props: AppHeaderProps) => {
             </a>
             <a href="/">
 
-              <span className="text-2xl"><span className="text-[#ffffff] bg-opacity-40 bg-[#7C3AED] font-bold">ml</span>studio</span>
+              <span className="text-2xl"><span className="text-gray-400 bg-opacity-40  font-bold">ml</span>studio</span>
              </a>
 
           </div>
