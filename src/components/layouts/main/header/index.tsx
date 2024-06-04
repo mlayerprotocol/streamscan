@@ -65,15 +65,7 @@ export const AppHeader = (props: AppHeaderProps) => {
         </Link>
       ),
     },
-    {
-      key: "2.6",
-      icon: <HeroIcons.UserCircleIcon className="ml-2 h-[20px]" />,
-      label: (
-        <Link href={"/pending-topic"} className="font-medium text-base ml-2">
-          Invitations
-        </Link>
-      ),
-    },
+    
     {
       icon: <HeroIcons.Cog8ToothIcon className="ml-2 h-[20px]" />,
       label: <span className="font-medium text-base ml-2">Switch Wallet</span>,
@@ -354,8 +346,8 @@ export const AppHeader = (props: AppHeaderProps) => {
             <span className="text-gray-500">|</span>
             <Link href={"/subnet"}>Studio</Link>
            
-            <span className="text-gray-500">|</span>
-            <Link href={"/pending-topic"}>Invitations</Link>
+            {/* <span className="text-gray-500">|</span>
+            <Link href={"/pending-topic"}>Invitations</Link> */}
             <span className="text-gray-500">|</span>
             <Link href={"/airdrop"}>Airdrop</Link>
             {/* <Link href={"/my-list"}>Validator</Link>

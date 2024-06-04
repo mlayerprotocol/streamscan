@@ -18,6 +18,7 @@ import { TopicData, TopicListModel } from "@/model/topic";
 import { useSearchParams } from "next/navigation";
 import { Address } from "@mlayerprotocol/core/src/entities";
 import { Entities } from "@mlayerprotocol/core";
+import Link from "next/link";
 const status = "1";
 interface PendingTopicsProps {
   onSuccess?: (values: any) => void;
@@ -256,7 +257,7 @@ export const PendingTopics = (props: PendingTopicsProps) => {
       }}
       // transition={{ duration: 1, delay: 1 }}
     >
-      <div className="flex gap-4 justify-end">
+      <div className="flex gap-4 justify-between mt-10">
         {/* <Button
           loading={loaders["createTopic"]}
           onClick={() => {
@@ -269,6 +270,15 @@ export const PendingTopics = (props: PendingTopicsProps) => {
         >
           <span>Create Topic</span>
         </Button> */}
+         <Link
+          href="/subnet"
+          className="self-start"
+          type="text"
+         
+         
+        >
+         <HeroIcons.ArrowLeftIcon className="ml-2 h-[20px]" />
+        </Link>
         <Button
           loading={loaders["subcribeToTopic"]}
           onClick={() => {
