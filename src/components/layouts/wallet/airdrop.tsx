@@ -7,24 +7,37 @@ import {
   displayVariants,
   makeRequest,
 } from "@/utils";
-import React, { Fragment, useContext, useMemo, useState } from "react";
+import React, {
+  Fragment,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { motion } from "framer-motion";
 import { CreateMessage, CreateTopic } from "@/components";
 import { WalletContext } from "@/context";
-import { Button, Divider, Spin, Table } from "antd";
+import { Button, Divider, Spin, Table, notification } from "antd";
 import { PointData } from "@/model/points";
 import { PointDetailModel } from "@/model/points/detail";
 import * as HeroIcons from "@heroicons/react/24/solid";
+import { useSearchParams } from "next/navigation";
+import { Address } from "@mlayerprotocol/core/src/entities";
 interface AirDropProps {
   onSuccess?: (values: any) => void;
   handleCreateAccount?: () => void;
 }
 export const AirDrop = (props: AirDropProps) => {
-  const [showCreateMessageModal, setShowCreateMessageModal] =
-    useState<boolean>(false);
+  const searchParams = useSearchParams();
+
   const [loaders, setLoaders] = useState<Record<string, boolean>>({});
-  const { pointsList, pointsDetail, setPointToggleGroup } =
-    useContext(WalletContext);
+  const {
+    pointsList,
+    pointsDetail,
+    walletAccounts,
+    connectedWallet,
+    setPointToggleGroup,
+  } = useContext(WalletContext);
   const activites = useMemo(() => {
     // return (pointsList?.data ?? []).map((point) => ({
     //   title: point.activityName,
@@ -44,6 +57,25 @@ export const AirDrop = (props: AirDropProps) => {
       };
     });
   }, [pointsList]);
+
+  useEffect(() => {
+    const referrer = searchParams.get("referrer");
+    console.log({ referrer });
+    if (referrer && connectedWallet) {
+      //
+      makeRequest(MIDDLEWARE_HTTP_URLS.connect.url, {
+        method: MIDDLEWARE_HTTP_URLS.claim.method,
+        body: JSON.stringify({
+          account: Address.fromString(
+            walletAccounts[connectedWallet]?.[0]
+          ).toAddressString(),
+          referredBy: referrer,
+        }),
+      }).then((b) => {
+        setPointToggleGroup?.((old) => !old);
+      });
+    }
+  }, [searchParams, connectedWallet]);
   console.log({ pointsList });
 
   const handleAction = async (
@@ -148,6 +180,22 @@ export const AirDrop = (props: AirDropProps) => {
           }
         }
         break;
+
+      case "Referrals":
+        if (pointsDetail?.data?.account?.socials?.twitter) {
+          // setLoaders((old) => ({ ...old, [obj.title]: true }));
+          if (window != null) {
+            navigator.clipboard.writeText(
+              `${window.location.href}?referrer=${pointsDetail?.data?.account?.socials?.twitter}`
+            );
+            notification.success({ message: "Referral Link has been copied" });
+          }
+        } else {
+          notification.info({
+            message: "X account needs to be connected first",
+          });
+        }
+        break;
     }
   };
   const renderSubtext = (
@@ -177,7 +225,6 @@ export const AirDrop = (props: AirDropProps) => {
     return obj.actionText ?? "";
   };
   return (
-  
     <motion.div
       className="inline-flex w-full  py-8 content-center justify-center"
       variants={displayVariants}
@@ -188,83 +235,88 @@ export const AirDrop = (props: AirDropProps) => {
         scale: 0,
       }}
       // transition={{ duration: 1, delay: 1 }}
-      >
-        <div className="w-full max-w-[800px]">
-          <div className="flex my-2">
-            <span className="text-gray-400">
-              Complete the following activities to earn points towards our airdrop. <a className="text-blue-500" href={INFO_LINKS.airdrop} target="_blank">Learn more...</a>
-            </span>
-          </div>
-          <div className="flex my-3 text-lg justify-between bg-gray-900 p-5 radius-10">
-            <span>Total Points Earned</span>
-            <span>{pointsDetail?.data?.account.totalPoints ?? "---"}</span>
-          </div>
-          <div className="flex my-1 text-sm justify-end mb-10">
-            <span className="text-blue-500">View Leader Board</span>
-            {/* <span>{pointsDetail?.data.account.totalPoints ?? "---"}</span> */}
-          </div>
-          {/*  */}
+    >
+      <div className="w-full max-w-[800px]">
+        <div className="flex my-2">
+          <span className="text-gray-400">
+            Complete the following activities to earn points towards our
+            airdrop.{" "}
+            <a
+              className="text-blue-500"
+              href={INFO_LINKS.airdrop}
+              target="_blank"
+            >
+              Learn more...
+            </a>
+          </span>
+        </div>
+        <div className="flex my-3 text-lg justify-between bg-gray-900 p-5 radius-10">
+          <span>Total Points Earned</span>
+          <span>{pointsDetail?.data?.account.totalPoints ?? "---"}</span>
+        </div>
+        <div className="flex my-1 text-sm justify-end mb-10">
+          <span className="text-blue-500">View Leader Board</span>
+          {/* <span>{pointsDetail?.data.account.totalPoints ?? "---"}</span> */}
+        </div>
+        {/*  */}
         <div className="flex flex-col">
-        <Fragment key="00">
-                  <div className="flex items-center gap-2">
-                    <div className="flex flex-col w-1/2">
-                      <span className="text-xl text-gray-300 flex gap-2 items-center">
-                        <span>Activity</span>
-                       
-                      </span>
-            
-                    </div>
-                    <span className="text-gray-300 text-xl">Points Accruable</span>
-                    <span className="text-gray-300 text-xl ml-auto">
-                     Points Earned
-                    </span>
-                  </div>
-                  <Divider className="!border-t-4 !border-gray-300 !mt-2" />
-                </Fragment>
-            {activites.map((e, i) => {
-              let showCheck = false;
-              if (i < 4 && parseInt(e.amount.toString()) > 0) {
-                showCheck = true;
-              }
+          <Fragment key="00">
+            <div className="flex items-center gap-2">
+              <div className="flex flex-col w-1/2">
+                <span className="text-xl text-gray-300 flex gap-2 items-center">
+                  <span>Activity</span>
+                </span>
+              </div>
+              <span className="text-gray-300 text-xl">Points Accruable</span>
+              <span className="text-gray-300 text-xl ml-auto">
+                Points Earned
+              </span>
+            </div>
+            <Divider className="!border-t-4 !border-gray-300 !mt-2" />
+          </Fragment>
+          {activites.map((e, i) => {
+            let showCheck = false;
+            if (i < 4 && parseInt(e.amount.toString()) > 0) {
+              showCheck = true;
+            }
 
-              return (
-                <Fragment key={i}>
-                  <div className="flex items-center gap-2">
-                    <div className="flex flex-col w-1/2">
-                      <span className="text-lg text-gray-500 flex gap-2 items-center">
-                        <span>{e.title}</span>
-                        {showCheck && (
-                          <HeroIcons.CheckCircleIcon className="h-[20px] text-green-500" />
+            return (
+              <Fragment key={i}>
+                <div className="flex items-center gap-2">
+                  <div className="flex flex-col w-1/2">
+                    <span className="text-lg text-gray-500 flex gap-2 items-center">
+                      <span>{e.title}</span>
+                      {showCheck && (
+                        <HeroIcons.CheckCircleIcon className="h-[20px] text-green-500" />
+                      )}
+                    </span>
+                    {e.actionText && (
+                      <span
+                        onClick={() => {
+                          handleAction(e as any, pointsDetail);
+                        }}
+                        className="text-sm text-blue-500 cursor-pointer"
+                      >
+                        {loaders[e.title] ? (
+                          <Spin />
+                        ) : (
+                          renderSubtext(e as any, pointsDetail)
                         )}
                       </span>
-                      {e.actionText && (
-                        <span
-                          onClick={() => {
-                            handleAction(e as any, pointsDetail);
-                          }}
-                          className="text-sm text-blue-500 cursor-pointer"
-                        >
-                          {loaders[e.title] ? (
-                            <Spin />
-                          ) : (
-                            renderSubtext(e as any, pointsDetail)
-                          )}
-                        </span>
-                      )}
-                    </div>
-                    <span className="text-gray-500">{e.point}</span>
-                    <span className="text-gray-200 text-2xl ml-auto">
-                      {e.amount}
-                    </span>
+                    )}
                   </div>
-                  <Divider className="!border-t-4 !border-gray-500 !mt-2" />
-                </Fragment>
-              );
-            })}
-            </div>
+                  <span className="text-gray-500">{e.point}</span>
+                  <span className="text-gray-200 text-2xl ml-auto">
+                    {e.amount}
+                  </span>
+                </div>
+                <Divider className="!border-t-4 !border-gray-500 !mt-2" />
+              </Fragment>
+            );
+          })}
         </div>
-      </motion.div>
-     
+      </div>
+    </motion.div>
   );
 };
 

@@ -316,7 +316,7 @@ export const WalletContextProvider = ({
       makeRequest(MIDDLEWARE_HTTP_URLS.connect.url, {
         method: MIDDLEWARE_HTTP_URLS.claim.method,
         body: JSON.stringify({
-          account: `mid:${accounts[0].address}`,
+          account: Address.fromString(accounts[0].address).toAddressString(),
         }),
       }).then((b) => {
         setPointToggleGroup((old) => !old);
@@ -402,6 +402,12 @@ export const WalletContextProvider = ({
       selectedSubnetId,
     });
   }, [connectedWallet, selectedAgent, selectedSubnetId, walletAccounts]);
+
+  useEffect(() => {
+    window.addEventListener("keplr_keystorechange", () => {
+      initializeKeplr?.();
+    });
+  }, []);
 
   useEffect(() => {}, []);
 

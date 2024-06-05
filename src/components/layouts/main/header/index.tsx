@@ -236,6 +236,15 @@ export const AppHeader = (props: AppHeaderProps) => {
                 Home
               </Link>
               <Link
+                href={"/subnet"}
+                className="text-2xl "
+                onClick={() => {
+                  setShowMobilMoney((old) => !old);
+                }}
+              >
+                Studio
+              </Link>
+              <Link
                 href={"/airdrop"}
                 className="text-2xl "
                 onClick={() => {
@@ -244,6 +253,17 @@ export const AppHeader = (props: AppHeaderProps) => {
               >
                 Airdrop
               </Link>
+
+              <Link
+                href={"/pending-topic"}
+                className="text-2xl "
+                onClick={() => {
+                  setShowMobilMoney((old) => !old);
+                }}
+              >
+                Pending Topic
+              </Link>
+              
               <Link
                 href={`/subnet/${selectedSubnetId}/agents`}
                 className="text-2xl "
