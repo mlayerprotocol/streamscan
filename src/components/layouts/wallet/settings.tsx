@@ -10,6 +10,7 @@ import { motion } from "framer-motion";
 import { useForm } from "antd/es/form/Form";
 import { WalletContext } from "@/context";
 import { Button, Form, Input, Select, notification } from "antd";
+import { AuthorizationPrivilege } from "@mlayerprotocol/core";
 interface SettingsProps {
   onSuccess?: (values: any) => void;
   handleCreateAccount?: () => void;
@@ -76,8 +77,8 @@ export const Settings = (props: SettingsProps) => {
               const name: string = data["n"];
               const ref: string = data["ref"];
               const status: number = data["status"];
-
-              createSubnet?.(name, ref.trim(), status, true);
+              const dAuthPriv: AuthorizationPrivilege = data['dAuthPriv'];
+              createSubnet?.({ name, dAuthPriv, ref: ref.trim(), status, update: true});
               console.log({ data });
               form.setFieldsValue({});
             }}
@@ -119,7 +120,23 @@ export const Settings = (props: SettingsProps) => {
               <Input placeholder="Enter A Name" />
             </Form.Item>
 
-            
+            <Form.Item
+              label="Default Privilege:"
+              name="dAuthPriv"
+              rules={[
+                { required: true, message: "Please select an auth privilege!" },
+              ]}
+            >
+              <Select defaultValue={AuthorizationPrivilege.ReadPriviledge} >
+                {Object.keys(AuthorizationPrivilege).filter(d=>isNaN(parseInt(d))).map((val, index) => {
+                  return (
+                    <Select.Option key={index} value={(AuthorizationPrivilege as any)[String(val)]}>
+                      {val}
+                    </Select.Option>
+                  );
+                })}
+              </Select>
+            </Form.Item>     
 
             <Form.Item
               label="Status:"
