@@ -16,9 +16,9 @@ import { CreateMessage, CreateTopic, JoinTopic } from "@/components";
 import { WalletContext } from "@/context";
 import { TopicData, TopicListModel } from "@/model/topic";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Address } from "@mlayerprotocol/core/src/entities";
+import { Address, SubscriptionStatus } from "@mlayerprotocol/core/src/entities";
 import { Entities } from "@mlayerprotocol/core";
-const status = "2";
+const status = SubscriptionStatus.Subscribed;
 interface SubscribedV2TopicsProps {
   onSuccess?: (values: any) => void;
   handleCreateAccount?: () => void;

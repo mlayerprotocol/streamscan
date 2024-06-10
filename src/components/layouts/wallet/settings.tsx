@@ -36,11 +36,13 @@ export const Settings = (props: SettingsProps) => {
       (opt) => opt.id == selectedSubnetId
     );
     const meta = metaToObject(selectedSubnet?.meta) ?? {};
-    // console.log({ meta, ref: selectedSubnet?.ref, status: selectedSubnet?.st });
+   
+    
     form.setFieldsValue({
       n: meta.name,
       ref: selectedSubnet?.ref,
       status: selectedSubnet?.st,
+      dAuthPriv: selectedSubnet?.dAuthPriv,
     });
   }, [subnetListModelList, selectedSubnetId]);
   return (
@@ -68,7 +70,7 @@ export const Settings = (props: SettingsProps) => {
           // transition={{ duration: 1, delay: 1 }}
         >
           <Form
-            {...formLayout}
+            {...{ ...formLayout, wrapperCol: { span: 12 }} }
             className="flex flex-col"
             name="basic"
             form={form}
@@ -160,7 +162,7 @@ export const Settings = (props: SettingsProps) => {
               loading={loaders["createSubnet"]}
               type="primary"
               htmlType="submit"
-              className=" mt-[28px] self-end"
+              className=" mt-[28px] self-center"
               shape="round"
             >
               <span className="text-black">Update</span>

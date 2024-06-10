@@ -19,7 +19,7 @@ import { TopicData } from "@/model/topic";
 
 import { PreviewTopic } from "./preview";
 
-import { Address } from "@mlayerprotocol/core/src/entities";
+import { Address, SubscriberRole } from "@mlayerprotocol/core/src/entities";
 import { useRouter } from "next/navigation";
 
 import { useSearchParams } from "next/navigation";
@@ -101,13 +101,21 @@ export const MyTopics = (props: MyTopicsProps) => {
         },
       },
       {
+        title: "Default Role",
+        dataIndex: "dSubRol",
+        key: "dSubRol",
+        render(value) {
+          return (SubscriberRole as any)[String(value)]
+        }
+      },
+      {
         title: "Public",
         dataIndex: "pub",
         key: "pub",
         render(value, record, index) {
           if (!value) {
             return (
-              <OutlineHeroIcons.CheckCircleIcon className="h-[20px] text-gray-500" />
+              <OutlineHeroIcons.XCircleIcon className="h-[20px] text-gray-500" />
             );
           }
           return (

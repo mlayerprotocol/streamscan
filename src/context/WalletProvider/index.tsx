@@ -27,7 +27,7 @@ import {
   VALIDATOR_PUBLIC_KEY,
   WALLET_ACCOUNTS_STORAGE_KEY,
 } from "@/utils";
-import { Utils, Client, ClientPayload, AuthorizeEventType, Authorization, Topic, SubscriberRole, SubscriptionStatus, Address, AuthorizationPrivilege, Subscription, MemberTopicEventType } from "@mlayerprotocol/core";
+import { Utils, Client, ClientPayload, AuthorizeEventType, Authorization, Topic, SubscriberRole, SubscriptionStatus, Address, AuthorizationPrivilege, Subscription, MemberTopicEventType, Subnet, SignatureData, AdminSubnetEventType, AdminTopicEventType, Message, MemberMessageEventType } from "@mlayerprotocol/core";
 import { notification } from "antd";
 import { RESTProvider } from "@mlayerprotocol/core/src";
 import { TopicListModel } from "@/model/topic";
@@ -135,7 +135,7 @@ interface WalletContextValues {
     params: Record<string, unknown>
   ) => Promise<void>;
   getRecordTopicV2?: (
-    status: string,
+    status: SubscriptionStatus,
     params: Record<string, unknown>
   ) => Promise<void>;
 }
@@ -582,7 +582,7 @@ export const WalletContextProvider = ({
   const authorizeAgent = async (
     agent: AddressData,
     days: number = 30,
-    privilege: AuthorizationPrivilege = AuthorizationPrivilege.WritePriviledge,
+    privilege: AuthorizationPrivilege = AuthorizationPrivilege.Standard,
     subnetId?: string
   ) => {
     if (connectedWallet == null) {
@@ -960,14 +960,14 @@ export const WalletContextProvider = ({
     setLoaders((old) => ({ ...old, getAccountSubscriptions: false }));
   };
   const getRecordTopicV2 = async (
-    status: string,
+    status: SubscriptionStatus,
     params: Record<string, unknown>
   ) => {
     if (loaders["getRecordTopicV2"]) return;
     setLoaders((old) => ({ ...old, getRecordTopicV2: true }));
     try {
       const client = new Client(new RESTProvider(NODE_HTTP));
-      const respond: TopicListModel = (await client.getAccountSubscriptionsV2(
+      const respond: TopicListModel = (await client.getAccountSubscriptions(
         params
       )) as unknown as TopicListModel;
       if ((respond as any)?.error) {

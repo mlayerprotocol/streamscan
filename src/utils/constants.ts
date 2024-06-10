@@ -45,8 +45,6 @@ export const displayVariants = {
   },
 };
 
-// export const PREVILEDGES = ["Disabled", "Read", "Write", "Admin"];
-
 export const formLayout = {
   labelCol: { span: 8 },
   wrapperCol: { span: 16 },

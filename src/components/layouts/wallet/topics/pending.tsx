@@ -16,10 +16,10 @@ import { CreateMessage, CreateTopic, JoinTopic } from "@/components";
 import { WalletContext } from "@/context";
 import { TopicData, TopicListModel } from "@/model/topic";
 import { useSearchParams } from "next/navigation";
-import { Address } from "@mlayerprotocol/core/src/entities";
+import { Address, AuthorizationPrivilege, SubscriptionStatus } from "@mlayerprotocol/core/src/entities";
 import { Entities } from "@mlayerprotocol/core";
 import Link from "next/link";
-const status = "1";
+const status = SubscriptionStatus.Invited;
 interface PendingTopicsProps {
   onSuccess?: (values: any) => void;
   handleCreateAccount?: () => void;
@@ -124,7 +124,7 @@ export const PendingTopics = (props: PendingTopicsProps) => {
         render(value, record, index) {
           if (!value) {
             return (
-              <OutlineHeroIcons.CheckCircleIcon className="h-[20px] text-gray-500" />
+              <OutlineHeroIcons.XCircleIcon className="h-[20px] text-gray-500" />
             );
           }
           return (
@@ -152,12 +152,13 @@ export const PendingTopics = (props: PendingTopicsProps) => {
                   const agent: AddressData =
                     agents.find((agt) => agt.address == selectedAgent) ??
                     agents[0];
-                  authorizeAgent?.(agent, 0, 2, record.snet).then((e) => {
+                  authorizeAgent?.(agent, 0, AuthorizationPrivilege.Standard, record.snet).then((e) => {
                     subcribeToTopic?.(agent, {
                       subnetId: record.snet,
                       topicId: record.id,
                       sub: account,
                       status: Entities.SubscriptionStatus.Subscribed,
+                      rol: record.dSubRol
                     }).then((e) => {
                       setToggleState1((old) => !old);
                     });
@@ -184,12 +185,13 @@ export const PendingTopics = (props: PendingTopicsProps) => {
                   const agent: AddressData =
                     agents.find((agt) => agt.address == selectedAgent) ??
                     agents[0];
-                  authorizeAgent?.(agent, 0, 3, record.snet).then((e) => {
+                  authorizeAgent?.(agent, 0, AuthorizationPrivilege.Basic, record.snet).then((e) => {
                     subcribeToTopic?.(agent, {
                       subnetId: record.snet,
                       topicId: record.id,
                       sub: account,
-                      status: Entities.SubscriptionStatus.Subscribed,
+                      rol: record.dSubRol,
+                      status: Entities.SubscriptionStatus.Unsubscribed,
                     }).then((e) => {
                       setToggleState1((old) => !old);
                     });

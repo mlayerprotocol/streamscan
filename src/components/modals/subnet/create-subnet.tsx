@@ -143,7 +143,7 @@ export const CreateSubnet = (props: CreateSubnetProps) => {
                 { required: true, message: "Please select an auth privilege!" },
               ]}
             >
-              <Select defaultValue={AuthorizationPrivilege.ReadPriviledge} >
+              <Select defaultValue={AuthorizationPrivilege.Basic} >
                 {Object.keys(AuthorizationPrivilege).filter(d=>isNaN(parseInt(d))).map((val, index) => {
                   return (
                     <Select.Option key={index} value={(Entities.AuthorizationPrivilege as any)[String(val)]}>

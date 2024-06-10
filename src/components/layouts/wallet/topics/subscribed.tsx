@@ -84,7 +84,7 @@ export const SubscribedTopics = (props: SubscribedTopicsProps) => {
         render(value, record, index) {
           if (!value) {
             return (
-              <OutlineHeroIcons.CheckCircleIcon className="h-[20px] text-gray-500" />
+              <OutlineHeroIcons.XCircleIcon className="h-[20px] text-gray-500" />
             );
           }
           return (

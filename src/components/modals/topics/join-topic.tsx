@@ -15,6 +15,7 @@ import { motion } from "framer-motion";
 import { useForm } from "antd/es/form/Form";
 import { displayVariants, formLayout, shorternAddress } from "@/utils";
 import { WalletContext } from "@/context";
+import { SubscriberRole } from "@mlayerprotocol/core";
 
 interface JoinTopicProps {
   topicId?: string;
@@ -77,7 +78,8 @@ export const JoinTopic = (props: JoinTopicProps) => {
               const topicId: string = data["topicId"];
               const subnetId: string = data["subnetId"];
               const sub: string | undefined = useSub ? data["sub"] : null;
-              subcribeToTopic?.(agent, { subnetId, topicId, sub });
+              const rol: SubscriberRole = data["rol"];
+              subcribeToTopic?.(agent, { subnetId, topicId, sub, rol });
               form.setFieldsValue({});
               onCancel?.({} as any);
             }}
