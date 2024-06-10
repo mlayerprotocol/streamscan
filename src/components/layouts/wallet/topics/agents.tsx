@@ -1,19 +1,19 @@
 "use client";
 import {
   INFO_LINKS,
-  PREVILEDGES,
+
   displayVariants,
   shorternAddress,
 } from "@/utils";
 import * as HeroIcons from "@heroicons/react/24/solid";
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { Button, Table, TableProps, notification } from "antd";
+import { Button, Space, Table, TableProps, notification } from "antd";
 import { AuthorizeAgent, JoinTopic, NewAgent, PrivateKey } from "@/components";
 import { WalletContext } from "@/context";
 import moment from "moment";
 import { AddAgentToTopic } from "@/components/modals/topics/add-agent-to-topic";
-import { Address, SubscriptionStatus } from "@mlayerprotocol/core/src/entities";
+import { Entities } from "@mlayerprotocol/core";
 import { SubscriberData, SubscriberListModel } from "@/model/subscribers";
 
 interface TopicAgentsProps {
@@ -76,7 +76,19 @@ export const TopicAgents = (props: TopicAgentsProps) => {
         return <>{shorternAddress(text)}</>;
       },
     },
-
+    {
+      title: "Role",
+      dataIndex: "rol",
+      key: "rol",
+      render: (_, record) => {
+        return (
+          <div className="flex gap-6">
+            {/* {Object.keys(Entities.SubscriptionStatus).filter((k)=>Entities.SubscriptionStatus[k] == Object.values(EntitiesSubscriptionStatus)[record.st]==} */}
+             {Entities.SubscriberRole[record.rol]}
+          </div>
+        );
+      },
+    },
     {
       title: "Status",
       dataIndex: "st",
@@ -84,19 +96,27 @@ export const TopicAgents = (props: TopicAgentsProps) => {
       render: (_, record) => {
         return (
           <div className="flex gap-6">
-            {/* {Object.keys.filter((k)=>SubscriptionStatus[k] == Object.values(SubscriptionStatus)[record.st]==} */}
-            {Object.keys(SubscriptionStatus).map(k=>k)}
+            {/* {Object.keys(Entities.SubscriptionStatus).filter((k)=>Entities.SubscriptionStatus[k] == Object.values(EntitiesSubscriptionStatus)[record.st]==} */}
+             {Entities.SubscriptionStatus[record.st]}
           </div>
         );
       },
     },
 
     {
-      title: "Created At",
+      title: "Created",
       dataIndex: "CreatedAt",
       key: "createdAt",
       render: (text, record) => {
         return <>{moment(record.CreatedAt).fromNow()}</>;
+      },
+    },
+    {
+      title: "Updated",
+      dataIndex: "UpdatedAt",
+      key: "updatedAt",
+      render: (text, record) => {
+        return <>{moment(record.UpdatedAt).fromNow()}</>;
       },
     },
   ];
@@ -113,13 +133,13 @@ export const TopicAgents = (props: TopicAgentsProps) => {
       }}
       // transition={{ duration: 1, delay: 1 }}
     >
-      <div className="flex">
+      <Space>
         <HeroIcons.InformationCircleIcon className="w-[32px]" />
         <span className="text-xs text-gray-500 ml-10">
           Subscribers are accounts or devices that can read from and publish messages to topics.{' '}
           <a href={INFO_LINKS.subscribers}>Learn more...</a>
         </span>
-      </div>
+      </Space>
       <div className="flex gap-4 justify-end">
         {/* <Button
           onClick={() => {

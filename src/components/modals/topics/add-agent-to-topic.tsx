@@ -15,7 +15,7 @@ import { motion } from "framer-motion";
 import { useForm } from "antd/es/form/Form";
 import { displayVariants, formLayout, shorternAddress } from "@/utils";
 import { WalletContext } from "@/context";
-import { SubscriptionStatus } from "@mlayerprotocol/core/src/entities";
+import { SubscriptionStatus, SubscriberRole } from "@mlayerprotocol/core";
 
 interface AddAgentToTopicProps {
   topicId?: string;
@@ -88,7 +88,8 @@ export const AddAgentToTopic = (props: AddAgentToTopicProps) => {
               const subnetId: string = data["subnetId"];
               const sub: string = data["sub"];
               const status: SubscriptionStatus = data["status"];
-              subcribeToTopic?.(agent, { subnetId, topicId, sub, status });
+              const rol: SubscriberRole = data['rol'];
+              subcribeToTopic?.(agent, { subnetId, topicId, sub, status, rol });
               form.setFieldsValue({});
               onCancel?.({} as any);
             }}
@@ -117,7 +118,9 @@ export const AddAgentToTopic = (props: AddAgentToTopicProps) => {
               <Input placeholder="Enter A Subscriber Address" />
             </Form.Item>
 
+            <div className="hidden" >
             <Form.Item
+              
               label="Topic Id:"
               name="topicId"
               rules={[{ required: true, message: "Please input a topic id!" }]}
@@ -125,11 +128,30 @@ export const AddAgentToTopic = (props: AddAgentToTopicProps) => {
               <Input placeholder="Enter Your Topic Id" />
             </Form.Item>
             <Form.Item
+              
               label="Subnet Id:"
               name="subnetId"
               rules={[{ required: true, message: "Please input a subnet id!" }]}
             >
               <Input placeholder="Enter Your Subnet Id" />
+            </Form.Item>
+            </div>
+            <Form.Item
+              label={"Role"}
+              name="rol"
+              rules={[{ required: true, message: "Please select a role!" }]}
+            >
+              <Select>
+                {Object.values(SubscriberRole)
+                  .filter((e) => typeof e == "string")
+                  .map((val, index) => {
+                    return (
+                      <Select.Option key={index} value={(SubscriberRole as any)[val]}>
+                        {val}
+                      </Select.Option>
+                    );
+                  })}
+              </Select>
             </Form.Item>
 
             <Form.Item
@@ -142,7 +164,7 @@ export const AddAgentToTopic = (props: AddAgentToTopicProps) => {
                   .filter((e) => typeof e == "string")
                   .map((val, index) => {
                     return (
-                      <Select.Option key={index} value={index}>
+                      <Select.Option key={index} value={(SubscriptionStatus as any)[val]}>
                         {val}
                       </Select.Option>
                     );
@@ -157,7 +179,7 @@ export const AddAgentToTopic = (props: AddAgentToTopicProps) => {
               className="w-full mt-[28px] self-end"
               shape="round"
             >
-              <span className="text-black">Join</span>
+              <span className="text-black">Subscribe</span>
             </Button>
           </Form>
         </motion.div>

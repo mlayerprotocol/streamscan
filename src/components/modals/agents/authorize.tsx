@@ -5,13 +5,14 @@ import React, { useContext, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useForm } from "antd/es/form/Form";
 import {
-  PREVILEDGES,
+
   displayVariants,
   formLayout,
   shorternAddress,
 } from "@/utils";
 import { WalletContext } from "@/context";
 import moment from "moment";
+import { Entities } from "@mlayerprotocol/core";
 
 interface AuthorizeAgentProps {
   updateAddressData?: AddressData;
@@ -144,14 +145,21 @@ export const AuthorizeAgent = (props: AuthorizeAgentProps) => {
             <Form.Item
               label="Privilege:"
               name="role"
-              rules={[{ required: true, message: "Please select a role!" }]}
+              rules={[{ required: true, message: "Please select a privilege!" }]}
             >
               <Select>
-                {PREVILEDGES.map((e, index) => (
+                {/* {PREVILEDGES.map((e, index) => (
                   <Select.Option key={index} value={index}>
                     {e}
                   </Select.Option>
-                ))}
+                ))} */}
+                {Object.keys(Entities.AuthorizationPrivilege).filter(d=>isNaN(parseInt(d))).map((val, index) => {
+                  return (
+                    <Select.Option key={index} value={(Entities.AuthorizationPrivilege as any)[String(val)]}>
+                      {val}
+                    </Select.Option>
+                  );
+                })}
               </Select>
             </Form.Item>
 

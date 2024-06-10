@@ -17,7 +17,7 @@ import * as HeroIcons from "@heroicons/react/24/solid";
 import { AnimatePresence, motion } from "framer-motion";
 import { useForm } from "antd/es/form/Form";
 import {
-  PREVILEDGES,
+
   displayVariants,
   formLayout,
   shorternAddress,

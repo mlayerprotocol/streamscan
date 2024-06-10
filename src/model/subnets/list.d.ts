@@ -16,6 +16,7 @@ export interface SubnetData {
   agt: string;
   e: E;
   h: string;
+  dAuthPriv: Entities.AuthorizationPrivilege;
   meta: any;
   balance?: number | BigInt;
   CreatedAt: Date;

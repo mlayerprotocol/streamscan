@@ -27,12 +27,11 @@ import {
   VALIDATOR_PUBLIC_KEY,
   WALLET_ACCOUNTS_STORAGE_KEY,
 } from "@/utils";
-import { Utils, Client, Entities } from "@mlayerprotocol/core";
+import { Utils, Client, ClientPayload, AuthorizeEventType, Authorization, Topic, SubscriberRole, SubscriptionStatus, Address, AuthorizationPrivilege, Subscription, MemberTopicEventType } from "@mlayerprotocol/core";
 import { notification } from "antd";
 import { RESTProvider } from "@mlayerprotocol/core/src";
 import { TopicListModel } from "@/model/topic";
 import { AuthenticationListModel } from "@/model/authentications/list";
-import { Address } from "@mlayerprotocol/core/src/entities";
 import { BlockStatsListModel } from "@/model/block-stats";
 import { MessageListModel } from "@/model/message/list";
 import { MainStatsModel } from "@/model/main-stats/data";
@@ -82,16 +81,16 @@ interface WalletContextValues {
   authorizeAgent?: (
     agent: AddressData,
     days: number,
-    privilege: 0 | 1 | 2 | 3,
+    privilege: AuthorizationPrivilege,
     subnetId?: string
   ) => Promise<void>;
   createTopic?: (
     agent: AddressData,
     name: string,
     description: string,
-
     reference: string,
     isPublic: boolean,
+    dSubRol: SubscriberRole,
     options?: {
       id?: string;
       loaderKey?: string;
@@ -106,7 +105,8 @@ interface WalletContextValues {
       subnetId: string;
       topicId: string;
       sub?: string;
-      status?: Entities.SubscriptionStatus;
+      rol: SubscriberRole;
+      status?: SubscriptionStatus;
     }
   ) => Promise<void>;
   sendMessage?: (
@@ -117,10 +117,14 @@ interface WalletContextValues {
 
   createSubnet?: (
     // agent: AddressData,
-    name: string,
-    ref: string,
-    status: number,
-    update?: boolean
+    data: {
+      name: string;
+      ref: string;
+      status: number;
+      dAuthPriv: AuthorizationPrivilege;
+      update?: boolean;
+    }
+   
   ) => Promise<void>;
   setSelectedMessagesTopicId?: Dispatch<SetStateAction<string | undefined>>;
   setSelectedSubnetId?: Dispatch<SetStateAction<string | undefined>>;
@@ -496,7 +500,7 @@ export const WalletContextProvider = ({
     account: AddressData,
     agent: AddressData,
     days: number = 30,
-    privilege: 0 | 1 | 2 | 3 = 3,
+    privilege: AuthorizationPrivilege,
     subnetId?: string
   ) => {
     subnetId ??= selectedSubnetId;
@@ -505,16 +509,16 @@ export const WalletContextProvider = ({
       throw Error("No Subnet Selected");
       // return;
     }
-    const authority: Entities.Authorization = new Entities.Authorization();
+    const authority: Authorization = new Authorization();
     // console.log("keypairsss", Utils.generateKeyPairSecp());
     // console.log(
     //   "BECH32ADDRESS",
     //   validatorPublicKey,
     //   Utils.toAddress(Buffer.from(validatorPublicKey, "hex"))
     // );
-    authority.account = Entities.Address.fromString(account.publicKey);
+    authority.account = Address.fromString(account.publicKey);
     authority.agent = agent.address;
-    authority.grantor = Entities.Address.fromString(account.publicKey);
+    authority.grantor = Address.fromString(account.publicKey);
     authority.timestamp = Date.now();
     authority.topicIds = "*";
     authority.privilege = privilege;
@@ -542,12 +546,12 @@ export const WalletContextProvider = ({
   const connectToClient = async (
     authSig: string,
     type: string,
-    authority: Entities.Authorization,
+    authority: Authorization,
     validatorPublicKey: string,
     account: AddressData,
     agent: AddressData
   ) => {
-    authority.signatureData = new Entities.SignatureData(
+    authority.signatureData = new SignatureData(
       type as any,
       account.publicKey,
       authSig
@@ -555,11 +559,11 @@ export const WalletContextProvider = ({
 
     // console.log("Grant", authority.asPayload());
 
-    const payload: Entities.ClientPayload<Entities.Authorization> =
-      new Entities.ClientPayload();
+    const payload: ClientPayload<Authorization> =
+      new ClientPayload();
     payload.data = authority;
     payload.timestamp = Date.now();
-    payload.eventType = Entities.AuthorizeEventType.AuthorizeEvent;
+    payload.eventType = AuthorizeEventType.AuthorizeEvent;
     payload.validator = validatorPublicKey;
     const pb = payload.encodeBytes();
     payload.signature = Utils.signMessageEcc(pb, agent.privateKey);
@@ -578,7 +582,7 @@ export const WalletContextProvider = ({
   const authorizeAgent = async (
     agent: AddressData,
     days: number = 30,
-    privilege: 0 | 1 | 2 | 3 = 3,
+    privilege: AuthorizationPrivilege = AuthorizationPrivilege.WritePriviledge,
     subnetId?: string
   ) => {
     if (connectedWallet == null) {
@@ -733,9 +737,9 @@ export const WalletContextProvider = ({
     agent: AddressData,
     name: string,
     description: string,
-
     reference: string,
     isPublic: boolean,
+    dSubRol: SubscriberRole,
     options?: {
       id?: string;
       loaderKey?: string;
@@ -759,7 +763,7 @@ export const WalletContextProvider = ({
     const { loaderKey, isUpdate = false, id } = options ?? {};
     setLoaders((old) => ({ ...old, [loaderKey ?? "createTopic"]: true }));
     try {
-      const topic: Entities.Topic = new Entities.Topic();
+      const topic: Topic = new Topic();
       //console.log('keypairsss', Utils.generateKeyPairSecp());
       // console.log(
       //   'BECH32ADDRESS',
@@ -772,17 +776,17 @@ export const WalletContextProvider = ({
       topic.public = isPublic;
       topic.id = id ?? "";
       topic.subnet = selectedSubnetId;
-
-      const payload: Entities.ClientPayload<Entities.Topic> =
-        new Entities.ClientPayload();
+      topic.defaultSubscriberRole = dSubRol;
+      const payload: ClientPayload<Topic> =
+        new ClientPayload();
       payload.data = topic;
       payload.timestamp = Date.now();
       payload.subnet = selectedSubnetId;
       payload.eventType = isUpdate
-        ? Entities.AdminTopicEventType.UpdateTopic
-        : Entities.AdminTopicEventType.CreateTopic;
+        ? AdminTopicEventType.UpdateTopic
+        : AdminTopicEventType.CreateTopic;
       payload.validator = String(VALIDATOR_PUBLIC_KEY);
-      payload.account = Entities.Address.fromString(account);
+      payload.account = Address.fromString(account);
       payload.nonce = 0;
       const pb = payload.encodeBytes();
       console.log("PAYLLOAD", payload, pb);
@@ -862,11 +866,13 @@ export const WalletContextProvider = ({
       topicId,
       sub,
       status,
+      rol
     }: {
       subnetId: string;
       topicId: string;
       sub?: string;
-      status?: Entities.SubscriptionStatus;
+        status?: SubscriptionStatus;
+        rol: SubscriberRole;
     }
   ) => {
     if (connectedWallet == null) {
@@ -880,26 +886,28 @@ export const WalletContextProvider = ({
     }
     setLoaders((old) => ({ ...old, [`subcribeToTopic-${topicId}`]: true }));
     try {
-      const subscribe: Entities.Subscription = new Entities.Subscription();
+      const subscribe: Subscription = new Subscription();
       //console.log('keypairsss', Utils.generateKeyPairSecp());
       // console.log(
       //   'BECH32ADDRESS',
       //   validator.publicKey,
       //   Utils.toAddress(Buffer.from(validator.publicKey, 'hex'))
       // );
-      subscribe.status = status ?? 1;
+      console.log('STATUSS', status, rol)
+      subscribe.status = status ?? SubscriptionStatus.Invited;
+      subscribe.role = rol;
       subscribe.subnet = subnetId;
       subscribe.topic = topicId;
       subscribe.subscriber = Address.fromString(sub ?? account);
       //   subscribe.agent = "Bitcoin world";
       //   subscribe.reference = "898989";
 
-      const payload: Entities.ClientPayload<Entities.Subscription> =
-        new Entities.ClientPayload();
+      const payload: ClientPayload<Subscription> =
+        new ClientPayload();
       payload.data = subscribe;
       payload.subnet = subnetId;
       payload.timestamp = Date.now();
-      payload.eventType = Entities.MemberTopicEventType.SubscribeEvent;
+      payload.eventType = MemberTopicEventType.SubscribeEvent;
       payload.validator = String(VALIDATOR_PUBLIC_KEY);
       payload.account = Address.fromString(account);
       const pb = payload.encodeBytes();
@@ -1013,35 +1021,35 @@ export const WalletContextProvider = ({
     }
     setLoaders((old) => ({ ...old, sendMessage: true }));
     try {
-      const message: Entities.Message = new Entities.Message();
-      const messageAction = new Entities.MessageAction();
-      const messageAttachment = new Entities.MessageAttachment();
+      const message: Message = new Message();
+      // const messageAction = new MessageAction();
+      // const messageAttachment = new MessageAttachment();
       const messageActions = [];
       const messagettachments = [];
 
-      messageAction.contract = "";
-      messageAction.abi = "";
-      messageAction.action = "";
-      messageAction.parameters = [""];
+      // messageAction.contract = "";
+      // messageAction.abi = "";
+      // messageAction.action = "";
+      // messageAction.parameters = [""];
 
-      messageActions.push(messageAction);
+      // messageActions.push(messageAction);
 
-      messageAttachment.cid = "";
-      messageAttachment.hash = "";
+      // messageAttachment.cid = "";
+      // messageAttachment.hash = "";
 
-      messagettachments.push(messageAttachment);
+      // messagettachments.push(messageAttachment);
 
       message.topicId = topicId;
       message.sender = Address.fromString(account);
       message.data = Buffer.from(messageString);
-      message.attachments = messagettachments.map((item) => item.asPayload());
-      message.actions = messageActions.map((item) => item.asPayload());
+      // message.attachments = messagettachments.map((item) => item.asPayload());
+      // message.actions = messageActions.map((item) => item.asPayload());
 
-      const payload: Entities.ClientPayload<Entities.Message> =
-        new Entities.ClientPayload();
+      const payload: ClientPayload<Message> =
+        new ClientPayload();
       payload.data = message;
       payload.timestamp = Date.now();
-      payload.eventType = Entities.MemberMessageEventType.SendMessageEvent;
+      payload.eventType = MemberMessageEventType.SendMessageEvent;
       payload.validator = VALIDATOR_PUBLIC_KEY;
       payload.account = Address.fromString(account);
       payload.nonce = 0;
@@ -1077,10 +1085,13 @@ export const WalletContextProvider = ({
 
   const createSubnet = async (
     // agent: AddressData,
-    name: string,
-    ref: string,
-    status: number,
-    update?: boolean
+    {name, ref, status, dAuthPriv, update}: {
+      name: string;
+      ref: string;
+      status: number;
+      dAuthPriv: AuthorizationPrivilege;
+      update?: boolean;
+    }
   ) => {
     if (!window.keplr) {
       notification.error({ message: "Please install keplr extension" });
@@ -1098,7 +1109,7 @@ export const WalletContextProvider = ({
     setLoaders((old) => ({ ...old, createSubnet: true }));
 
     try {
-      const subNetwork: Entities.Subnet = new Entities.Subnet();
+      const subNetwork: Subnet = new Subnet();
       //console.log('keypairsss', Utils.generateKeyPairSecp());
       // console.log(
       //   'BECH32ADDRESS',
@@ -1111,6 +1122,7 @@ export const WalletContextProvider = ({
       subNetwork.status = status;
       subNetwork.owner = Address.fromString(account);
       subNetwork.timestamp = Date.now();
+      subNetwork.defaultAuthPrivilege = dAuthPriv;
 
       const encoded = subNetwork.encodeBytes();
       // console.log("ID::::", { authority, encoded });
@@ -1128,15 +1140,15 @@ export const WalletContextProvider = ({
         account,
         message
       );
-      subNetwork.signatureData = new Entities.SignatureData(
+      subNetwork.signatureData = new SignatureData(
         signatureResp.pub_key.type as any,
         signatureResp.pub_key.value,
         signatureResp.signature
       );
       subNetwork.account = Address.fromString(account);
 
-      const payload: Entities.ClientPayload<Entities.Subnet> =
-        new Entities.ClientPayload();
+      const payload: ClientPayload<Subnet> =
+        new ClientPayload();
 
       payload.data = subNetwork;
       payload.timestamp = Date.now();
@@ -1146,11 +1158,11 @@ export const WalletContextProvider = ({
           throw Error("No Subnet Selected");
           // return;
         }
-        payload.eventType = Entities.AdminSubnetEventType.UpdateSubnet;
+        payload.eventType = AdminSubnetEventType.UpdateSubnet;
         payload.subnet = selectedSubnetId;
         subNetwork.id = selectedSubnetId;
       } else {
-        payload.eventType = Entities.AdminSubnetEventType.CreateSubnet;
+        payload.eventType = AdminSubnetEventType.CreateSubnet;
       }
       payload.data = subNetwork;
       payload.validator = VALIDATOR_PUBLIC_KEY;
