@@ -127,7 +127,7 @@ export const Settings = (props: SettingsProps) => {
                 { required: true, message: "Please select an auth privilege!" },
               ]}
             >
-              <Select defaultValue={AuthorizationPrivilege.ReadPriviledge} >
+              <Select defaultValue={AuthorizationPrivilege.Standard} >
                 {Object.keys(AuthorizationPrivilege).filter(d=>isNaN(parseInt(d))).map((val, index) => {
                   return (
                     <Select.Option key={index} value={(AuthorizationPrivilege as any)[String(val)]}>

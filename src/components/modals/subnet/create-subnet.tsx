@@ -16,7 +16,7 @@ import { motion } from "framer-motion";
 import { useForm } from "antd/es/form/Form";
 import { displayVariants, formLayout, shorternAddress } from "@/utils";
 import { WalletContext } from "@/context";
-import { Entities } from "@mlayerprotocol/core";
+import { AuthorizationPrivilege, Entities } from "@mlayerprotocol/core";
 
 interface CreateSubnetProps {
   isModalOpen?: boolean;
@@ -143,8 +143,8 @@ export const CreateSubnet = (props: CreateSubnetProps) => {
                 { required: true, message: "Please select an auth privilege!" },
               ]}
             >
-              <Select defaultValue={Entities.AuthorizationPrivilege.ReadPriviledge} >
-                {Object.keys(Entities.AuthorizationPrivilege).filter(d=>isNaN(parseInt(d))).map((val, index) => {
+              <Select defaultValue={AuthorizationPrivilege.ReadPriviledge} >
+                {Object.keys(AuthorizationPrivilege).filter(d=>isNaN(parseInt(d))).map((val, index) => {
                   return (
                     <Select.Option key={index} value={(Entities.AuthorizationPrivilege as any)[String(val)]}>
                       {val}
