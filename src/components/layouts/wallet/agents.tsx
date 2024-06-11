@@ -43,11 +43,11 @@ export const Agents = (props: AgentsProps) => {
           <i>Not Authorized</i>
         ),
 
-        expires: kp.authData ? (
+        expires: kp.authData ? ((kp.authData?.du ?? 0) == 0 ? 'Never':(
           moment(
             new Date((kp.authData?.ts ?? 0) + (kp.authData?.du ?? 0))
           ).fromNow()
-        ) : (
+        )) : (
           <i>Not Authorized</i>
         ),
       } as any;
