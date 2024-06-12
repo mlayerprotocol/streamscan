@@ -9,6 +9,7 @@ import {
 } from "@/utils";
 import React, {
   Fragment,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -29,7 +30,8 @@ interface AirDropProps {
 }
 export const AirDrop = (props: AirDropProps) => {
   const searchParams = useSearchParams();
-
+  const [onFocusCb, setOnFocusCb] = useState<() => void | undefined>();
+  const [toggleFocus, setToggleFocus] = useState(false);
   const [loaders, setLoaders] = useState<Record<string, boolean>>({});
   const {
     pointsList,
@@ -51,7 +53,7 @@ export const AirDrop = (props: AirDropProps) => {
       return {
         ...activity,
         title: activity.title,
-        point: `${_pt?.points ?? "..."} point`,
+        point: `${_pt?.points ?? "..."} points`,
         amount: _pt?.claimStatus?.[0]?.points ?? "...",
         _pt,
       };
@@ -78,6 +80,23 @@ export const AirDrop = (props: AirDropProps) => {
   }, [searchParams, connectedWallet]);
   console.log({ pointsList });
 
+  useEffect(() => {
+    console.log({ document });
+    if (!document) return;
+    document.body.onfocus = () => {
+      console.log("document.body.onfocus", { event });
+      setToggleFocus((old) => !old);
+    };
+  }, []);
+
+  useEffect(() => {
+    // console.log("++++ .toggleFocus", toggleFocus, onFocusCb);
+    if (!onFocusCb) return;
+
+    onFocusCb();
+    setOnFocusCb(undefined);
+  }, [toggleFocus]);
+
   const handleAction = async (
     obj: {
       title: string;
@@ -87,17 +106,17 @@ export const AirDrop = (props: AirDropProps) => {
       username?: undefined;
       _pt: PointData | undefined;
     },
-    pointsDetail: PointDetailModel | undefined
+    pointsDetail: PointDetailModel | undefined,
+    { alwaysConnect }: { alwaysConnect?: boolean } = {
+      alwaysConnect: false,
+    }
   ) => {
-    switch (obj._pt?.activityName) {
-      case "Follow @mlayer on X":
-      case "Follow @rulerOfCode on X":
-        if (pointsDetail?.data?.account?.socials?.twitter) {
+    switch (obj._pt?.type) {
+      // case "Follow @mlayer on X":
+      case "x-follow":
+        if (pointsDetail?.data?.account?.socials?.twitter && !alwaysConnect) {
           if (window != null) {
-            window
-              .open(`${FOLLOW_TWITTER_HTTP}/${obj.username}`, "_blank")
-              ?.focus();
-            setTimeout(() => {
+            const cb = () => {
               makeRequest(MIDDLEWARE_HTTP_URLS.twitter.verify.url, {
                 method: MIDDLEWARE_HTTP_URLS.twitter.verify.method,
                 body: JSON.stringify({
@@ -111,7 +130,10 @@ export const AirDrop = (props: AirDropProps) => {
               }).then((b) => {
                 setPointToggleGroup?.((old) => !old);
               });
-            }, 10000);
+            };
+            setOnFocusCb(() => cb);
+            // setTimeout(cb, 10000);
+            window.open(`${FOLLOW_TWITTER_HTTP}/${obj.username}`, "_blank");
           }
         } else {
           if (window != null) {
@@ -136,12 +158,12 @@ export const AirDrop = (props: AirDropProps) => {
           }
         }
         break;
-      case "Follow @mlayer on Discord":
+      case "discord-follow":
         if (pointsDetail?.data?.account?.socials?.discord) {
           // setLoaders((old) => ({ ...old, [obj.title]: true }));
           if (window != null) {
-            window.open(FOLLOW_DISCORD_HTTP, "_blank")?.focus();
-            setTimeout(() => {
+            window.open(FOLLOW_DISCORD_HTTP, "_blank");
+            const cb = () => {
               makeRequest(MIDDLEWARE_HTTP_URLS.discord.verify.url, {
                 method: MIDDLEWARE_HTTP_URLS.discord.verify.method,
                 body: JSON.stringify({
@@ -155,7 +177,9 @@ export const AirDrop = (props: AirDropProps) => {
               }).then((b) => {
                 setPointToggleGroup?.((old) => !old);
               });
-            }, 10000);
+            };
+            setOnFocusCb(() => cb);
+            // setTimeout(cb, 10000);
           }
         } else {
           if (window != null) {
@@ -181,7 +205,7 @@ export const AirDrop = (props: AirDropProps) => {
         }
         break;
 
-      case "Referrals":
+      case "referral":
         if (pointsDetail?.data?.account?.socials?.twitter) {
           // setLoaders((old) => ({ ...old, [obj.title]: true }));
           if (window != null) {
@@ -208,21 +232,48 @@ export const AirDrop = (props: AirDropProps) => {
     },
     pointsDetail: PointDetailModel | undefined
   ): string => {
-    switch (obj._pt?.activityName) {
-      case "Follow @mlayer on X":
-      case "Follow @rulerOfCode on X":
+    switch (obj._pt?.type) {
+      case "x-follow":
+        // case "Follow @rulerOfCode on X":
         if (pointsDetail?.data?.account?.socials?.twitter) {
-          return obj._pt?.activityName;
+          return "Click to follow @" + obj._pt?.data?.toLocaleLowerCase();
         }
         break;
-      case "Follow @mlayer on Discord":
+      case "discord-follow":
         if (pointsDetail?.data?.account?.socials?.discord) {
-          return obj._pt?.activityName;
+          return "Click to join @" + obj._pt?.data?.toLocaleLowerCase();
         }
         break;
     }
 
     return obj.actionText ?? "";
+  };
+
+  const renderUserName = (
+    obj: {
+      title: string;
+      point: string;
+      amount: string | number;
+      actionText?: undefined;
+      _pt: PointData | undefined;
+    },
+    pointsDetail: PointDetailModel | undefined
+  ): string => {
+    switch (obj._pt?.type) {
+      case "x-follow":
+        // case "Follow @rulerOfCode on X":
+        if (pointsDetail?.data?.account?.socials?.twitter) {
+          return " | @" + pointsDetail?.data?.account?.socials?.twitter;
+        }
+        break;
+      case "discord-follow":
+        if (pointsDetail?.data?.account?.socials?.discord) {
+          return " | @" + pointsDetail?.data?.account?.socials?.discord;
+        }
+        break;
+    }
+
+    return "";
   };
   return (
     <motion.div
@@ -290,22 +341,40 @@ export const AirDrop = (props: AirDropProps) => {
                         <HeroIcons.CheckCircleIcon className="h-[20px] text-green-500" />
                       )}
                     </span>
-                    {e.actionText && (
+                    <span>
+                      {e.actionText && (
+                        <span
+                          onClick={() => {
+                            handleAction(e as any, pointsDetail);
+                          }}
+                          className="text-sm text-blue-500 cursor-pointer"
+                        >
+                          {loaders[e.title] ? (
+                            <Spin />
+                          ) : (
+                            renderSubtext(e as any, pointsDetail)
+                          )}
+                        </span>
+                      )}{" "}
                       <span
                         onClick={() => {
-                          handleAction(e as any, pointsDetail);
+                          handleAction(e as any, pointsDetail, {
+                            alwaysConnect: true,
+                          });
                         }}
-                        className="text-sm text-blue-500 cursor-pointer"
+                        className="text-sm text-green-500 cursor-pointer"
                       >
                         {loaders[e.title] ? (
                           <Spin />
                         ) : (
-                          renderSubtext(e as any, pointsDetail)
+                          renderUserName(e as any, pointsDetail)
                         )}
                       </span>
-                    )}
+                    </span>
                   </div>
-                  <span className="text-gray-500">{e.point}</span>
+                  <span className="text-gray-500">{`${e.point}${
+                    e._pt?.unit ? ` per ${e._pt?.unit}` : ""
+                  }`}</span>
                   <span className="text-gray-200 text-2xl ml-auto">
                     {e.amount}
                   </span>
