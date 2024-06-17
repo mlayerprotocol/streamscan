@@ -13,7 +13,6 @@ import React, { useContext, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useForm } from "antd/es/form/Form";
 import {
-  PREVILEDGES,
   displayVariants,
   formLayout,
   shorternAddress,

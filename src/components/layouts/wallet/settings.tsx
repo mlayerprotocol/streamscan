@@ -10,6 +10,7 @@ import { motion } from "framer-motion";
 import { useForm } from "antd/es/form/Form";
 import { WalletContext } from "@/context";
 import { Button, Form, Input, Select, notification } from "antd";
+import { AuthorizationPrivilege } from "@mlayerprotocol/core";
 interface SettingsProps {
   onSuccess?: (values: any) => void;
   handleCreateAccount?: () => void;
@@ -26,7 +27,7 @@ export const Settings = (props: SettingsProps) => {
     subnetListModelList,
   } = useContext(WalletContext);
 
-  const items = combinedAgents.filter(
+  const items = (combinedAgents ?? []).filter(
     (cAgt) => cAgt.privateKey && cAgt.authData
   );
 
@@ -35,11 +36,13 @@ export const Settings = (props: SettingsProps) => {
       (opt) => opt.id == selectedSubnetId
     );
     const meta = metaToObject(selectedSubnet?.meta) ?? {};
-    // console.log({ meta, ref: selectedSubnet?.ref, status: selectedSubnet?.st });
+   
+    
     form.setFieldsValue({
       n: meta.name,
       ref: selectedSubnet?.ref,
       status: selectedSubnet?.st,
+      dAuthPriv: selectedSubnet?.dAuthPriv,
     });
   }, [subnetListModelList, selectedSubnetId]);
   return (
@@ -67,7 +70,7 @@ export const Settings = (props: SettingsProps) => {
           // transition={{ duration: 1, delay: 1 }}
         >
           <Form
-            {...formLayout}
+            {...{ ...formLayout, wrapperCol: { span: 12 }} }
             className="flex flex-col"
             name="basic"
             form={form}
@@ -76,8 +79,8 @@ export const Settings = (props: SettingsProps) => {
               const name: string = data["n"];
               const ref: string = data["ref"];
               const status: number = data["status"];
-
-              createSubnet?.(name, ref.trim(), status, true);
+              const dAuthPriv: AuthorizationPrivilege = data['dAuthPriv'];
+              createSubnet?.({ name, dAuthPriv, ref: ref.trim(), status, update: true});
               console.log({ data });
               form.setFieldsValue({});
             }}
@@ -119,7 +122,23 @@ export const Settings = (props: SettingsProps) => {
               <Input placeholder="Enter A Name" />
             </Form.Item>
 
-            
+            <Form.Item
+              label="Default Privilege:"
+              name="dAuthPriv"
+              rules={[
+                { required: true, message: "Please select an auth privilege!" },
+              ]}
+            >
+              <Select defaultValue={AuthorizationPrivilege.Standard} >
+                {Object.keys(AuthorizationPrivilege).filter(d=>isNaN(parseInt(d))).map((val, index) => {
+                  return (
+                    <Select.Option key={index} value={(AuthorizationPrivilege as any)[String(val)]}>
+                      {val}
+                    </Select.Option>
+                  );
+                })}
+              </Select>
+            </Form.Item>     
 
             <Form.Item
               label="Status:"
@@ -143,7 +162,7 @@ export const Settings = (props: SettingsProps) => {
               loading={loaders["createSubnet"]}
               type="primary"
               htmlType="submit"
-              className="w-full mt-[28px] self-end"
+              className=" mt-[28px] self-center"
               shape="round"
             >
               <span className="text-black">Update</span>

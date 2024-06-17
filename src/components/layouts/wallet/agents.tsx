@@ -1,5 +1,5 @@
 "use client";
-import { INFO_LINKS, PREVILEDGES, displayVariants, shorternAddress } from "@/utils";
+import { INFO_LINKS,  displayVariants, shorternAddress } from "@/utils";
 import * as HeroIcons from "@heroicons/react/24/solid";
 import React, { useContext, useMemo, useState } from "react";
 import { motion } from "framer-motion";
@@ -7,6 +7,7 @@ import { Button, Table, TableProps, notification } from "antd";
 import { AuthorizeAgent, NewAgent, PrivateKey } from "@/components";
 import { WalletContext } from "@/context";
 import moment from "moment";
+import { Entities } from "@mlayerprotocol/core";
 
 interface AgentsProps {
   onSuccess?: (values: any) => void;
@@ -37,16 +38,16 @@ export const Agents = (props: AgentsProps) => {
         key: index,
         // role: "--",
         role: kp.authData ? (
-          PREVILEDGES[kp.authData?.privi ?? 0]
+          Entities.AuthorizationPrivilege[kp.authData?.privi ?? 0]
         ) : (
           <i>Not Authorized</i>
         ),
 
-        expires: kp.authData ? (
+        expires: kp.authData ? ((kp.authData?.du ?? 0) == 0 ? 'Never':(
           moment(
             new Date((kp.authData?.ts ?? 0) + (kp.authData?.du ?? 0))
           ).fromNow()
-        ) : (
+        )) : (
           <i>Not Authorized</i>
         ),
       } as any;

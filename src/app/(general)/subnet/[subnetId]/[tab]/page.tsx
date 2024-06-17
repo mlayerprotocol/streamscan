@@ -6,6 +6,7 @@ import { WalletContext } from "@/context";
 import { Button, Card, Dropdown, MenuProps, Space } from "antd";
 import * as HeroIcons from "@heroicons/react/24/solid";
 import { shorternAddress, metaToObject } from "@/utils";
+import { ethers } from "ethers";
 
 const WalletPage = () => {
   const [showModal, setShowModal] = useState<boolean>(false);
@@ -20,7 +21,7 @@ const WalletPage = () => {
     selectedSubnet,
   } = useContext(WalletContext);
   const items: MenuProps["items"] =
-    combinedAgents
+    (combinedAgents ?? [])
       .filter((cAgt) => cAgt.privateKey && cAgt.authData)
       .map((item, index) => {
         return {
@@ -67,28 +68,36 @@ const WalletPage = () => {
   }
   return (
     <Card className="shadow-2xl !rounded-2xl">
-      <div className="flex justify-between mb-4 ">
+      <div className="flex flex-wrap gap-2 justify-between mb-4 ">
         <div>
-        <Dropdown
-          menu={{ items: subnetItems }}
-          className="!border !border-gray-600 p-2 !rounded-md"
-        >
-          <Space>
-            <span className="text-gray-400">Subnet: </span>
-            {selectedSubnet
-              ? [selectedSubnet]
-                  .map((e) => {
-                    return {
-                      ...e,
-                      name: metaToObject(e.meta)?.name ?? e.ref,
-                    };
-                  })?.[0]?.name ?? selectedSubnet.ref
-              : "No subnet selected"} [selectedSubnet.ref]
-            <HeroIcons.ChevronDownIcon className="ml-2 h-[20px]" />
+          <Space size={20}>
+            <Dropdown
+              menu={{ items: subnetItems }}
+              className="!border !border-gray-600 p-2 !rounded-md"
+            >
+              <Space>
+                <span className="text-gray-400">Subnet: </span>
+                {selectedSubnet
+                  ? [selectedSubnet].map((e) => {
+                      return {
+                        ...e,
+                        name: metaToObject(e.meta)?.name ?? e.ref,
+                      };
+                    })?.[0]?.name ?? selectedSubnet.ref
+                  : "No subnet selected"}{" "}
+                {`[${selectedSubnet?.ref}]`}
+                <HeroIcons.ChevronDownIcon className="ml-2 h-[20px]" />
+              </Space>
+            </Dropdown>
+            <div>
+              <span className="text-gray-400">Balance:</span>{" "}
+              {ethers.formatEther(
+                String(selectedSubnet?.balance?.toString() ?? "0")
+              )}{" "}
+              $MSG
+            </div>
           </Space>
-          </Dropdown>
-          Balance: 
-          </div>
+        </div>
         <Dropdown
           menu={{ items }}
           className="!border !border-gray-600 p-2 !rounded-md"
@@ -104,7 +113,6 @@ const WalletPage = () => {
             <HeroIcons.ChevronDownIcon className="ml-2 h-[20px]" />
           </Space>
         </Dropdown>
-       
       </div>
       <WalletMainLayout />
     </Card>

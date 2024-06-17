@@ -76,7 +76,7 @@ const DashboardPage = () => {
           <div className="flex flex-col grow gap-2">
             <HomeStatCardOne
               title="TVL"
-              amount={`${mainStatsData?.data.topic_balance || 0} MLT`}
+              amount={`${mainStatsData?.data.topic_balance || 0} MSG`}
               offset={`${currencyFormat(1232345)}`}
               icon={<HeroIcons.BarsArrowUpIcon className="ml-2 h-[30px] " />}
             />
@@ -84,7 +84,7 @@ const DashboardPage = () => {
               title="Total Tranx Volume"
               amount={`${currencyFormat(
                 mainStatsData?.data.message_cost ?? 0
-              )} MLT`}
+              )} MSG`}
               // date="2h"
               offset="~$1,212,341"
               icon={<HeroIcons.WalletIcon className="ml-2 h-[30px] " />}
@@ -97,7 +97,7 @@ const DashboardPage = () => {
           <span className="font-bold text-xl">Recent Blocks</span>
         </div>
         <Table
-          dataSource={dataSource.filter(d=>d.blk != 0)}
+          dataSource={(dataSource ?? []).filter(d=>d.blk != 0)}
           columns={columns}
           loading={loaders["getBlockStats"]}
         />

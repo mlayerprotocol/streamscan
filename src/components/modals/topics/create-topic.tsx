@@ -8,6 +8,7 @@ import {
   Modal,
   Select,
   Space,
+  Switch,
   Tooltip,
   Typography,
   notification,
@@ -26,6 +27,7 @@ import {
 import { WalletContext } from "@/context";
 import { TopicData } from "@/model/topic";
 import { InformationCircleIcon } from "@heroicons/react/24/solid";
+import { Entities } from "@mlayerprotocol/core";
 
 interface CreateTopicProps {
   isModalOpen?: boolean;
@@ -47,11 +49,10 @@ export const CreateTopic = (props: CreateTopicProps) => {
     form.setFieldsValue({ address: selectedAgentObj?.address, ...topicData });
     try {
       const meta = JSON.parse(String(topicData?.meta ?? ''));
-      form.setFieldsValue({  n: meta?.name ?? '', desc: meta?.desc ?? ''});
+      form.setFieldsValue({  n: meta?.name ?? '', description: meta?.description ?? ''});
     } catch (e) {
       
     }
-    console.log("APPPP", { ...topicData, address: selectedAgentObj?.address });
   }, [topicData, selectedAgentObj]);
 
 
@@ -84,7 +85,7 @@ export const CreateTopic = (props: CreateTopicProps) => {
             className="flex flex-col"
             name="basic"
             form={form}
-            initialValues={{ address: selectedAgentObj?.address, ...topicData }}
+            initialValues={{ dSubRol: Entities.SubscriberRole.Writer, address: selectedAgentObj?.address, ...topicData }}
             onFinish={(data) => {
               if (!selectedAgentObj?.privateKey) {
                 notification.error({
@@ -94,7 +95,7 @@ export const CreateTopic = (props: CreateTopicProps) => {
               }
 
               const name: string = data["n"];
-              const description: string = data["desc"];
+              const description: string = data["description"];
               const ref: string = data["ref"];
               const isPublic: boolean = data["pub"] == true;
               createTopic?.(
@@ -103,6 +104,7 @@ export const CreateTopic = (props: CreateTopicProps) => {
                 description,
                 ref,
                 isPublic,
+                data['dSubRol'],
                 {
                   id: topicData?.id,
                   isUpdate: topicData != undefined,
@@ -146,15 +148,36 @@ export const CreateTopic = (props: CreateTopicProps) => {
 
             <Form.Item
               label="Description:"
-              name="desc"
+              name="description"
               rules={[{ message: "Please input your description!" }]}
             >
               <Input placeholder="Describe this topic" />
             </Form.Item>
+            
 
-            <Form.Item label="Public:" name="pub" valuePropName="checked">
-              <Space><Checkbox /> <Tooltip title="Public topics can be subscribed to by any device" ><InformationCircleIcon className="w-[16px]"/></Tooltip></Space>
+            <Form.Item label={<Space><Tooltip title="Public topics can be subscribed to by any device" ><InformationCircleIcon className="w-[16px]"/></Tooltip> <span>Public</span></Space>} name="pub" valuePropName="checked">
+            <Switch />
             </Form.Item>
+
+            <Form.Item
+              label={ <Space><Tooltip title="Default role assigned to new subscribers" ><InformationCircleIcon className="w-[16px]" /></Tooltip> <span>Default Role</span></Space>}
+              name="dSubRol"
+              rules={[
+                { required: true, message: "Please select default role!" },
+              ]}
+            >
+             <Select defaultValue={Entities.SubscriberRole.Writer} className="w-100" >
+                {Object.keys(Entities.SubscriberRole).filter(d=>isNaN(parseInt(d))).map((val, index) => {
+                  return (
+                    <Select.Option key={index} value={(Entities.SubscriberRole as any)[String(val)]}>
+                      {val}
+                    </Select.Option>
+                  );
+                })}
+              </Select>
+            </Form.Item> 
+
+
 
             <Button
               loading={

@@ -4,6 +4,7 @@ import * as HeroIcons from "@heroicons/react/24/solid";
 import * as OutlineHeroIcons from "@heroicons/react/24/outline";
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
+
 import {
   Button,
   Popconfirm,
@@ -15,22 +16,39 @@ import {
 import { CreateMessage, CreateTopic } from "@/components";
 import { WalletContext } from "@/context";
 import { TopicData } from "@/model/topic";
-import { Address } from "@mlayerprotocol/core/src/entities";
+
+import { PreviewTopic } from "./preview";
+
+import { Address, SubscriberRole } from "@mlayerprotocol/core/src/entities";
+import { useRouter } from "next/navigation";
+
+import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 
 interface MyTopicsProps {
   onSuccess?: (values: any) => void;
   handleCreateAccount?: () => void;
 }
 export const MyTopics = (props: MyTopicsProps) => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [showCreateTopicModal, setShowCreateTopicModal] =
     useState<boolean>(false);
   const [showCreateMessageModal, setShowCreateMessageModal] =
     useState<boolean>(false);
   const [selectedTopic, setSelectedTopic] = useState<TopicData>();
+  const _topic = searchParams.get("topic");
+  useEffect(() => {
+    //
+    if (!_topic) {
+      setShowPreview(false);
+    }
+    console.log({ _topic });
+  }, [_topic]);
   const {
     loaders,
     accountTopicList,
-    subcribeToTopic,
+    setSelectedMessagesTopicId,
     agents,
     selectedAgent,
     walletAccounts,
@@ -38,13 +56,18 @@ export const MyTopics = (props: MyTopicsProps) => {
     selectedSubnetId,
   } = useContext(WalletContext);
   const [selectedTopicId, setSelectedTopicId] = useState<string | undefined>();
+  // const [previewTopicId, setPreviewTopicId] = useState<string | undefined>();
+  const [showPreview, setShowPreview] = useState<boolean>(false);
   const account = useMemo(
     () => walletAccounts[connectedWallet ?? ""]?.[0],
     [walletAccounts, connectedWallet]
   );
   const dataSource = useMemo(() => {
+    console.log('TOPICICCS--->', { accountTopicList });
     return (accountTopicList?.data ?? []).filter(
-      (item) => item.snet == selectedSubnetId && item.acct == Address.fromString(account).toAddressString()
+      (item) =>
+        item.snet == selectedSubnetId &&
+        item.acct == Address.fromString(account).toAddressString()
     );
   }, [accountTopicList, account]);
   const agent = useMemo(() => {
@@ -54,28 +77,36 @@ export const MyTopics = (props: MyTopicsProps) => {
   const columns: TableProps<TopicData>["columns"] = useMemo(() => {
     return [
       {
-        title: "Hash",
-        dataIndex: "h",
-        key: "address",
+        title: "Id",
+        dataIndex: "id",
+        key: "id",
         render(value, record, index) {
-          return shorternAddress(value);
+          return <Link href={`?id=${record?.id}`} scroll={false}>{shorternAddress(value)}</Link>;
         },
       },
       {
-        title: "Ref Id",
+        title: "Ref",
         dataIndex: "ref",
         key: "ref",
         render(value, record, index) {
-          return `@${value}`
-        }
+          return `${value}`;
+        },
       },
       {
-        title: "Title",
+        title: "Name",
         dataIndex: "n",
         key: "n",
         render(value, record, index) {
-          return metaToObject(record.meta)?.name ?? value;
+          return metaToObject(record.meta)?.name ?? value ?? "";
         },
+      },
+      {
+        title: "Default Role",
+        dataIndex: "dSubRol",
+        key: "dSubRol",
+        render(value) {
+          return (SubscriberRole as any)[String(value)]
+        }
       },
       {
         title: "Public",
@@ -84,7 +115,7 @@ export const MyTopics = (props: MyTopicsProps) => {
         render(value, record, index) {
           if (!value) {
             return (
-              <OutlineHeroIcons.CheckCircleIcon className="h-[20px] text-gray-500" />
+              <OutlineHeroIcons.XCircleIcon className="h-[20px] text-gray-500" />
             );
           }
           return (
@@ -97,11 +128,11 @@ export const MyTopics = (props: MyTopicsProps) => {
       //   dataIndex: "subscribers",
       //   key: "subscribers",
       // },
-      {
-        title: "MLT Consumed",
-        dataIndex: "bal",
-        key: "bal",
-      },
+      // {
+      //   title: "MSG Consumed",
+      //   dataIndex: "bal",
+      //   key: "bal",
+      // },
       {
         title: "",
         dataIndex: "",
@@ -128,7 +159,7 @@ export const MyTopics = (props: MyTopicsProps) => {
                   <HeroIcons.PlayCircleIcon className="h-[20px]" />
                 </Button>
               </Popconfirm> */}
-              <Button
+              {/* <Button
                 type="link"
                 loading={loaders[`sendMessage-${record.id}`]}
                 onClick={async () => {
@@ -137,8 +168,8 @@ export const MyTopics = (props: MyTopicsProps) => {
                 }}
               >
                 <HeroIcons.ChatBubbleOvalLeftEllipsisIcon className="h-[20px]" />
-              </Button>
-              <Button
+              </Button> */}
+              {/* <Button
                 type="link"
                 onClick={async () => {
                   await navigator.clipboard.writeText(
@@ -153,7 +184,7 @@ export const MyTopics = (props: MyTopicsProps) => {
                 }}
               >
                 <HeroIcons.ArrowUpTrayIcon className="h-[20px]" />
-              </Button>
+              </Button> */}
               <Button
                 type="link"
                 loading={loaders[`createTopic-${record?.id}`]}
@@ -164,8 +195,17 @@ export const MyTopics = (props: MyTopicsProps) => {
               >
                 <HeroIcons.PencilIcon className="h-[20px]" />
               </Button>
-              <Button type="link">
+              {/* <Button type="link">
                 <HeroIcons.XMarkIcon className="h-[20px]" />
+              </Button> */}
+              <Button
+                type="link"
+                onClick={async () => {
+                  // setPreviewTopicId(record.id);
+                  router.push(`?id=${record?.id}`, { scroll: false });
+                }}
+              >
+                <HeroIcons.Bars4Icon className="h-[20px]" />
               </Button>
             </div>
           );
@@ -174,6 +214,7 @@ export const MyTopics = (props: MyTopicsProps) => {
     ];
   }, [accountTopicList]);
   console.log({ account });
+
   return (
     <motion.div
       className="inline-flex w-full flex-col gap-6"
@@ -186,7 +227,6 @@ export const MyTopics = (props: MyTopicsProps) => {
       }}
       // transition={{ duration: 1, delay: 1 }}
     >
-     
       <Button
         loading={loaders["createTopic"]}
         onClick={() => {

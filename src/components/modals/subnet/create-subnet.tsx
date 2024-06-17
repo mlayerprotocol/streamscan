@@ -16,6 +16,7 @@ import { motion } from "framer-motion";
 import { useForm } from "antd/es/form/Form";
 import { displayVariants, formLayout, shorternAddress } from "@/utils";
 import { WalletContext } from "@/context";
+import { AuthorizationPrivilege, Entities } from "@mlayerprotocol/core";
 
 interface CreateSubnetProps {
   isModalOpen?: boolean;
@@ -37,7 +38,7 @@ export const CreateSubnet = (props: CreateSubnetProps) => {
     return combinedAgents.find((opt) => opt.address == selectedAgent)?.address;
   }, [combinedAgents, selectedAgent]);
 
-  const items = combinedAgents.filter(
+  const items = (combinedAgents ?? []).filter(
     (cAgt) => cAgt.privateKey && cAgt.authData
   );
 
@@ -73,7 +74,7 @@ export const CreateSubnet = (props: CreateSubnetProps) => {
             className="flex flex-col"
             name="basic"
             form={form}
-            initialValues={{}}
+            initialValues={{dAuthPriv: AuthorizationPrivilege.Basic}}
             onFinish={(data) => {
               // const agent: AddressData | undefined = agents.find(
               //   (el) => el.address == data["address"]
@@ -88,7 +89,7 @@ export const CreateSubnet = (props: CreateSubnetProps) => {
               const ref: string = data["ref"];
               const status: number = data["status"];
 
-              createSubnet?.(name, ref, status);
+              createSubnet?.({ name, ref, status, dAuthPriv: data['dAuthPriv'] });
               // console.log({ data, agent });
               form.setFieldsValue({});
               onCancel?.({} as any);
@@ -135,6 +136,24 @@ export const CreateSubnet = (props: CreateSubnetProps) => {
               </Select>
             </Form.Item>
 
+            <Form.Item
+              label="Default Privilege:"
+              name="dAuthPriv"
+              rules={[
+                { required: true, message: "Please select an auth privilege!" },
+              ]}
+            >
+              <Select defaultValue={AuthorizationPrivilege.Basic} >
+                {Object.keys(AuthorizationPrivilege).filter(d=>isNaN(parseInt(d))).map((val, index) => {
+                  return (
+                    <Select.Option key={index} value={(Entities.AuthorizationPrivilege as any)[String(val)]}>
+                      {val}
+                    </Select.Option>
+                  );
+                })}
+              </Select>
+            </Form.Item>          
+
             <Button
               loading={loaders["createSubnet"]}
               type="primary"
@@ -144,6 +163,10 @@ export const CreateSubnet = (props: CreateSubnetProps) => {
             >
               <span className="text-black">Create Subnet</span>
             </Button>
+            
+     
+      
+      
           </Form>
         </motion.div>
       </div>

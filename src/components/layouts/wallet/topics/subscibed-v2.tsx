@@ -1,5 +1,5 @@
 "use client";
-import { displayVariants, shorternAddress } from "@/utils";
+import { displayVariants, metaToObject, shorternAddress } from "@/utils";
 import * as HeroIcons from "@heroicons/react/24/solid";
 import * as OutlineHeroIcons from "@heroicons/react/24/outline";
 import React, { useContext, useEffect, useMemo, useState } from "react";
@@ -14,21 +14,24 @@ import {
 } from "antd";
 import { CreateMessage, CreateTopic, JoinTopic } from "@/components";
 import { WalletContext } from "@/context";
-import { TopicData } from "@/model/topic";
-import { useSearchParams } from "next/navigation";
-import { Address } from "@mlayerprotocol/core/src/entities";
-
-interface SubscribedTopicsProps {
+import { TopicData, TopicListModel } from "@/model/topic";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Address, SubscriptionStatus } from "@mlayerprotocol/core/src/entities";
+import { Entities } from "@mlayerprotocol/core";
+const status = SubscriptionStatus.Subscribed;
+interface SubscribedV2TopicsProps {
   onSuccess?: (values: any) => void;
   handleCreateAccount?: () => void;
 }
-export const SubscribedTopics = (props: SubscribedTopicsProps) => {
+export const SubscribedV2Topics = (props: SubscribedV2TopicsProps) => {
+  const router = useRouter();
   const [showCreateTopicModal, setShowCreateTopicModal] =
     useState<boolean>(false);
   const [showJoinTopicModal, setShowJoinTopicModal] = useState<boolean>(false);
   const [showCreateMessageModal, setShowCreateMessageModal] =
     useState<boolean>(false);
   const [urlTopicId, setUrlTopicId] = useState<string>();
+  const [toggleState1, setToggleState1] = useState(false);
   const searchParams = useSearchParams();
 
   useEffect(() => {
@@ -43,12 +46,15 @@ export const SubscribedTopics = (props: SubscribedTopicsProps) => {
   }, [urlTopicId]);
   const {
     loaders,
-    accountTopicList,
-    subcribeToTopic,
+    recordTopicList,
+    getRecordTopicV2,
     agents,
     selectedAgent,
+    authorizeAgent,
+    subcribeToTopic,
     walletAccounts,
     connectedWallet,
+    selectedSubnetId,
   } = useContext(WalletContext);
   const [selectedTopicId, setSelectedTopicId] = useState<string | undefined>();
 
@@ -56,26 +62,62 @@ export const SubscribedTopics = (props: SubscribedTopicsProps) => {
     () => walletAccounts[connectedWallet ?? ""]?.[0],
     [walletAccounts, connectedWallet]
   );
+
+  useEffect(() => {
+    if (!connectedWallet) return;
+    getRecordTopicV2?.(status, {
+      params: {
+        sub: Address.fromString(
+          walletAccounts[connectedWallet]?.[0]
+        ).toAddressString(),
+        status,
+        snet: selectedSubnetId,
+      },
+    });
+  }, [walletAccounts, connectedWallet, toggleState1]);
+
+  const topicListModel = useMemo<TopicListModel | undefined>(
+    () => recordTopicList?.[status],
+    [recordTopicList]
+  );
   const dataSource = useMemo(() => {
-    return (accountTopicList?.data ?? []).filter(
-      (item) => item.acct != Address.fromString(account).toAddressString()
-    );
-  }, [accountTopicList, account]);
+    return topicListModel?.data?.map((kp: TopicData, index) => {
+      // console.log(index, kp.address, authenticationData);
+      return {
+        ...kp,
+        key: index,
+      } as any;
+    });
+  }, [recordTopicList]);
+
+  
+
 
   const columns: TableProps<TopicData>["columns"] = useMemo(() => {
     return [
       {
-        title: "Hash",
-        dataIndex: "h",
-        key: "address",
+        title: "Id",
+        dataIndex: "id",
+        key: "id",
         render(value, record, index) {
           return shorternAddress(value);
         },
       },
       {
-        title: "Title",
+        title: "Ref",
+        dataIndex: "ref",
+        key: "ref",
+        render(value, record, index) {
+          return `${value}`;
+        },
+      },
+      {
+        title: "Name",
         dataIndex: "n",
         key: "n",
+        render(value, record, index) {
+          return metaToObject(record.meta)?.name ?? value ?? "";
+        },
       },
       {
         title: "Public",
@@ -84,7 +126,7 @@ export const SubscribedTopics = (props: SubscribedTopicsProps) => {
         render(value, record, index) {
           if (!value) {
             return (
-              <OutlineHeroIcons.XCircleIcon className="h-[20px] text-gray-500" />
+              <OutlineHeroIcons.CheckCircleIcon className="h-[20px] text-gray-500" />
             );
           }
           return (
@@ -97,11 +139,11 @@ export const SubscribedTopics = (props: SubscribedTopicsProps) => {
       //   dataIndex: "subscribers",
       //   key: "subscribers",
       // },
-      {
-        title: "MSG Consumed",
-        dataIndex: "bal",
-        key: "bal",
-      },
+      // {
+      //   title: "MSG Consumed",
+      //   dataIndex: "bal",
+      //   key: "bal",
+      // },
       {
         title: "",
         dataIndex: "",
@@ -109,62 +151,23 @@ export const SubscribedTopics = (props: SubscribedTopicsProps) => {
         render: (text, record) => {
           return (
             <div className="flex gap-6">
-              {/* <Popconfirm
-                title="Subscribe to topic"
-                description="Are you sure to subcribe to this topic?"
-                onConfirm={() => {
-                  //
-
-                  if (agent) subcribeToTopic?.(agent, record.id);
-                }}
-                // onCancel={cancel}
-                okText="Yes"
-                cancelText="No"
-              >
-                <Button
-                  type="link"
-                  loading={loaders[`subcribeToTopic-${record.id}`]}
-                >
-                  <HeroIcons.PlayCircleIcon className="h-[20px]" />
-                </Button>
-              </Popconfirm> */}
-              {/* <Button
-                type="link"
-                loading={loaders[`sendMessage-${record.id}`]}
-                onClick={async () => {
-                  setSelectedTopicId(record.id);
-                  setShowCreateMessageModal((old) => !old);
-                }}
-              >
-                <HeroIcons.ChatBubbleOvalLeftEllipsisIcon className="h-[20px]" />
-              </Button>
+              
+            
               <Button
                 type="link"
                 onClick={async () => {
-                  await navigator.clipboard.writeText(
-                    `${window.location.protocol}//${window.location.host}/wallet/topics?topicTab=sub&topicId=${record.id}`
-                  );
-                  notification.info({
-                    message: "Invitation Url copied",
-                    icon: (
-                      <HeroIcons.ArrowUpTrayIcon className="h-[20px] text-green-500" />
-                    ),
-                  });
+                  // setPreviewTopicId(record.id);
+                  router.push(`?id=${record?.id}`, { scroll: false });
                 }}
               >
-                <HeroIcons.ArrowUpTrayIcon className="h-[20px]" />
-              </Button> */}
-
-              {/* <Button type="link">
-                <HeroIcons.XMarkIcon className="h-[20px]" />
-              </Button> */}
+                <HeroIcons.Bars4Icon className="h-[20px]" />
+              </Button>
             </div>
           );
         },
       },
     ];
-  }, [accountTopicList]);
-
+  }, [topicListModel]);
   return (
     <motion.div
       className="inline-flex w-full flex-col gap-6"
@@ -177,7 +180,6 @@ export const SubscribedTopics = (props: SubscribedTopicsProps) => {
       }}
       // transition={{ duration: 1, delay: 1 }}
     >
-      
       <div className="flex gap-4 justify-end">
         {/* <Button
           loading={loaders["createTopic"]}

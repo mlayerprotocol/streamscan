@@ -20,6 +20,7 @@ export interface MessageData {
   h: string;
   atts: Att[];
   sig: string;
+  agt: string;
   dH: string;
   url: string;
   CreatedAt: string;

@@ -19,7 +19,7 @@ export const Stake = (props: StakeProps) => {
       }}
       // transition={{ duration: 1, delay: 1 }}
     >
-      Stake
+      <h2 className="my-10">Coming soon </h2>
     </motion.div>
   );
 };

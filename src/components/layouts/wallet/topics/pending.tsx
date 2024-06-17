@@ -1,5 +1,5 @@
 "use client";
-import { displayVariants, shorternAddress } from "@/utils";
+import { displayVariants, metaToObject, shorternAddress } from "@/utils";
 import * as HeroIcons from "@heroicons/react/24/solid";
 import * as OutlineHeroIcons from "@heroicons/react/24/outline";
 import React, { useContext, useEffect, useMemo, useState } from "react";
@@ -14,21 +14,26 @@ import {
 } from "antd";
 import { CreateMessage, CreateTopic, JoinTopic } from "@/components";
 import { WalletContext } from "@/context";
-import { TopicData } from "@/model/topic";
+import { TopicData, TopicListModel } from "@/model/topic";
 import { useSearchParams } from "next/navigation";
-import { Address } from "@mlayerprotocol/core/src/entities";
-
-interface SubscribedTopicsProps {
+import { Address, AuthorizationPrivilege, SubscriptionStatus } from "@mlayerprotocol/core/src/entities";
+import { Entities } from "@mlayerprotocol/core";
+import Link from "next/link";
+const status = SubscriptionStatus.Invited;
+interface PendingTopicsProps {
   onSuccess?: (values: any) => void;
   handleCreateAccount?: () => void;
+  useSubnet?: boolean;
 }
-export const SubscribedTopics = (props: SubscribedTopicsProps) => {
+export const PendingTopics = (props: PendingTopicsProps) => {
+  const { useSubnet = false } = props;
   const [showCreateTopicModal, setShowCreateTopicModal] =
     useState<boolean>(false);
   const [showJoinTopicModal, setShowJoinTopicModal] = useState<boolean>(false);
   const [showCreateMessageModal, setShowCreateMessageModal] =
     useState<boolean>(false);
   const [urlTopicId, setUrlTopicId] = useState<string>();
+  const [toggleState1, setToggleState1] = useState(false);
   const searchParams = useSearchParams();
 
   useEffect(() => {
@@ -43,12 +48,15 @@ export const SubscribedTopics = (props: SubscribedTopicsProps) => {
   }, [urlTopicId]);
   const {
     loaders,
-    accountTopicList,
-    subcribeToTopic,
+    recordTopicList,
+    getRecordTopicV2,
     agents,
     selectedAgent,
+    authorizeAgent,
+    subcribeToTopic,
     walletAccounts,
     connectedWallet,
+    selectedSubnetId,
   } = useContext(WalletContext);
   const [selectedTopicId, setSelectedTopicId] = useState<string | undefined>();
 
@@ -56,11 +64,36 @@ export const SubscribedTopics = (props: SubscribedTopicsProps) => {
     () => walletAccounts[connectedWallet ?? ""]?.[0],
     [walletAccounts, connectedWallet]
   );
+
+  useEffect(() => {
+    if (!connectedWallet) return;
+    const params: Record<string, any> = {
+      sub: Address.fromString(
+        walletAccounts[connectedWallet]?.[0]
+      ).toAddressString(),
+      status,
+    };
+    if (useSubnet) {
+      params["snet"] = selectedSubnetId;
+    }
+    getRecordTopicV2?.(status, {
+      params,
+    });
+  }, [walletAccounts, connectedWallet, toggleState1]);
+
+  const topicListModel = useMemo<TopicListModel | undefined>(
+    () => recordTopicList?.[status],
+    [recordTopicList]
+  );
   const dataSource = useMemo(() => {
-    return (accountTopicList?.data ?? []).filter(
-      (item) => item.acct != Address.fromString(account).toAddressString()
-    );
-  }, [accountTopicList, account]);
+    return topicListModel?.data?.map((kp: TopicData, index) => {
+      // console.log(index, kp.address, authenticationData);
+      return {
+        ...kp,
+        key: index,
+      } as any;
+    });
+  }, [recordTopicList]);
 
   const columns: TableProps<TopicData>["columns"] = useMemo(() => {
     return [
@@ -74,8 +107,15 @@ export const SubscribedTopics = (props: SubscribedTopicsProps) => {
       },
       {
         title: "Title",
-        dataIndex: "n",
-        key: "n",
+        dataIndex: "",
+        key: "value",
+        render: (text, record) => {
+          return (
+            <span className="text-lg">
+              {metaToObject(record?.meta)?.name ?? ""}
+            </span>
+          );
+        },
       },
       {
         title: "Public",
@@ -92,16 +132,7 @@ export const SubscribedTopics = (props: SubscribedTopicsProps) => {
           );
         },
       },
-      // {
-      //   title: "Subscribers",
-      //   dataIndex: "subscribers",
-      //   key: "subscribers",
-      // },
-      {
-        title: "MSG Consumed",
-        dataIndex: "bal",
-        key: "bal",
-      },
+
       {
         title: "",
         dataIndex: "",
@@ -109,25 +140,76 @@ export const SubscribedTopics = (props: SubscribedTopicsProps) => {
         render: (text, record) => {
           return (
             <div className="flex gap-6">
-              {/* <Popconfirm
-                title="Subscribe to topic"
-                description="Are you sure to subcribe to this topic?"
+              <Popconfirm
+                title="Accept"
+                description="Are you sure?"
+                icon={
+                  <HeroIcons.QuestionMarkCircleIcon className="h-[20px] text-green-500 mr-1" />
+                }
                 onConfirm={() => {
                   //
-
-                  if (agent) subcribeToTopic?.(agent, record.id);
+                  // if (agent) subcribeToTopic?.(agent, record.id);
+                  const agent: AddressData =
+                    agents.find((agt) => agt.address == selectedAgent) ??
+                    agents[0];
+                  authorizeAgent?.(agent, 0, AuthorizationPrivilege.Standard, record.snet).then((e) => {
+                    subcribeToTopic?.(agent, {
+                      subnetId: record.snet,
+                      topicId: record.id,
+                      sub: account,
+                      status: Entities.SubscriptionStatus.Subscribed,
+                      rol: record.dSubRol
+                    }).then((e) => {
+                      setToggleState1((old) => !old);
+                    });
+                  });
                 }}
                 // onCancel={cancel}
                 okText="Yes"
                 cancelText="No"
               >
                 <Button
-                  type="link"
+                  type="primary"
+                  shape="round"
                   loading={loaders[`subcribeToTopic-${record.id}`]}
                 >
-                  <HeroIcons.PlayCircleIcon className="h-[20px]" />
+                  Accept
                 </Button>
-              </Popconfirm> */}
+              </Popconfirm>
+              <Popconfirm
+                title="Decline"
+                description="Are you sure?"
+                onConfirm={() => {
+                  //
+                  // if (agent) subcribeToTopic?.(agent, record.id);
+                  const agent: AddressData =
+                    agents.find((agt) => agt.address == selectedAgent) ??
+                    agents[0];
+                  authorizeAgent?.(agent, 0, AuthorizationPrivilege.Basic, record.snet).then((e) => {
+                    subcribeToTopic?.(agent, {
+                      subnetId: record.snet,
+                      topicId: record.id,
+                      sub: account,
+                      rol: record.dSubRol,
+                      status: Entities.SubscriptionStatus.Unsubscribed,
+                    }).then((e) => {
+                      setToggleState1((old) => !old);
+                    });
+                  });
+                }}
+                // onCancel={cancel}
+                okText="Yes"
+                cancelText="No"
+              >
+                <Button
+                  type="primary"
+                  shape="round"
+                  danger
+                  loading={loaders[`subcribeToTopic-${record.id}`]}
+                >
+                  Reject
+                </Button>
+              </Popconfirm>
               {/* <Button
                 type="link"
                 loading={loaders[`sendMessage-${record.id}`]}
@@ -153,9 +235,9 @@ export const SubscribedTopics = (props: SubscribedTopicsProps) => {
                 }}
               >
                 <HeroIcons.ArrowUpTrayIcon className="h-[20px]" />
-              </Button> */}
-
-              {/* <Button type="link">
+              </Button>
+              
+              <Button type="link">
                 <HeroIcons.XMarkIcon className="h-[20px]" />
               </Button> */}
             </div>
@@ -163,7 +245,7 @@ export const SubscribedTopics = (props: SubscribedTopicsProps) => {
         },
       },
     ];
-  }, [accountTopicList]);
+  }, [topicListModel]);
 
   return (
     <motion.div
@@ -177,8 +259,7 @@ export const SubscribedTopics = (props: SubscribedTopicsProps) => {
       }}
       // transition={{ duration: 1, delay: 1 }}
     >
-      
-      <div className="flex gap-4 justify-end">
+      <div className="flex gap-4 justify-between mt-10">
         {/* <Button
           loading={loaders["createTopic"]}
           onClick={() => {
@@ -191,6 +272,15 @@ export const SubscribedTopics = (props: SubscribedTopicsProps) => {
         >
           <span>Create Topic</span>
         </Button> */}
+         <Link
+          href="/subnet"
+          className="self-start"
+          type="text"
+         
+         
+        >
+         <HeroIcons.ArrowLeftIcon className="ml-2 h-[20px]" />
+        </Link>
         <Button
           loading={loaders["subcribeToTopic"]}
           onClick={() => {

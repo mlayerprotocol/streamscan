@@ -15,31 +15,40 @@ import { motion } from "framer-motion";
 import { useForm } from "antd/es/form/Form";
 import { displayVariants, formLayout, shorternAddress } from "@/utils";
 import { WalletContext } from "@/context";
-import { SubscriberRole } from "@mlayerprotocol/core";
+import { SubscriptionStatus, SubscriberRole } from "@mlayerprotocol/core";
 
-interface JoinTopicProps {
+interface AddAgentToTopicProps {
   topicId?: string;
-  useSub?: boolean;
   isModalOpen?: boolean;
   onCancel?: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 }
-export const JoinTopic = (props: JoinTopicProps) => {
-  const { subcribeToTopic, loaders, agents, combinedAgents, selectedAgent } =
-    useContext(WalletContext);
-  const { isModalOpen = false, onCancel, topicId, useSub = false } = props;
+export const AddAgentToTopic = (props: AddAgentToTopicProps) => {
+  const {
+    subcribeToTopic,
+    loaders,
+    agents,
+    combinedAgents,
+    selectedAgent,
+    selectedSubnet,
+  } = useContext(WalletContext);
+  const { isModalOpen = false, onCancel, topicId } = props;
   const [form] = useForm();
   const selectedAgentObj = useMemo(() => {
     return combinedAgents.find((opt) => opt.address == selectedAgent);
   }, [combinedAgents, selectedAgent]);
 
   useEffect(() => {
-    form.setFieldsValue({ address: selectedAgentObj?.address, topicId });
-  }, [topicId, selectedAgentObj]);
+    form.setFieldsValue({
+      address: selectedAgentObj?.address,
+      topicId,
+      subnetId: selectedSubnet?.id,
+    });
+  }, [topicId, selectedAgentObj, selectedSubnet]);
 
   return (
     <Modal
       className="rounded-lg"
-      title={"Join Topic"}
+      title={"Subscribe To Topic"}
       open={isModalOpen}
       // onOk={handleOk}
       onCancel={(e) => {
@@ -77,9 +86,10 @@ export const JoinTopic = (props: JoinTopicProps) => {
               }
               const topicId: string = data["topicId"];
               const subnetId: string = data["subnetId"];
-              const sub: string | undefined = useSub ? data["sub"] : null;
-              const rol: SubscriberRole = data["rol"];
-              subcribeToTopic?.(agent, { subnetId, topicId, sub, rol });
+              const sub: string = data["sub"];
+              const status: SubscriptionStatus = data["status"];
+              const rol: SubscriberRole = data['rol'];
+              subcribeToTopic?.(agent, { subnetId, topicId, sub, status, rol });
               form.setFieldsValue({});
               onCancel?.({} as any);
             }}
@@ -100,19 +110,17 @@ export const JoinTopic = (props: JoinTopicProps) => {
               />
             </Form.Item>
 
-            {useSub && (
-              <Form.Item
-                label="Subscriber Address:"
-                name="sub"
-                rules={[
-                  { required: true, message: "Please input an address!" },
-                ]}
-              >
-                <Input placeholder="Enter A Subscriber Address" />
-              </Form.Item>
-            )}
-
             <Form.Item
+              label="Subscriber Address:"
+              name="sub"
+              rules={[{ required: true, message: "Please input an address!" }]}
+            >
+              <Input placeholder="Enter A Subscriber Address" />
+            </Form.Item>
+
+            <div className="hidden" >
+            <Form.Item
+              
               label="Topic Id:"
               name="topicId"
               rules={[{ required: true, message: "Please input a topic id!" }]}
@@ -120,11 +128,48 @@ export const JoinTopic = (props: JoinTopicProps) => {
               <Input placeholder="Enter Your Topic Id" />
             </Form.Item>
             <Form.Item
+              
               label="Subnet Id:"
               name="subnetId"
               rules={[{ required: true, message: "Please input a subnet id!" }]}
             >
               <Input placeholder="Enter Your Subnet Id" />
+            </Form.Item>
+            </div>
+            <Form.Item
+              label={"Role"}
+              name="rol"
+              rules={[{ required: true, message: "Please select a role!" }]}
+            >
+              <Select>
+                {Object.values(SubscriberRole)
+                  .filter((e) => typeof e == "string")
+                  .map((val, index) => {
+                    return (
+                      <Select.Option key={index} value={(SubscriberRole as any)[val]}>
+                        {val}
+                      </Select.Option>
+                    );
+                  })}
+              </Select>
+            </Form.Item>
+
+            <Form.Item
+              label={"Status"}
+              name="status"
+              rules={[{ required: true, message: "Please select a status!" }]}
+            >
+              <Select>
+                {Object.values(SubscriptionStatus)
+                  .filter((e) => typeof e == "string")
+                  .map((val, index) => {
+                    return (
+                      <Select.Option key={index} value={(SubscriptionStatus as any)[val]}>
+                        {val}
+                      </Select.Option>
+                    );
+                  })}
+              </Select>
             </Form.Item>
 
             <Button
@@ -134,7 +179,7 @@ export const JoinTopic = (props: JoinTopicProps) => {
               className="w-full mt-[28px] self-end"
               shape="round"
             >
-              <span className="text-black">Join</span>
+              <span className="text-black">Subscribe</span>
             </Button>
           </Form>
         </motion.div>

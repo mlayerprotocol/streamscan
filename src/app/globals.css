@@ -76,8 +76,9 @@ html.light textarea{
   align-items: center;
 }
 :not(.ant-input-affix-wrapper) > input, .ant-select, .ant-select-selector{
-  height: 50px!important;
-  border-radius: 8px!important;
+  height: 35px !important;
+    border-radius: 5px !important;
+    font-size: small;
   
   
 }

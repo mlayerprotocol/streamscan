@@ -5,13 +5,14 @@ import React, { useContext, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useForm } from "antd/es/form/Form";
 import {
-  PREVILEDGES,
+
   displayVariants,
   formLayout,
   shorternAddress,
 } from "@/utils";
 import { WalletContext } from "@/context";
 import moment from "moment";
+import { AuthorizationPrivilege, Entities } from "@mlayerprotocol/core";
 
 interface AuthorizeAgentProps {
   updateAddressData?: AddressData;
@@ -24,6 +25,8 @@ export const AuthorizeAgent = (props: AuthorizeAgentProps) => {
     authenticationList,
     agents,
     combinedAgents,
+    selectedAgent,
+    setSelectedAgent,
     authorizeAgent,
     loaders,
   } = useContext(WalletContext);
@@ -59,7 +62,7 @@ export const AuthorizeAgent = (props: AuthorizeAgentProps) => {
     console.log(updateAddressData);
     form.setFieldsValue({
       address: updateAddressData?.address,
-      role: updateAddressData?.authData?.privi,
+      privi: updateAddressData?.authData?.privi,
       duration:
        dur < 0? '' : dur
     });
@@ -96,9 +99,14 @@ export const AuthorizeAgent = (props: AuthorizeAgentProps) => {
               const keyPair: AddressData =
                 agents[data["address"] ?? 0] ?? updateAddressData;
               const days: number = data["duration"];
-              const previledge: 0 | 1 | 2 | 3 = data["role"];
-              authorizeAgent?.(keyPair, days, previledge);
+              const previledge: AuthorizationPrivilege = data["privi"];
+              authorizeAgent?.(keyPair, days, previledge).then(o => {
+                if (!selectedAgent || selectedAgent =='') {
+                  setSelectedAgent?.(keyPair.address)
+                }
+              })
               // console.log({ keyPair, days, previledge, data });
+            
               onCancel?.({} as any);
               form.setFieldsValue({});
             }}
@@ -143,15 +151,22 @@ export const AuthorizeAgent = (props: AuthorizeAgentProps) => {
 
             <Form.Item
               label="Privilege:"
-              name="role"
-              rules={[{ required: true, message: "Please select a role!" }]}
+              name="privi"
+              rules={[{ required: true, message: "Please select a privilege!" }]}
             >
               <Select>
-                {PREVILEDGES.map((e, index) => (
+                {/* {PREVILEDGES.map((e, index) => (
                   <Select.Option key={index} value={index}>
                     {e}
                   </Select.Option>
-                ))}
+                ))} */}
+                {Object.keys(Entities.AuthorizationPrivilege).filter(d=>isNaN(parseInt(d))).map((val, index) => {
+                  return (
+                    <Select.Option key={index} value={(Entities.AuthorizationPrivilege as any)[String(val)]}>
+                      {val}
+                    </Select.Option>
+                  );
+                })}
               </Select>
             </Form.Item>
 

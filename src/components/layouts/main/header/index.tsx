@@ -8,6 +8,7 @@ import {
   MenuProps,
   Spin,
   Switch,
+  Tag,
   Typography,
 } from "antd";
 import Image from "next/image";
@@ -18,7 +19,7 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { useAppDispatch, useAppSelector } from "@/redux/app";
 import { AppContext, ThemeContext, WalletContext } from "@/context";
-import { clearSessionStorage, shorternAddress } from "@/utils";
+import { NETWORK, clearSessionStorage, shorternAddress } from "@/utils";
 import { removeAuthData } from "@/redux/slices";
 import * as HeroIcons from "@heroicons/react/24/solid";
 // import { setToken } from "@/redux/slices";
@@ -35,6 +36,7 @@ export const AppHeader = (props: AppHeaderProps) => {
     connectedWallet,
     walletAccounts,
     selectedSubnetId,
+    disconnectKeplr,
     initializeKeplr,
     intializeMetamask,
   } = useContext(WalletContext);
@@ -44,9 +46,11 @@ export const AppHeader = (props: AppHeaderProps) => {
     console.log("logout");
     clearSessionStorage();
     dispatch(removeAuthData());
+    disconnectKeplr?.();
   };
 
-  const userProfileItem: MenuProps["items"] = [
+  
+  let userProfileItem: MenuProps["items"] = [
     {
       key: "2",
       icon: <HeroIcons.UserCircleIcon className="ml-2 h-[20px]" />,
@@ -55,8 +59,10 @@ export const AppHeader = (props: AppHeaderProps) => {
           Subnets
         </Link>
       ),
-    },
-    {
+    }];
+  
+  if (!process.env.NEXT_PUBLIC_HIDE_AIRDROP)  {
+      userProfileItem.push({
       key: "2.5",
       icon: <HeroIcons.UserCircleIcon className="ml-2 h-[20px]" />,
       label: (
@@ -64,7 +70,9 @@ export const AppHeader = (props: AppHeaderProps) => {
           Airdrop
         </Link>
       ),
-    },
+    })
+    }
+    userProfileItem = userProfileItem.concat([
     {
       icon: <HeroIcons.Cog8ToothIcon className="ml-2 h-[20px]" />,
       label: <span className="font-medium text-base ml-2">Switch Wallet</span>,
@@ -82,7 +90,7 @@ export const AppHeader = (props: AppHeaderProps) => {
       key: "4",
       onClick: handleLogout,
     },
-  ];
+  ]);
 
   return (
     <>
@@ -97,8 +105,8 @@ export const AppHeader = (props: AppHeaderProps) => {
           priority
         /> */}
           <div className="flex gap-3 md:gap-4 items-center !text-xs !text-gray-400">
-            <span>MLT PRICE: $0.0001</span>
-            <span>MSG PRICE: 0.002MLT (~$0.00002)</span>
+            <span>MSG PRICE: $0.0001</span>
+            <span>MSG PRICE: 0.002MSG (~$0.00002)</span>
           </div>
           <div className="ml-auto flex lg:hidden">
             <AnimatePresence>
@@ -116,7 +124,9 @@ export const AppHeader = (props: AppHeaderProps) => {
                     <Avatar
                       size={32}
                       className="!bg-[#CBD5E1]"
-                      src={connectedWallet? `/icons/${connectedWallet}.svg`: ''}
+                      src={
+                        connectedWallet ? `/icons/${connectedWallet}.svg` : ""
+                      }
                       icon={initialLoading ? <Spin /> : <UserOutlined />}
                     />
                   </motion.div>
@@ -135,23 +145,24 @@ export const AppHeader = (props: AppHeaderProps) => {
 
           <div className=" hidden lg:flex grow items-center">
             <Input
-              className="!w-[342px] ml-auto"
+              className="!w-[342px] ml-auto mr-5"
               prefix={
                 <HeroIcons.MagnifyingGlassIcon className="h-[20px] text-white" />
               }
               placeholder="Search by Account, Agent, Event Hash"
             />
-            <Button className="ml-6" type="primary" shape="round">
+            <Tag className="ml-5" color="red"  >
               <div className="flex items-center gap-2">
-                <Typography.Text className="ml-0 !text-white text-nowrap">
-                  Mainnet
-                </Typography.Text>
-                <HeroIcons.ChevronDownIcon className="h-[20px] text-white" />
+                <span className="ml-0 text-nowrap uppercase">
+                  {NETWORK}
+                </span>
+                {/* <HeroIcons.ChevronDownIcon className="h-[20px] text-white" /> */}
               </div>
-            </Button>
+            </Tag>
 
             {!connectedWallet && (
               <MotionButton
+                type="primary"
                 shape="round"
                 initial={{ opacity: 0, x: -40 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -232,7 +243,49 @@ export const AppHeader = (props: AppHeaderProps) => {
               >
                 Home
               </Link>
+              <div className="flex flex-col gap-5">
               <Link
+                href={"/subnet"}
+                className="text-2xl "
+                onClick={() => {
+                  setShowMobilMoney((old) => !old);
+                }}
+              >
+                Subnets
+              </Link>
+     
+              <Link
+                href={`/subnet/${selectedSubnetId}/agents`}
+                className="text-xl text-gray-200 p-x-5"
+                onClick={() => {
+                  setShowMobilMoney((old) => !old);
+                }}
+              >
+                Agents -
+              </Link>
+              <Link
+                href={`/subnet/${selectedSubnetId}/topics`}
+                className="text-xl "
+                onClick={() => {
+                  setShowMobilMoney((old) => !old);
+                }}
+              >
+                Topics -
+              </Link>
+              
+              </div>
+              <Link
+                href={"/pending-topic"}
+                className="text-2xl "
+                onClick={() => {
+                  setShowMobilMoney((old) => !old);
+                }}
+              >
+                Invited Topics
+              </Link>
+              
+              
+              {!process.env.NEXT_PUBLIC_HIDE_AIRDROP && <Link
                 href={"/airdrop"}
                 className="text-2xl "
                 onClick={() => {
@@ -240,35 +293,8 @@ export const AppHeader = (props: AppHeaderProps) => {
                 }}
               >
                 Airdrop
-              </Link>
-              <Link
-                href={`/subnet/${selectedSubnetId}/agents`}
-                className="text-2xl "
-                onClick={() => {
-                  setShowMobilMoney((old) => !old);
-                }}
-              >
-                Agents
-              </Link>
-              <Link
-                href={`/subnet/${selectedSubnetId}/topics`}
-                className="text-2xl "
-                onClick={() => {
-                  setShowMobilMoney((old) => !old);
-                }}
-              >
-                Topics
-              </Link>
-              <Link
-                href={`/subnet/${selectedSubnetId}/messages`}
-                className="text-2xl "
-                onClick={() => {
-                  setShowMobilMoney((old) => !old);
-                }}
-              >
-                Messages
-              </Link>
-              <Link
+              </Link>}
+              {/* <Link
                 href={`/subnet/${selectedSubnetId}/stake`}
                 className="text-2xl "
                 onClick={() => {
@@ -276,7 +302,7 @@ export const AppHeader = (props: AppHeaderProps) => {
                 }}
               >
                 Stake
-              </Link>
+              </Link> */}
               {connectedWallet && (
                 <>
                   <Link href={"/"} className="text-2xl ">
@@ -321,25 +347,32 @@ export const AppHeader = (props: AppHeaderProps) => {
         <Divider className="!hidden lg:!block !border-t-2 !mb-2 !mt-2" />
         <div className=" hidden lg:flex justify-between grow items-center w-full px-7  md:px-20">
           <div className="flex items-center gap-2 mx-10">
-           <a href="/"><Image
-              src="/logo.png"
-              alt="Vercel Logo"
-              // className="light:invert"
-              width={48}
-              height={48}
-              priority
-            /> </a>
             <a href="/">
-              <span className="text-2xl">MLStream</span>
+              <Image
+                src="/logo.png"
+                alt="Vercel Logo"
+                // className="light:invert"
+                width={48}
+                height={48}
+                priority
+              />{" "}
+            </a>
+            <a href="/">
+
+              <span className="text-2xl"><span className="text-gray-400 bg-opacity-40  font-bold">ml</span>studio</span>
              </a>
+
           </div>
 
-          <div className="flex gap-2 mx-10 items-center">
-            <Link href={"/"}>Home</Link>
+          <div className="flex gap-3 mx-10 items-center">
+            <Link  className="text-blue-200 hover:text-white"  href={"/"}>Home</Link>
             <span className="text-gray-500">|</span>
-            <Link href={"/subnet"}>Studio</Link>
-            <span className="text-gray-500">|</span>
-            <Link href={"/airdrop"}>Airdrop</Link>
+            <Link className="text-blue-200 hover:text-white" href={"/subnet"}>Subnets</Link>
+           
+            {/* <span className="text-gray-500">|</span>
+            <Link href={"/pending-topic"}>Invitations</Link> */}
+          
+            {!process.env.NEXT_PUBLIC_HIDE_AIRDROP &&   <><span className="text-gray-500">|</span> <Link className="text-blue-200 hover:text-white" href={"/airdrop"}>Airdrop</Link></>}
             {/* <Link href={"/my-list"}>Validator</Link>
             <span className="text-gray-500">|</span>
             <Link href={"/"}>Name Service</Link> */}

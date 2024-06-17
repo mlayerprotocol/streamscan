@@ -52,12 +52,12 @@ export const WalletConnect = (props: WalletConnectProps) => {
         )}
       </Button>
       <Button
-       
+       disabled={true}
         onClick={() => {
           intializeMetamask?.();
         }}
         loading={loadingWalletConnections["metamask"]}
-        disabled={connectedWallet == "metamask" || true}
+        // disabled={connectedWallet == "metamask" || true}
         shape="round"
         type="default"
         className="!flex justify-start items-center"
