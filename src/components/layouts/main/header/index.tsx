@@ -363,14 +363,14 @@ export const AppHeader = (props: AppHeaderProps) => {
           </div>
 
           <div className="flex gap-3 mx-10 items-center">
-            <Link href={"/"}>Home</Link>
+            <Link  className="text-blue-200 hover:text-white"  href={"/"}>Home</Link>
             <span className="text-gray-500">|</span>
-            <Link href={"/subnet"}>Subnets</Link>
+            <Link className="text-blue-200 hover:text-white" href={"/subnet"}>Subnets</Link>
            
             {/* <span className="text-gray-500">|</span>
             <Link href={"/pending-topic"}>Invitations</Link> */}
           
-            {!process.env.NEXT_PUBLIC_HIDE_AIRDROP &&   (<span className="text-gray-500">|</span> && <Link href={"/airdrop"}>Airdrop</Link>)}
+            {!process.env.NEXT_PUBLIC_HIDE_AIRDROP &&   <><span className="text-gray-500">|</span> <Link className="text-blue-200 hover:text-white" href={"/airdrop"}>Airdrop</Link></>}
             {/* <Link href={"/my-list"}>Validator</Link>
             <span className="text-gray-500">|</span>
             <Link href={"/"}>Name Service</Link> */}
