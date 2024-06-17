@@ -36,6 +36,7 @@ export const MIDDLEWARE_HTTP = process.env.NEXT_PUBLIC_MIDDLEWARE_HTTP;
 export const SOLIDBASE_HTTP = process.env.NEXT_PUBLIC_SOLIDBASE_HTTP;
 export const FOLLOW_DISCORD_HTTP = process.env.NEXT_PUBLIC_FOLLOW_DISCORD_HTTP;
 export const FOLLOW_TWITTER_HTTP = process.env.NEXT_PUBLIC_FOLLOW_TWITTER_HTTP;
+export const NETWORK = process.env.NEXT_PUBLIC_NETWORK || 'Devnet';
 export const displayVariants = {
   hidden: { opacity: 0, scale: 0 },
   exit0: { opacity: 0, scale: 0 },

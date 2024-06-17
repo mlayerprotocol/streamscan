@@ -23,12 +23,21 @@ import { PointDetailModel } from "@/model/points/detail";
 import * as HeroIcons from "@heroicons/react/24/solid";
 import { useSearchParams } from "next/navigation";
 import { Address } from "@mlayerprotocol/core/src/entities";
+import { GoToSolidBase } from "@/components/modals/solidbase/solidbase";
 interface AirDropProps {
   onSuccess?: (values: any) => void;
   handleCreateAccount?: () => void;
 }
 export const AirDrop = (props: AirDropProps) => {
   const searchParams = useSearchParams();
+  const [showSolidBaseModal, setShowSolidBaseModal] = useState(false)
+  const [onContinue, setOnContinue] = useState<any>(null)
+
+
+  const informSolidBaseModal = (action: () => Promise<void>) => {
+    setOnContinue(()=>action)
+    setShowSolidBaseModal(true)
+  }
 
   const [loaders, setLoaders] = useState<Record<string, boolean>>({});
   const {
@@ -92,49 +101,54 @@ export const AirDrop = (props: AirDropProps) => {
     switch (obj._pt?.activityName) {
       case "Follow @mlayer on X":
       case "Follow @rulerOfCode on X":
-        if (pointsDetail?.data?.account?.socials?.twitter) {
-          if (window != null) {
-            window
-              .open(`${FOLLOW_TWITTER_HTTP}/${obj.username}`, "_blank")
-              ?.focus();
-            setTimeout(() => {
-              makeRequest(MIDDLEWARE_HTTP_URLS.twitter.verify.url, {
-                method: MIDDLEWARE_HTTP_URLS.twitter.verify.method,
-                body: JSON.stringify({
-                  projectId: obj._pt?.projectId,
-                  activityId: obj._pt?.id,
-                  username: obj.username,
-                }),
-                headers: {
-                  "x-signed-data": pointsDetail.data.token,
-                },
-              }).then((b) => {
-                setPointToggleGroup?.((old) => !old);
-              });
-            }, 10000);
+        
+          if (pointsDetail?.data?.account?.socials?.twitter) {
+            if (window != null) {
+              window
+                .open(`${FOLLOW_TWITTER_HTTP}/${obj.username}`, "_blank")
+                ?.focus();
+              setTimeout(() => {
+                makeRequest(MIDDLEWARE_HTTP_URLS.twitter.verify.url, {
+                  method: MIDDLEWARE_HTTP_URLS.twitter.verify.method,
+                  body: JSON.stringify({
+                    projectId: obj._pt?.projectId,
+                    activityId: obj._pt?.id,
+                    username: obj.username,
+                  }),
+                  headers: {
+                    "x-signed-data": pointsDetail.data.token,
+                  },
+                }).then((b) => {
+                  setPointToggleGroup?.((old) => !old);
+                });
+              }, 10000);
+            }
+          } else {
+            if (window != null) {
+              informSolidBaseModal(async () => {
+                setLoaders((old) => ({ ...old, [obj.title]: true }));
+                await makeRequest(MIDDLEWARE_HTTP_URLS.twitter.connect.url, {
+                  method: MIDDLEWARE_HTTP_URLS.twitter.connect.method,
+                  body: JSON.stringify({
+                    projectId: obj._pt?.projectId,
+                    path: window.location.href,
+                  }),
+                  headers: {
+                    "x-signed-data": pointsDetail?.data?.token ?? "",
+                  },
+                })
+                  .then((r) => r?.json())
+                  .then((b) => {
+                    const redirect_url = b["data"]["redirect_url"];
+                    window.open(redirect_url)?.focus();
+                    console.log({ b, redirect_url });
+                  });
+                setLoaders((old) => ({ ...old, [obj.title]: false }));
+              })
+            }
           }
-        } else {
-          if (window != null) {
-            setLoaders((old) => ({ ...old, [obj.title]: true }));
-            await makeRequest(MIDDLEWARE_HTTP_URLS.twitter.connect.url, {
-              method: MIDDLEWARE_HTTP_URLS.twitter.connect.method,
-              body: JSON.stringify({
-                projectId: obj._pt?.projectId,
-                path: window.location.href,
-              }),
-              headers: {
-                "x-signed-data": pointsDetail?.data?.token ?? "",
-              },
-            })
-              .then((r) => r?.json())
-              .then((b) => {
-                const redirect_url = b["data"]["redirect_url"];
-                window.open(redirect_url)?.focus();
-                console.log({ b, redirect_url });
-              });
-            setLoaders((old) => ({ ...old, [obj.title]: false }));
-          }
-        }
+        
+        
         break;
       case "Follow @mlayer on Discord":
         if (pointsDetail?.data?.account?.socials?.discord) {
@@ -315,6 +329,7 @@ export const AirDrop = (props: AirDropProps) => {
             );
           })}
         </div>
+        <GoToSolidBase isModalOpen={showSolidBaseModal} onContinue={onContinue} onCancel={()=>setShowSolidBaseModal(false)} />
       </div>
     </motion.div>
   );
