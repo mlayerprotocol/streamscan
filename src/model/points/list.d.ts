@@ -8,6 +8,9 @@ export interface PointData {
   projectId:    number;
   activityName: string;
   points:       number;
+  unit?:        string;
+  data?:        string;
+  type?:        string;
   createdAt:    Date;
   updatedAt:    Date;
   __v:          number;
