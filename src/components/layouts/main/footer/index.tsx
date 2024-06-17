@@ -1,5 +1,17 @@
 import Image from "next/image";
+import Link from "next/link";
 import React from "react";
+import {
+  BsDiscord,
+  BsFacebook,
+  BsGithub,
+  BsInstagram,
+  BsX,
+  BsLinkedin,
+  BsReddit,
+  BsTelegram,
+  BsYoutube,
+} from 'react-icons/bs';
 
 interface AppFooterProps {}
 export const AppFooter = (props: AppFooterProps) => {
@@ -7,34 +19,33 @@ export const AppFooter = (props: AppFooterProps) => {
     <footer className="p-4 lg:p-12 mt-10 bg-gray-300 dark:bg-[#292929] flex flex-col gap-12   ">
       <div className="flex ml-auto">
         <div className="flex  gap-4">
-          <Image
-            src="/icons/icons8-twitterx.svg"
-            alt="twitterx Logo"
-            width={40}
-            height={40}
-            priority
-          />
-          <Image
-            src="/icons/icons8-medium.svg"
-            alt="medium Logo"
-            width={40}
-            height={40}
-            priority
-          />
-          <Image
-            src="/icons/icons8-facebook.svg"
-            alt="medium Logo"
-            width={40}
-            height={40}
-            priority
-          />
-          <Image
-            src="/icons/icons8-reddit.svg"
-            alt="medium Logo"
-            width={40}
-            height={40}
-            priority
-          />
+        <Link
+                className="inline-block hover:text-white transition-all duration-300"
+                target='_blank'
+                href="https://github.com/mlayerprotocol"
+              >
+                <BsGithub />
+              </Link>
+              {/* <Link
+                className="inline-block hover:text-white transition-all duration-300"
+                href="#"
+              >
+                <BsFacebook />
+              </Link> */}
+              <Link
+                className="inline-block hover:text-white transition-all duration-300"
+                href="https://twitter.com/mlayerprotocol"
+                target='_blank'
+              >
+                <BsX />
+              </Link>
+              <Link
+                className="inline-block hover:text-white transition-all duration-300"
+                href="https://discord.gg/QazYZYBqus"
+                target='_blank'
+              >
+                <BsDiscord />
+              </Link>
         </div>
       </div>
       <div className="flex justify-between">

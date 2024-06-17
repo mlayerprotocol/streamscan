@@ -78,6 +78,7 @@ interface WalletContextValues {
   authenticationList?: AuthenticationListModel;
   subscriberTopicList: Record<string, SubscriberListModel> | undefined;
   recordTopicList: Record<string, TopicListModel> | undefined;
+  disconnectKeplr?: () => Promise<void>;
   authorizeAgent?: (
     agent: AddressData,
     days: number,
@@ -271,7 +272,18 @@ export const WalletContextProvider = ({
     []
   );
 
+  const disconnectKeplr = async () => {
+    if (window.keplr) {
+      const chainId = chainIds.keplr;
+      await window.keplr.disable(chainId);
+      setWalletAccounts({'keplr': []});
+      setConnectedWallet(undefined);
+      connectedStorage?.set(null);
+    }
+  }
+  
   const initializeKeplr = async () => {
+   
     if (!window.keplr) {
       notification.error({ message: "Please install keplr extension" });
     } else {
@@ -292,7 +304,10 @@ export const WalletContextProvider = ({
       // But, currently, Keplr extension manages only one address/public key pair.
       // XXX: This line is needed to set the sender address for SigningCosmosClient.
       const accounts = await offlineSigner.getAccounts();
-      // console.log({ accounts });
+      if (accounts.length == 0) {
+        disconnectKeplr();
+        return;
+      }
 
       // Initialize the gaia api with the offline signer that is injected by Keplr extension.
       // setTimeout(() => {
@@ -320,7 +335,7 @@ export const WalletContextProvider = ({
       makeRequest(MIDDLEWARE_HTTP_URLS.connect.url, {
         method: MIDDLEWARE_HTTP_URLS.claim.method,
         body: JSON.stringify({
-          account: Address.fromString(accounts[0].address).toAddressString(),
+          account: Address.fromString(accounts[0].address ?? '').toAddressString(),
         }),
       }).then((b) => {
         setPointToggleGroup((old) => !old);
@@ -383,7 +398,7 @@ export const WalletContextProvider = ({
     getTopicMessages(selectedMessagesTopicId, {});
   }, [selectedMessagesTopicId, toggleGroup3]);
   useEffect(() => {
-    if (!connectedWallet) return;
+    if (!connectedWallet || walletAccounts?.[connectedWallet].length == 0) return;
     getAccountSubnets({
       params: {
         acct: Address.fromString(
@@ -416,7 +431,7 @@ export const WalletContextProvider = ({
   useEffect(() => {}, []);
 
   useEffect(() => {
-    if (!connectedWallet) return;
+    if (!connectedWallet || walletAccounts?.[connectedWallet].length == 0) return;
     if (Object.keys(walletAccounts).length == 0) return;
     getAuthorizations({
       params: {
@@ -1285,6 +1300,7 @@ export const WalletContextProvider = ({
         setPointToggleGroup,
         getTopicSubscribers,
         getRecordTopicV2,
+        disconnectKeplr,
         walletAccounts,
         loadingWalletConnections,
         walletConnectionState,
@@ -1308,6 +1324,7 @@ export const WalletContextProvider = ({
         pointsDetail,
         subscriberTopicList,
         recordTopicList,
+        
       }}
     >
       {children}

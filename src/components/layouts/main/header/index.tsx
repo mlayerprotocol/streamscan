@@ -36,6 +36,7 @@ export const AppHeader = (props: AppHeaderProps) => {
     connectedWallet,
     walletAccounts,
     selectedSubnetId,
+    disconnectKeplr,
     initializeKeplr,
     intializeMetamask,
   } = useContext(WalletContext);
@@ -45,6 +46,7 @@ export const AppHeader = (props: AppHeaderProps) => {
     console.log("logout");
     clearSessionStorage();
     dispatch(removeAuthData());
+    disconnectKeplr?.();
   };
 
   
