@@ -369,8 +369,8 @@ export const AppHeader = (props: AppHeaderProps) => {
            
             {/* <span className="text-gray-500">|</span>
             <Link href={"/pending-topic"}>Invitations</Link> */}
-            <span className="text-gray-500">|</span>
-            {!process.env.NEXT_PUBLIC_HIDE_AIRDROP && <Link href={"/airdrop"}>Airdrop</Link>}
+          
+            {!process.env.NEXT_PUBLIC_HIDE_AIRDROP &&   (<span className="text-gray-500">|</span> && <Link href={"/airdrop"}>Airdrop</Link>)}
             {/* <Link href={"/my-list"}>Validator</Link>
             <span className="text-gray-500">|</span>
             <Link href={"/"}>Name Service</Link> */}
