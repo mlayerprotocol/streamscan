@@ -8,6 +8,7 @@ import {
   MenuProps,
   Spin,
   Switch,
+  Tag,
   Typography,
 } from "antd";
 import Image from "next/image";
@@ -18,7 +19,7 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { useAppDispatch, useAppSelector } from "@/redux/app";
 import { AppContext, ThemeContext, WalletContext } from "@/context";
-import { clearSessionStorage, shorternAddress } from "@/utils";
+import { NETWORK, clearSessionStorage, shorternAddress } from "@/utils";
 import { removeAuthData } from "@/redux/slices";
 import * as HeroIcons from "@heroicons/react/24/solid";
 // import { setToken } from "@/redux/slices";
@@ -138,20 +139,20 @@ export const AppHeader = (props: AppHeaderProps) => {
 
           <div className=" hidden lg:flex grow items-center">
             <Input
-              className="!w-[342px] ml-auto"
+              className="!w-[342px] ml-auto mr-5"
               prefix={
                 <HeroIcons.MagnifyingGlassIcon className="h-[20px] text-white" />
               }
               placeholder="Search by Account, Agent, Event Hash"
             />
-            <Button className="ml-6" type="primary" shape="round">
+            <Tag className="ml-5" color="red"  >
               <div className="flex items-center gap-2">
-                <Typography.Text className="ml-0 !text-white text-nowrap">
-                  Mainnet
-                </Typography.Text>
-                <HeroIcons.ChevronDownIcon className="h-[20px] text-white" />
+                <span className="ml-0 text-nowrap uppercase">
+                  {NETWORK}
+                </span>
+                {/* <HeroIcons.ChevronDownIcon className="h-[20px] text-white" /> */}
               </div>
-            </Button>
+            </Tag>
 
             {!connectedWallet && (
               <MotionButton
@@ -242,7 +243,7 @@ export const AppHeader = (props: AppHeaderProps) => {
                   setShowMobilMoney((old) => !old);
                 }}
               >
-                Studio
+                Subnets
               </Link>
               <Link
                 href={"/airdrop"}
@@ -361,15 +362,15 @@ export const AppHeader = (props: AppHeaderProps) => {
 
           </div>
 
-          <div className="flex gap-2 mx-10 items-center">
+          <div className="flex gap-3 mx-10 items-center">
             <Link href={"/"}>Home</Link>
             <span className="text-gray-500">|</span>
-            <Link href={"/subnet"}>Studio</Link>
+            <Link href={"/subnet"}>Subnets</Link>
            
             {/* <span className="text-gray-500">|</span>
             <Link href={"/pending-topic"}>Invitations</Link> */}
             <span className="text-gray-500">|</span>
-            <Link href={"/airdrop"}>Airdrop</Link>
+            {!process.env.NEXT_PUBLIC_HIDE_AIRDROP && <Link href={"/airdrop"}>Airdrop</Link>}
             {/* <Link href={"/my-list"}>Validator</Link>
             <span className="text-gray-500">|</span>
             <Link href={"/"}>Name Service</Link> */}

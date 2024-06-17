@@ -24,12 +24,22 @@ import { PointDetailModel } from "@/model/points/detail";
 import * as HeroIcons from "@heroicons/react/24/solid";
 import { useSearchParams } from "next/navigation";
 import { Address } from "@mlayerprotocol/core/src/entities";
+import { GoToSolidBase } from "@/components/modals/solidbase/solidbase";
 interface AirDropProps {
   onSuccess?: (values: any) => void;
   handleCreateAccount?: () => void;
 }
 export const AirDrop = (props: AirDropProps) => {
   const searchParams = useSearchParams();
+  const [showSolidBaseModal, setShowSolidBaseModal] = useState(false)
+  const [onContinue, setOnContinue] = useState<any>(null)
+
+
+  const informSolidBaseModal = (action: () => Promise<void>) => {
+    setOnContinue(()=>action)
+    setShowSolidBaseModal(true)
+  }
+
   const [onFocusCb, setOnFocusCb] = useState<() => void | undefined>();
   const [toggleFocus, setToggleFocus] = useState(false);
   const [loaders, setLoaders] = useState<Record<string, boolean>>({});
@@ -137,26 +147,29 @@ export const AirDrop = (props: AirDropProps) => {
           }
         } else {
           if (window != null) {
-            setLoaders((old) => ({ ...old, [obj.title]: true }));
-            await makeRequest(MIDDLEWARE_HTTP_URLS.twitter.connect.url, {
-              method: MIDDLEWARE_HTTP_URLS.twitter.connect.method,
-              body: JSON.stringify({
-                projectId: obj._pt?.projectId,
-                path: window.location.href,
-              }),
-              headers: {
-                "x-signed-data": pointsDetail?.data?.token ?? "",
-              },
+            informSolidBaseModal(async () => {
+              setLoaders((old) => ({ ...old, [obj.title]: true }));
+              await makeRequest(MIDDLEWARE_HTTP_URLS.twitter.connect.url, {
+                method: MIDDLEWARE_HTTP_URLS.twitter.connect.method,
+                body: JSON.stringify({
+                  projectId: obj._pt?.projectId,
+                  path: window.location.href,
+                }),
+                headers: {
+                  "x-signed-data": pointsDetail?.data?.token ?? "",
+                },
+              })
+                .then((r) => r?.json())
+                .then((b) => {
+                  const redirect_url = b["data"]["redirect_url"];
+                  window.open(redirect_url)?.focus();
+                  console.log({ b, redirect_url });
+                });
+              setLoaders((old) => ({ ...old, [obj.title]: false }));
             })
-              .then((r) => r?.json())
-              .then((b) => {
-                const redirect_url = b["data"]["redirect_url"];
-                window.open(redirect_url)?.focus();
-                console.log({ b, redirect_url });
-              });
-            setLoaders((old) => ({ ...old, [obj.title]: false }));
           }
         }
+        
         break;
       case "discord-follow":
         if (pointsDetail?.data?.account?.socials?.discord) {
@@ -384,6 +397,7 @@ export const AirDrop = (props: AirDropProps) => {
             );
           })}
         </div>
+        <GoToSolidBase isModalOpen={showSolidBaseModal} onContinue={onContinue} onCancel={()=>setShowSolidBaseModal(false)} />
       </div>
     </motion.div>
   );
