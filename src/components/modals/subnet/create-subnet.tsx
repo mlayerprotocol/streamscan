@@ -74,7 +74,7 @@ export const CreateSubnet = (props: CreateSubnetProps) => {
             className="flex flex-col"
             name="basic"
             form={form}
-            initialValues={{}}
+            initialValues={{dAuthPriv: AuthorizationPrivilege.Basic}}
             onFinish={(data) => {
               // const agent: AddressData | undefined = agents.find(
               //   (el) => el.address == data["address"]

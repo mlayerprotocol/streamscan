@@ -47,7 +47,8 @@ export const AppHeader = (props: AppHeaderProps) => {
     dispatch(removeAuthData());
   };
 
-  const userProfileItem: MenuProps["items"] = [
+  
+  let userProfileItem: MenuProps["items"] = [
     {
       key: "2",
       icon: <HeroIcons.UserCircleIcon className="ml-2 h-[20px]" />,
@@ -56,8 +57,10 @@ export const AppHeader = (props: AppHeaderProps) => {
           Subnets
         </Link>
       ),
-    },
-    {
+    }];
+  
+  if (!process.env.NEXT_PUBLIC_HIDE_AIRDROP)  {
+      userProfileItem.push({
       key: "2.5",
       icon: <HeroIcons.UserCircleIcon className="ml-2 h-[20px]" />,
       label: (
@@ -65,8 +68,9 @@ export const AppHeader = (props: AppHeaderProps) => {
           Airdrop
         </Link>
       ),
-    },
-    
+    })
+    }
+    userProfileItem = userProfileItem.concat([
     {
       icon: <HeroIcons.Cog8ToothIcon className="ml-2 h-[20px]" />,
       label: <span className="font-medium text-base ml-2">Switch Wallet</span>,
@@ -84,7 +88,7 @@ export const AppHeader = (props: AppHeaderProps) => {
       key: "4",
       onClick: handleLogout,
     },
-  ];
+  ]);
 
   return (
     <>
@@ -236,6 +240,7 @@ export const AppHeader = (props: AppHeaderProps) => {
               >
                 Home
               </Link>
+              <div className="flex flex-col gap-5">
               <Link
                 href={"/subnet"}
                 className="text-2xl "
@@ -245,16 +250,27 @@ export const AppHeader = (props: AppHeaderProps) => {
               >
                 Subnets
               </Link>
+     
               <Link
-                href={"/airdrop"}
-                className="text-2xl "
+                href={`/subnet/${selectedSubnetId}/agents`}
+                className="text-xl text-gray-200 p-x-5"
                 onClick={() => {
                   setShowMobilMoney((old) => !old);
                 }}
               >
-                Airdrop
+                Agents -
               </Link>
-
+              <Link
+                href={`/subnet/${selectedSubnetId}/topics`}
+                className="text-xl "
+                onClick={() => {
+                  setShowMobilMoney((old) => !old);
+                }}
+              >
+                Topics -
+              </Link>
+              
+              </div>
               <Link
                 href={"/pending-topic"}
                 className="text-2xl "
@@ -262,36 +278,19 @@ export const AppHeader = (props: AppHeaderProps) => {
                   setShowMobilMoney((old) => !old);
                 }}
               >
-                Pending Topic
+                Invited Topics
               </Link>
               
-              <Link
-                href={`/subnet/${selectedSubnetId}/agents`}
+              
+              {!process.env.NEXT_PUBLIC_HIDE_AIRDROP && <Link
+                href={"/airdrop"}
                 className="text-2xl "
                 onClick={() => {
                   setShowMobilMoney((old) => !old);
                 }}
               >
-                Agents
-              </Link>
-              <Link
-                href={`/subnet/${selectedSubnetId}/topics`}
-                className="text-2xl "
-                onClick={() => {
-                  setShowMobilMoney((old) => !old);
-                }}
-              >
-                Topics
-              </Link>
-              <Link
-                href={`/subnet/${selectedSubnetId}/messages`}
-                className="text-2xl "
-                onClick={() => {
-                  setShowMobilMoney((old) => !old);
-                }}
-              >
-                Messages
-              </Link>
+                Airdrop
+              </Link>}
               {/* <Link
                 href={`/subnet/${selectedSubnetId}/stake`}
                 className="text-2xl "
