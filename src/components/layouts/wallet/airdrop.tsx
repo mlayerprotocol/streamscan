@@ -60,6 +60,7 @@ export const AirDrop = (props: AirDropProps) => {
     const _points = pointsList?.data ?? [];
     return ACTIVITIES.map((activity) => {
       const _pt = _points.find((e) => e.activityName == activity.title);
+      
       return {
         ...activity,
         title: activity.title,
