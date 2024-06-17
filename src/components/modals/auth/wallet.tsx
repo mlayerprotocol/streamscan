@@ -52,7 +52,7 @@ export const WalletConnect = (props: WalletConnectProps) => {
         )}
       </Button>
       <Button
-       
+       disabled={true}
         onClick={() => {
           intializeMetamask?.();
         }}
