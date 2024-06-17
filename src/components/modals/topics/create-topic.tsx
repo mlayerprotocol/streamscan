@@ -85,7 +85,7 @@ export const CreateTopic = (props: CreateTopicProps) => {
             className="flex flex-col"
             name="basic"
             form={form}
-            initialValues={{ address: selectedAgentObj?.address, ...topicData }}
+            initialValues={{ dSubRol: Entities.SubscriberRole.Writer, address: selectedAgentObj?.address, ...topicData }}
             onFinish={(data) => {
               if (!selectedAgentObj?.privateKey) {
                 notification.error({
