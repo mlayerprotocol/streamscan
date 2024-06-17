@@ -160,6 +160,7 @@ export const AppHeader = (props: AppHeaderProps) => {
 
             {!connectedWallet && (
               <MotionButton
+                type="primary"
                 shape="round"
                 initial={{ opacity: 0, x: -40 }}
                 animate={{ opacity: 1, x: 0 }}
