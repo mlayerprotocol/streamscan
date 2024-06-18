@@ -42,6 +42,7 @@ const WalletPage = () => {
           onCancel={() => {
             setShowModal((old) => !old);
           }}
+          handleClose={()=>setShowModal(false)}
         />
       </div>
     );

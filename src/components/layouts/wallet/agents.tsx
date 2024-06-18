@@ -132,7 +132,6 @@ export const Agents = (props: AgentsProps) => {
       },
     },
   ];
-  console.log({ combinedAgents });
 
   return (
     <motion.div

@@ -1,22 +1,32 @@
 "use client";
 import { Modal } from "antd";
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import { WalletConnect } from "./wallet";
 import { LoginAuth } from "./login";
 import { RegisterAuth } from "./register";
 import { AnimatePresence, motion } from "framer-motion";
+import { WalletContext } from "@/context";
 
 interface MainAuthProps {
   isModalOpen?: boolean;
-  onCancel?: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
+  handleClose?: ()=> void;
+  onCancel?: (e?: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 }
 export const MainAuth = (props: MainAuthProps) => {
-  const { isModalOpen = false, onCancel } = props;
+  const { isModalOpen = false, onCancel, handleClose } = props;
   const [page, setPage] = useState<number>(0);
   const [payload, setPayload] = useState({});
+  const {
+    connectedWallet,
+  } = useContext(WalletContext);
 
+  useEffect(() => {
+    setTimeout(() => {
+      if (connectedWallet) handleClose?.()
+    }, 1000)
   
+  }, [connectedWallet])
 
   return (
     <Modal

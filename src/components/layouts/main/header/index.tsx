@@ -219,6 +219,7 @@ export const AppHeader = (props: AppHeaderProps) => {
               onCancel={() => {
                 setShowModal((old) => !old);
               }}
+              handleClose={()=>setShowModal(false)}
             />
           </div>
         </div>
