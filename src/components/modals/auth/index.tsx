@@ -60,7 +60,7 @@ export const MainAuth = (props: MainAuthProps) => {
         {page == 0 && (
           <WalletConnect
             onSelect={() => {
-              setPage(1);
+              onCancel?.(null as any);
             }}
           />
         )}

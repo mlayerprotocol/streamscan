@@ -9,6 +9,7 @@ import {
   AppContextProvider,
   MetaWrapper,
   ThemeContextProvider,
+  WagmiWrapper,
   WalletContextProvider,
 } from "@/context";
 
@@ -17,7 +18,8 @@ const gFont = Jost({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "mLayer",
-  description: "mLayer is a blockchain optimized for scalable data communication needed to build DePIN and EoT for mobility, energy, monitoring and other real world applications",
+  description:
+    "mLayer is a blockchain optimized for scalable data communication needed to build DePIN and EoT for mobility, energy, monitoring and other real world applications",
 };
 
 export default function RootLayout({
@@ -45,9 +47,11 @@ export default function RootLayout({
         <ThemeContextProvider>
           <AppContextProvider>
             <AntdRegistry>
-              <MetaWrapper>
-                <WalletContextProvider>{children}</WalletContextProvider>
-              </MetaWrapper>
+              {/* <MetaWrapper> */}
+                <WagmiWrapper>
+                  <WalletContextProvider>{children}</WalletContextProvider>
+                </WagmiWrapper>
+              {/* </MetaWrapper> */}
             </AntdRegistry>
           </AppContextProvider>
         </ThemeContextProvider>
