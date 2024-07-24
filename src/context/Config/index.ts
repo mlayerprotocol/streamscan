@@ -1,8 +1,9 @@
 import { http, createConfig } from "wagmi";
 import { arbitrum, mainnet, sepolia } from "wagmi/chains";
-import { defaultWagmiConfig } from '@web3modal/wagmi/react/config'
+import { defaultWagmiConfig } from "@web3modal/wagmi/react/config";
 
-export const wagmiProjectId = "595609ade075a7d525a2a3adfc87431f";
+export const wagmiProjectId: string =
+  process.env.NEXT_PUBLIC_WAGMI_PROJECT_ID ?? "";
 
 export const metadata = {
   name: "Web3Modal",
