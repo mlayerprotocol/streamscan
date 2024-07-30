@@ -1241,17 +1241,11 @@ export const WalletContextProvider = ({
           signatureResp.signature
         );
       } else {
-        const msgHash = Utils.keccak256Hash(Buffer.from(message));
-        const signatureRespEth = await signEth({
-          raw: `0x${msgHash.toString("hex")}`,
-        });
-        console.log({
-          acccccc: signatureRespEth.variables.account,
-          signatureRespEth,
-        });
+        // const msgHash = Utils.keccak256Hash(Buffer.from(message));
+        const signatureRespEth = await signEth(message);
         subNetwork.signatureData = new SignatureData(
           "eth",
-          Address.fromString(account).toString(),
+          signatureRespEth.variables.account,
           signatureRespEth.data ?? ""
         );
       }
