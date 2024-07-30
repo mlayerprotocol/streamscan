@@ -1145,12 +1145,12 @@ export const WalletContextProvider = ({
     setLoaders((old) => ({ ...old, sendMessage: false }));
   };
 
-  const signEth: (message: string) => Promise<{
+  const signEth: (message: string | { raw: `0x${string}` }) => Promise<{
     data?: string;
     error?: string;
     variables: any;
     context: any;
-  }> = async (message: string) => {
+  }> = async (message: string | { raw: `0x${string}` }) => {
     return new Promise<{
       data?: string;
       error?: string;
@@ -1158,7 +1158,7 @@ export const WalletContextProvider = ({
       context: any;
     }>((resolve, reject) => {
       signMessage(
-        { message },
+        { message: message },
         {
           onSuccess(data, variables, context) {
             resolve({ data: data, variables, context });
@@ -1241,10 +1241,17 @@ export const WalletContextProvider = ({
           signatureResp.signature
         );
       } else {
-        const signatureRespEth = await signEth(message);
+        const msgHash = Utils.keccak256Hash(Buffer.from(message));
+        const signatureRespEth = await signEth({
+          raw: `0x${msgHash.toString("hex")}`,
+        });
+        console.log({
+          acccccc: signatureRespEth.variables.account,
+          signatureRespEth,
+        });
         subNetwork.signatureData = new SignatureData(
           "eth",
-          signatureRespEth.variables.account,
+          Address.fromString(account).toString(),
           signatureRespEth.data ?? ""
         );
       }
