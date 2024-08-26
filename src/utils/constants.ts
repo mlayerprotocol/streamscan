@@ -11,7 +11,11 @@ export const SELECTED_SUBNET_STORAGE_KEY =
 export const BASE_URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}`;
 // export const HOST_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 export const ML_ADDRESS_PREFIX = `${
-  process.env.NEXT_PUBLIC_MLAYER_ADDRESS_PREFIX ?? "mldev"
+  process.env.NEXT_PUBLIC_MLAYER_ADDRESS_PREFIX ?? 'mldev'
+}`;
+
+export const ML_CHAIN_ID = `${
+  process.env.NEXT_PUBLIC_MLAYER_CHAIN_ID ?? '31337'
 }`;
 
 export const ML_ACCOUNT_DID_STRING = `${
@@ -19,7 +23,7 @@ export const ML_ACCOUNT_DID_STRING = `${
 }`;
 
 export const ML_AGENT_DID_STRING = `${
-  process.env.NEXT_PUBLIC_MLAYER_ACCOUNT_DID_STRING ?? "did"
+  process.env.NEXT_PUBLIC_MLAYER_AGETN_DID_STRING ?? 'did'
 }`;
 
 export const AUTH_URL = "/auth";

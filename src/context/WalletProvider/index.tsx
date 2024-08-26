@@ -20,6 +20,7 @@ import {
   ML_ACCOUNT_DID_STRING,
   ML_ADDRESS_PREFIX,
   ML_AGENT_DID_STRING,
+  ML_CHAIN_ID,
   NODE_HTTP,
   SELECTED_AGENT_STORAGE_KEY,
   SELECTED_SUBNET_STORAGE_KEY,
@@ -27,9 +28,9 @@ import {
   VALIDATOR_PUBLIC_KEY,
   WALLET_ACCOUNTS_STORAGE_KEY,
 } from "@/utils";
-import { Utils, Client, ClientPayload, AuthorizeEventType, Authorization, Topic, SubscriberRole, SubscriptionStatus, Address, AuthorizationPrivilege, Subscription, MemberTopicEventType, Subnet, SignatureData, AdminSubnetEventType, AdminTopicEventType, Message, MemberMessageEventType } from "@mlayerprotocol/core";
+import { Utils, DataType, Client, ClientPayload, AuthorizeEventType, Authorization, Topic, SubscriberRole, SubscriptionStatus, Address, AuthorizationPrivilege, Subscription, MemberTopicEventType, Subnet, SignatureData, AdminSubnetEventType, AdminTopicEventType, Message, MemberMessageEventType, ChainId } from "@mlayerprotocol/core";
 import { notification } from "antd";
-import { RESTProvider } from "@mlayerprotocol/core/src";
+import { RESTProvider } from "@mlayerprotocol/core";
 import { TopicListModel } from "@/model/topic";
 import { AuthenticationListModel } from "@/model/authentications/list";
 import { BlockStatsListModel } from "@/model/block-stats";
@@ -547,7 +548,7 @@ export const WalletContextProvider = ({
 
     const message = JSON.stringify({
       action: `AuthorizeAgent`,
-      network: ML_ADDRESS_PREFIX,
+      network: ML_CHAIN_ID,
       identifier: `${Address.fromString(authority.agent).address}`,
       hash: `${hash}`,
     }).replace(/\\s+/g, "");
@@ -651,7 +652,7 @@ export const WalletContextProvider = ({
 
             const event = ev?.data?.event;
             client.resolveEvent({ type: event?.t, id: event?.id }).then((e) => {
-              getTopics();
+              getAuthorizations({subnet: subnetId});
               setToggleGroup2((old) => !old);
               makeRequest(MIDDLEWARE_HTTP_URLS.claim.url, {
                 method: MIDDLEWARE_HTTP_URLS.claim.method,
@@ -791,10 +792,13 @@ export const WalletContextProvider = ({
       topic.public = isPublic;
       topic.id = id ?? "";
       topic.subnet = selectedSubnetId;
+      console.log("UUIDBYTES", topic.subnet, Utils.uuidToBytes(topic.subnet))
       topic.defaultSubscriberRole = dSubRol;
       const payload: ClientPayload<Topic> =
         new ClientPayload();
       payload.data = topic;
+      payload.chainId = new ChainId(ML_CHAIN_ID)
+      console.log("CHAINID::", payload.chainId.bytes(), payload.chainId.bytes().toString('hex'))
       payload.timestamp = Date.now();
       payload.subnet = selectedSubnetId;
       payload.eventType = isUpdate
@@ -919,6 +923,7 @@ export const WalletContextProvider = ({
 
       const payload: ClientPayload<Subscription> =
         new ClientPayload();
+      payload.chainId = new ChainId(ML_CHAIN_ID)
       payload.data = subscribe;
       payload.subnet = subnetId;
       payload.timestamp = Date.now();
@@ -1054,29 +1059,36 @@ export const WalletContextProvider = ({
 
       // messagettachments.push(messageAttachment);
 
-      message.topicId = topicId;
+      message.topic = topicId;
       message.sender = Address.fromString(account);
       message.data = Buffer.from(messageString);
+      message.dataType = DataType.TXT
+      message.nonce = Date.now()
       // message.attachments = messagettachments.map((item) => item.asPayload());
       // message.actions = messageActions.map((item) => item.asPayload());
-
+      
       const payload: ClientPayload<Message> =
         new ClientPayload();
+      
+      payload.chainId = new ChainId(ML_CHAIN_ID)
       payload.data = message;
       payload.timestamp = Date.now();
       payload.eventType = MemberMessageEventType.SendMessageEvent;
       payload.validator = VALIDATOR_PUBLIC_KEY;
       payload.account = Address.fromString(account);
       payload.nonce = 0;
+    
       payload.subnet = selectedSubnetId;
       const pb = payload.encodeBytes();
       console.log("HEXDATA", pb.toString("hex"));
+      console.log("PAYLOAOOD", pb)
       payload.signature = await Utils.signMessageEcc(pb, agent.privateKey);
+      console.log("Payload::::", payload.data.data)
       console.log("Payload", JSON.stringify(payload.asPayload()));
 
       const client = new Client(new RESTProvider(NODE_HTTP));
       const resp: any = await client.createMessage(payload);
-
+    
       const event = resp?.data;
       console.log("AUTHORIZE", "resp", resp, "event", event?.id, event?.t);
       client.resolveEvent({ type: event?.t, id: event?.id }).then((e) => {
@@ -1135,7 +1147,8 @@ export const WalletContextProvider = ({
       subNetwork.meta = JSON.stringify({ name });
       subNetwork.reference = ref;
       subNetwork.status = status;
-      subNetwork.owner = Address.fromString(account);
+      subNetwork.account =  Address.fromString(account)
+      // subNetwork.owner = Address.fromString(account);
       subNetwork.timestamp = Date.now();
       subNetwork.defaultAuthPrivilege = dAuthPriv;
 
@@ -1145,10 +1158,11 @@ export const WalletContextProvider = ({
       const hash = Utils.sha256Hash(encoded).toString("base64");
       const message = JSON.stringify({
         action: `CreateSubnet`,
-        network: ML_ADDRESS_PREFIX,
+        network: ML_CHAIN_ID,
         identifier: `${subNetwork.reference}`,
         hash: `${hash}`,
       }).replace(/\\s+/g, "");
+    console.log("SUBNETSIGNATURE", message)
 
       const signatureResp = await window.keplr.signArbitrary(
         chainIds[connectedWallet],
@@ -1160,12 +1174,13 @@ export const WalletContextProvider = ({
         signatureResp.pub_key.value,
         signatureResp.signature
       );
-      subNetwork.account = Address.fromString(account);
+      
 
       const payload: ClientPayload<Subnet> =
         new ClientPayload();
-
+      //  payload.chainId = new ChainId(ML_CHAIN_ID)
       payload.data = subNetwork;
+      payload.chainId = new ChainId(ML_CHAIN_ID)
       payload.timestamp = Date.now();
       if (update) {
         if (selectedSubnetId == null) {
@@ -1193,12 +1208,12 @@ export const WalletContextProvider = ({
       const resp: any = await client.createSubnet(payload);
 
       const event = resp?.data?.event;
-      console.log("AUTHORIZE", "resp", resp, "event", event?.id, event?.t);
+      console.log("Subnet", "resp", resp, "event", event?.id, event?.t);
       client.resolveEvent({ type: event?.t, id: event?.id }).then((e) => {
         setToggleGroup4((old) => !old);
       });
     } catch (e: any) {
-      console.log("AUTHORIZE error", e);
+      console.log("Subnet error", e);
       notification.error({ message: e?.response?.data?.error + "" });
     }
     setLoaders((old) => ({ ...old, createSubnet: false }));
