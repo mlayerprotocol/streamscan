@@ -63,7 +63,7 @@ export const MyTopics = (props: MyTopicsProps) => {
     [walletAccounts, connectedWallet]
   );
   const dataSource = useMemo(() => {
-    console.log('TOPICICCS--->', { accountTopicList });
+    console.log("TOPICICCS--->", { accountTopicList });
     return (accountTopicList?.data ?? []).filter(
       (item) =>
         item.snet == selectedSubnetId &&
@@ -81,7 +81,11 @@ export const MyTopics = (props: MyTopicsProps) => {
         dataIndex: "id",
         key: "id",
         render(value, record, index) {
-          return <Link href={`?id=${record?.id}`} scroll={false}>{shorternAddress(value)}</Link>;
+          return (
+            <Link href={`?id=${record?.id}`} scroll={false}>
+              {shorternAddress(value)}
+            </Link>
+          );
         },
       },
       {
@@ -105,8 +109,8 @@ export const MyTopics = (props: MyTopicsProps) => {
         dataIndex: "dSubRol",
         key: "dSubRol",
         render(value) {
-          return (SubscriberRole as any)[String(value)]
-        }
+          return (SubscriberRole as any)[String(value)];
+        },
       },
       {
         title: "Public",
@@ -134,7 +138,7 @@ export const MyTopics = (props: MyTopicsProps) => {
       //   key: "bal",
       // },
       {
-        title: "",
+        title: "Action",
         dataIndex: "",
         key: "value",
         render: (text, record) => {
@@ -227,7 +231,7 @@ export const MyTopics = (props: MyTopicsProps) => {
       }}
       // transition={{ duration: 1, delay: 1 }}
     >
-      <Button
+      {/* <Button
         loading={loaders["createTopic"]}
         onClick={() => {
           setShowCreateTopicModal((old) => !old);
@@ -238,8 +242,9 @@ export const MyTopics = (props: MyTopicsProps) => {
         shape="round"
       >
         <span>Create Topic</span>
-      </Button>
+      </Button> */}
       <Table
+        // bordered
         dataSource={dataSource}
         columns={columns}
         loading={loaders["getAccountSubscriptions"]}

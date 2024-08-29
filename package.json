@@ -36,6 +36,7 @@
     "tls": "^0.0.1"
   },
   "devDependencies": {
+    "@iconify/react": "^5.0.2",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

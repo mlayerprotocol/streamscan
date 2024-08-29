@@ -80,7 +80,7 @@ export const LoginAuth = (props: LoginAuthProps) => {
           shape="round"
           loading={loginProps.isLoading}
         >
-          <span className="text-black">Log In</span>
+          <span className="">Log In</span>
         </Button>
         <span className=" mt-3 text-gray-500 text-center">
           Don’t have an account?{" "}

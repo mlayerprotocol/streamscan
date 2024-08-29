@@ -16,7 +16,11 @@ import { CreateMessage, CreateTopic, JoinTopic } from "@/components";
 import { WalletContext } from "@/context";
 import { TopicData, TopicListModel } from "@/model/topic";
 import { useSearchParams } from "next/navigation";
-import { Address, AuthorizationPrivilege, SubscriptionStatus } from "@mlayerprotocol/core/src/entities";
+import {
+  Address,
+  AuthorizationPrivilege,
+  SubscriptionStatus,
+} from "@mlayerprotocol/core/src/entities";
 import { Entities } from "@mlayerprotocol/core";
 import Link from "next/link";
 const status = SubscriptionStatus.Invited;
@@ -134,7 +138,7 @@ export const PendingTopics = (props: PendingTopicsProps) => {
       },
 
       {
-        title: "",
+        title: "Action",
         dataIndex: "",
         key: "value",
         render: (text, record) => {
@@ -152,13 +156,18 @@ export const PendingTopics = (props: PendingTopicsProps) => {
                   const agent: AddressData =
                     agents.find((agt) => agt.address == selectedAgent) ??
                     agents[0];
-                  authorizeAgent?.(agent, 0, AuthorizationPrivilege.Standard, record.snet).then((e) => {
+                  authorizeAgent?.(
+                    agent,
+                    0,
+                    AuthorizationPrivilege.Standard,
+                    record.snet
+                  ).then((e) => {
                     subcribeToTopic?.(agent, {
                       subnetId: record.snet,
                       topicId: record.id,
                       sub: account,
                       status: Entities.SubscriptionStatus.Subscribed,
-                      rol: record.dSubRol
+                      rol: record.dSubRol,
                     }).then((e) => {
                       setToggleState1((old) => !old);
                     });
@@ -185,7 +194,12 @@ export const PendingTopics = (props: PendingTopicsProps) => {
                   const agent: AddressData =
                     agents.find((agt) => agt.address == selectedAgent) ??
                     agents[0];
-                  authorizeAgent?.(agent, 0, AuthorizationPrivilege.Basic, record.snet).then((e) => {
+                  authorizeAgent?.(
+                    agent,
+                    0,
+                    AuthorizationPrivilege.Basic,
+                    record.snet
+                  ).then((e) => {
                     subcribeToTopic?.(agent, {
                       subnetId: record.snet,
                       topicId: record.id,
@@ -272,14 +286,8 @@ export const PendingTopics = (props: PendingTopicsProps) => {
         >
           <span>Create Topic</span>
         </Button> */}
-         <Link
-          href="/subnet"
-          className="self-start"
-          type="text"
-         
-         
-        >
-         <HeroIcons.ArrowLeftIcon className="ml-2 h-[20px]" />
+        <Link href="/subnet" className="self-start" type="text">
+          <HeroIcons.ArrowLeftIcon className="ml-2 h-[20px]" />
         </Link>
         <Button
           loading={loaders["subcribeToTopic"]}
@@ -295,6 +303,7 @@ export const PendingTopics = (props: PendingTopicsProps) => {
       </div>
 
       <Table
+        // bordered
         dataSource={dataSource}
         columns={columns}
         loading={loaders["getAccountSubscriptions"]}

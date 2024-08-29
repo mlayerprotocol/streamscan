@@ -4,14 +4,21 @@ import { Card, Divider, Table, Spin } from "antd";
 import Link from "next/link";
 import React, { useContext, useEffect, useMemo } from "react";
 import * as HeroIcons from "@heroicons/react/24/solid";
-import { HomeStatCardOne } from "@/components";
+import {
+  HomeStatCardOne,
+  HomeStatCardTwo,
+  NewHomeStatCardOne,
+} from "@/components";
 import { currencyFormat } from "@/utils";
+import { ColumnsType } from "antd/es/table";
+import { BlockStat } from "@/model/block-stats";
 
-const columns = [
+const columns: ColumnsType<BlockStat> = [
   {
     title: "Height",
     dataIndex: "blk",
     key: "blk",
+    
   },
   {
     title: "Cycle",
@@ -54,54 +61,60 @@ const DashboardPage = () => {
     };
   }, []);
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex gap-4">
-        <Card className="shadow-2xl !rounded-2xl grow flex items-center justify-center [&>.ant-card-body]:flex [&>.ant-card-body]:grow [&>.ant-card-body]:items-center [&>.ant-card-body]:flex-wrap">
-          <div className="flex flex-col grow gap-2">
-            <HomeStatCardOne
-              title="Total Accounts"
-              amount={`${mainStatsData?.data.accounts ?? ""}`}
-             
-              icon={<HeroIcons.UsersIcon className="ml-2 h-[30px] " />}
-            />
-            <HomeStatCardOne
-              title="Total Events"
-              amount={`${mainStatsData?.data.messages ?? ""}`}
-              // date="2h"
-              // offset="+2,341"
-              icon={<HeroIcons.EnvelopeIcon className="ml-2 h-[30px] " />}
-            />
-          </div>
-          <Divider type="vertical" className="!h-[50px]" />
-          <div className="flex flex-col grow gap-2">
-            <HomeStatCardOne
-              title="TVL"
-              amount={`${mainStatsData?.data.topic_balance || 0} MSG`}
-              offset={`${currencyFormat(1232345)}`}
-              icon={<HeroIcons.BarsArrowUpIcon className="ml-2 h-[30px] " />}
-            />
-            <HomeStatCardOne
-              title="Total Tranx Volume"
-              amount={`${currencyFormat(
-                mainStatsData?.data.message_cost ?? 0
-              )} MSG`}
-              // date="2h"
-              offset="~$1,212,341"
-              icon={<HeroIcons.WalletIcon className="ml-2 h-[30px] " />}
-            />
-          </div>
+    <div className="flex flex-col gap-4 my-16 md:my-20 mx-5 md:mx-10 ">
+      <div className="grid grid-cols-12 gap-4">
+        <Card className="col-span-12 md:col-span-6 lg:col-span-3">
+          <NewHomeStatCardOne
+            title="Total Accounts"
+            amount={`${mainStatsData?.data.accounts ?? ""}`}
+            icon={<HeroIcons.UserIcon className="h-[18px] !text-[#AEB9E1] " />}
+          />
+        </Card>
+        <Card className="col-span-12 md:col-span-6 lg:col-span-3">
+          <NewHomeStatCardOne
+            title="Total Events"
+            amount={`${mainStatsData?.data.messages ?? ""}`}
+            icon={
+              <HeroIcons.EnvelopeIcon className="h-[18px] !text-[#AEB9E1] " />
+            }
+          />
+        </Card>
+        <Card className="col-span-12 md:col-span-6 lg:col-span-3">
+          <HomeStatCardTwo
+            title="TVL"
+            amount={`${mainStatsData?.data.topic_balance || 0} MSG`}
+            offset={`${currencyFormat(1232345)}`}
+            icon={
+              <HeroIcons.BarsArrowUpIcon className="h-[18px] !text-[#AEB9E1] " />
+            }
+          />
+        </Card>
+
+        <Card className="col-span-12 md:col-span-6 lg:col-span-3">
+          <HomeStatCardTwo
+            title="Total Tranx Volume"
+            amount={`${currencyFormat(
+              mainStatsData?.data.message_cost ?? 0
+            )} MSG`}
+            // date="2h"
+            offset="~$1,212"
+            icon={
+              <HeroIcons.WalletIcon className="h-[18px] !text-[#AEB9E1] " />
+            }
+          />
         </Card>
       </div>
-      <Card className="shadow-2xl !rounded-2xl">
-        <div className="flex justify-between mb-4">
-          <span className="font-bold text-xl">Recent Blocks</span>
-        </div>
-        <Table
-          dataSource={(dataSource ?? []).filter(d=>d.blk != 0)}
-          columns={columns}
-          loading={loaders["getBlockStats"]}
-        />
-      </Card>
+
+      <div className="flex justify-center mt-10">
+        <span className="font-bold text-sm dark:text-white">Recent Blocks</span>
+      </div>
+      <Table
+        // bordered
+        className="rounded-lg"
+        dataSource={(dataSource ?? []).filter((d) => d.blk != 0)}
+        columns={columns}
+        loading={loaders["getBlockStats"]}
+      />
     </div>
   );
 };

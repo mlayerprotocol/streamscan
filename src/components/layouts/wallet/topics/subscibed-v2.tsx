@@ -90,9 +90,6 @@ export const SubscribedV2Topics = (props: SubscribedV2TopicsProps) => {
     });
   }, [recordTopicList]);
 
-  
-
-
   const columns: TableProps<TopicData>["columns"] = useMemo(() => {
     return [
       {
@@ -145,14 +142,12 @@ export const SubscribedV2Topics = (props: SubscribedV2TopicsProps) => {
       //   key: "bal",
       // },
       {
-        title: "",
+        title: "Action",
         dataIndex: "",
         key: "value",
         render: (text, record) => {
           return (
             <div className="flex gap-6">
-              
-            
               <Button
                 type="link"
                 onClick={async () => {
@@ -207,6 +202,7 @@ export const SubscribedV2Topics = (props: SubscribedV2TopicsProps) => {
       </div>
 
       <Table
+        // bordered
         dataSource={dataSource}
         columns={columns}
         loading={loaders["getAccountSubscriptions"]}

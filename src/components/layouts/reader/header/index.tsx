@@ -82,7 +82,7 @@ export const AppHeader = (props: AppHeaderProps) => {
           <Button shape="round" type="primary">
             <div className="flex gap-2">
               <HeroIcons.ArrowDownTrayIcon className="h-[20px] text-black" />
-              <span className="text-black">Download Comic</span>
+              <span className="">Download Comic</span>
             </div>
           </Button>
         </div>
@@ -121,7 +121,7 @@ export const AppHeader = (props: AppHeaderProps) => {
               <Button shape="round" type="primary">
                 <div className="flex gap-2">
                   <HeroIcons.ArrowDownTrayIcon className="h-[20px] text-black" />
-                  <span className="text-black">Download Comic</span>
+                  <span className="">Download Comic</span>
                 </div>
               </Button>
             </motion.div>

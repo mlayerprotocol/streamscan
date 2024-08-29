@@ -11,6 +11,7 @@ import {
   Tag,
   Typography,
 } from "antd";
+import { MdNightlight, MdSearch, MdSunny } from "react-icons/md";
 import Image from "next/image";
 import React, { useContext, useState } from "react";
 import { UserOutlined } from "@ant-design/icons";
@@ -26,10 +27,21 @@ import * as HeroIcons from "@heroicons/react/24/solid";
 
 const MotionButton = motion(Button);
 
-interface AppHeaderProps {}
+interface AppHeaderProps {
+  setShowMobileMenu: React.Dispatch<React.SetStateAction<boolean>>;
+  showMobileMenu: boolean;
+  setShowAuthenticationModal: React.Dispatch<React.SetStateAction<boolean>>;
+  showAuthenticationModal: boolean;
+}
 export const AppHeader = (props: AppHeaderProps) => {
-  const [showModal, setShowModal] = useState<boolean>(false);
-  const [showMobilMoney, setShowMobilMoney] = useState<boolean>(false);
+  const {
+    showMobileMenu,
+    setShowMobileMenu,
+    showAuthenticationModal,
+    setShowAuthenticationModal,
+  } = props;
+  // const [showAuthenticationModal, setShowAuthenticationModal] = useState<boolean>(false);
+  // const [showMobileMenu, setShowMobileMenu] = useState<boolean>(false);
   const { initialLoading } = useContext(AppContext);
   const { themeType, toggleTheme } = useContext(ThemeContext);
   const {
@@ -49,7 +61,6 @@ export const AppHeader = (props: AppHeaderProps) => {
     disconnectKeplr?.();
   };
 
-  
   let userProfileItem: MenuProps["items"] = [
     {
       key: "2",
@@ -59,10 +70,11 @@ export const AppHeader = (props: AppHeaderProps) => {
           Subnets
         </Link>
       ),
-    }];
-  
-  if (!process.env.NEXT_PUBLIC_HIDE_AIRDROP)  {
-      userProfileItem.push({
+    },
+  ];
+
+  if (!process.env.NEXT_PUBLIC_HIDE_AIRDROP) {
+    userProfileItem.push({
       key: "2.5",
       icon: <HeroIcons.UserCircleIcon className="ml-2 h-[20px]" />,
       label: (
@@ -70,15 +82,15 @@ export const AppHeader = (props: AppHeaderProps) => {
           Airdrop
         </Link>
       ),
-    })
-    }
-    userProfileItem = userProfileItem.concat([
+    });
+  }
+  userProfileItem = userProfileItem.concat([
     {
       icon: <HeroIcons.Cog8ToothIcon className="ml-2 h-[20px]" />,
       label: <span className="font-medium text-base ml-2">Switch Wallet</span>,
       key: "3",
       onClick: () => {
-        setShowModal((old) => !old);
+        setShowAuthenticationModal((old) => !old);
       },
     },
     {
@@ -94,8 +106,8 @@ export const AppHeader = (props: AppHeaderProps) => {
 
   return (
     <>
-      <header className="sticky top-0 flex flex-col py-1 lg:py-2  lg:py-10  backdrop-blur-xl z-50 items-end ">
-        <div className="flex w-full flex-wrap px-4 md:px-20">
+      <header className="sticky top-0 flex flex-col  backdrop-blur-xl z-50 items-end ">
+        <div className="flex w-full flex-wrap ">
           {/* <Image
           src="/logo.svg"
           alt="Vercel Logo"
@@ -104,13 +116,40 @@ export const AppHeader = (props: AppHeaderProps) => {
           height={24}
           priority
         /> */}
-          <div className="flex gap-3 md:gap-4 items-center !text-xs !text-gray-400">
+          <div className="w-full md:w-auto flex gap-3 md:gap-4 items-center !text-xs !text-white bg-mainLightColor slant h-[50px] px-5 md:px-10">
             <span>MSG PRICE: $0.0001</span>
             <span>MSG PRICE: 0.002MSG (~$0.00002)</span>
           </div>
+
+          <div className=" hidden md:flex ml-auto items-center">
+            <Tag color="red" className="!mr-20">
+              <div className="flex items-center gap-2">
+                <span className="ml-0 text-nowrap uppercase">{NETWORK}</span>
+                {/* <HeroIcons.ChevronDownIcon className="h-[20px] text-white" /> */}
+              </div>
+            </Tag>
+          </div>
+        </div>
+        <div className="flex w-full flex-wrap px-2 md:px-8 bg-secondaryBg h-20 items-center">
+          <a href="/">
+            <div className="flex items-center gap-2">
+              <Image
+                src="/logo.png"
+                alt="Vercel Logo"
+                className="bg-cover mt-2"
+                width={50}
+                height={50}
+                priority
+              />{" "}
+              <span className="text-2xl font-bold font-assistant bg:text-white">
+                Mlstudio
+              </span>
+            </div>
+          </a>
+
           <div className="ml-auto flex lg:hidden">
             <AnimatePresence>
-              {!showMobilMoney && (
+              {!showMobileMenu && (
                 <Dropdown
                   menu={{ items: userProfileItem }}
                   placement="bottomLeft"
@@ -134,8 +173,8 @@ export const AppHeader = (props: AppHeaderProps) => {
               )}
             </AnimatePresence>
 
-            <span onClick={() => setShowMobilMoney((old) => !old)}>
-              {showMobilMoney ? (
+            <span onClick={() => setShowMobileMenu((old) => !old)}>
+              {showMobileMenu ? (
                 <HeroIcons.XMarkIcon className="ml-2 h-[40px] " />
               ) : (
                 <HeroIcons.Bars3Icon className="ml-2 h-[40px] " />
@@ -143,22 +182,12 @@ export const AppHeader = (props: AppHeaderProps) => {
             </span>
           </div>
 
-          <div className=" hidden lg:flex grow items-center">
+          <div className=" hidden lg:flex grow items-center gap-2">
             <Input
-              className="!w-[342px] ml-auto mr-5"
-              prefix={
-                <HeroIcons.MagnifyingGlassIcon className="h-[20px] text-white" />
-              }
+              className="!w-[342px] ml-auto"
+              prefix={<MdSearch size={20} className="text-red-50" />}
               placeholder="Search by Account, Agent, Event Hash"
             />
-            <Tag className="ml-5" color="red"  >
-              <div className="flex items-center gap-2">
-                <span className="ml-0 text-nowrap uppercase">
-                  {NETWORK}
-                </span>
-                {/* <HeroIcons.ChevronDownIcon className="h-[20px] text-white" /> */}
-              </div>
-            </Tag>
 
             {!connectedWallet && (
               <MotionButton
@@ -168,9 +197,9 @@ export const AppHeader = (props: AppHeaderProps) => {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -40 }}
                 onClick={() => {
-                  setShowModal((old) => !old);
+                  setShowAuthenticationModal((old) => !old);
                 }}
-                className="h-[50px] flex justify-center items-center pl-1 pr-3 ml-2"
+                className="h-[50px] flex justify-center items-center pl-1 pr-3 "
               >
                 <Typography.Text className="ml-0 !text-white text-nowrap">
                   Connect Wallet
@@ -187,12 +216,12 @@ export const AppHeader = (props: AppHeaderProps) => {
                   initial={{ opacity: 0, x: -40 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -40 }}
-                  className="h-[40px] rounded-full bg-gray-100 dark:bg-[#6A6A6A] flex gap-2 justify-center items-center px-2 ml-2"
+                  className="h-[40px] rounded-full bg-gray-100 dark:bg-[#6A6A6A] flex gap-2 justify-center items-center px-2"
                 >
                   <>
                     <Avatar
                       size={28}
-                      className="dark:!bg-[#CBD5E1] !border-0"
+                      // className="dark:!bg-[#CBD5E1] !border-0"
                       src={`/icons/${connectedWallet}.svg`}
                       icon={<UserOutlined />}
                     />
@@ -206,177 +235,52 @@ export const AppHeader = (props: AppHeaderProps) => {
               </Dropdown>
             )}
 
-            <Switch
-              className="!ml-2"
+            {/* <Switch
               value={themeType == "light"}
               onChange={() => {
                 toggleTheme?.();
               }}
-            />
-
-            <MainAuth
-              isModalOpen={showModal}
-              onCancel={() => {
-                setShowModal((old) => !old);
+            /> */}
+            {/* <Button className="!h-12 !w-12" type="primary" ghost>
+              <MdNightlight size={20} />
+            </Button> */}
+            <div
+              onClick={() => {
+                toggleTheme?.();
               }}
-              handleClose={()=>setShowModal(false)}
-            />
-          </div>
-        </div>
-        <AnimatePresence>
-          {showMobilMoney && (
-            <motion.div
-              initial={{ opacity: 0, y: -80, height: 0 }}
-              animate={{ opacity: 1, y: 0, height: "auto" }}
-              exit={{ opacity: 0, y: -80, height: 0 }}
-              transition={{
-                duration: 1,
-                height: { duration: 0.5 },
-              }}
-              className="lg:hidden flex flex-col gap-10 p-10  text-right"
+              className="h-12 w-12 bg-secondary rounded-full border border-borderColor flex items-center justify-center cursor-pointer"
             >
-              <Link
-                href={"/"}
-                className="text-2xl  "
-                onClick={() => {
-                  setShowMobilMoney((old) => !old);
-                }}
-              >
-                Home
-              </Link>
-              <div className="flex flex-col gap-5">
-              <Link
-                href={"/subnet"}
-                className="text-2xl "
-                onClick={() => {
-                  setShowMobilMoney((old) => !old);
-                }}
-              >
-                Subnets
-              </Link>
-     
-              <Link
-                href={`/subnet/${selectedSubnetId}/agents`}
-                className="text-xl text-gray-200 p-x-5"
-                onClick={() => {
-                  setShowMobilMoney((old) => !old);
-                }}
-              >
-                Agents -
-              </Link>
-              <Link
-                href={`/subnet/${selectedSubnetId}/topics`}
-                className="text-xl "
-                onClick={() => {
-                  setShowMobilMoney((old) => !old);
-                }}
-              >
-                Topics -
-              </Link>
-              
-              </div>
-              <Link
-                href={"/pending-topic"}
-                className="text-2xl "
-                onClick={() => {
-                  setShowMobilMoney((old) => !old);
-                }}
-              >
-                Invited Topics
-              </Link>
-              
-              
-              {!process.env.NEXT_PUBLIC_HIDE_AIRDROP && <Link
-                href={"/airdrop"}
-                className="text-2xl "
-                onClick={() => {
-                  setShowMobilMoney((old) => !old);
-                }}
-              >
-                Airdrop
-              </Link>}
-              {/* <Link
-                href={`/subnet/${selectedSubnetId}/stake`}
-                className="text-2xl "
-                onClick={() => {
-                  setShowMobilMoney((old) => !old);
-                }}
-              >
-                Stake
-              </Link> */}
-              {connectedWallet && (
-                <>
-                  <Link href={"/"} className="text-2xl ">
-                    Settings
-                  </Link>
-                  <span
-                    onClick={handleLogout}
-                    className="text-2xl text-red-500 cursor-pointer"
+              <AnimatePresence>
+                {themeType == "dark" && (
+                  <motion.span
+                    initial={{ opacity: 0, x: -40 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -40 }}
                   >
-                    Log Out
-                  </span>
-                  <Button
-                    className="ml-6 [&>*]:text-black"
-                    type="primary"
-                    shape="round"
-                    onClick={() => {
-                      setShowModal((old) => !old);
-                    }}
+                    <MdSunny
+                      color="#2F5ED2"
+                      className="!opacity-100"
+                      size={20}
+                    />
+                  </motion.span>
+                )}
+              </AnimatePresence>
+              <AnimatePresence>
+                {themeType == "light" && (
+                  <motion.span
+                    initial={{ opacity: 0, x: 40 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 40 }}
                   >
-                    Switch Wallet
-                  </Button>
-                </>
-              )}
-
-              {!connectedWallet && (
-                <div className="flex justify-end">
-                  <div
-                    onClick={() => {
-                      setShowModal((old) => !old);
-                    }}
-                    className="h-[50px] rounded-full bg-[#6A6A6A] flex justify-center items-center pl-1 pr-3"
-                  >
-                    <Typography.Text className="ml-2 !text-white text-nowrap">
-                      Connect Wallet
-                    </Typography.Text>
-                  </div>
-                </div>
-              )}
-            </motion.div>
-          )}
-        </AnimatePresence>
-        <Divider className="!hidden lg:!block !border-t-2 !mb-2 !mt-2" />
-        <div className=" hidden lg:flex justify-between grow items-center w-full px-7  md:px-20">
-          <div className="flex items-center gap-2 mx-10">
-            <a href="/">
-              <Image
-                src="/logo.png"
-                alt="Vercel Logo"
-                // className="light:invert"
-                width={48}
-                height={48}
-                priority
-              />{" "}
-            </a>
-            <a href="/">
-
-              <span className="text-2xl"><span className="text-gray-400 bg-opacity-40  font-bold">ml</span>studio</span>
-             </a>
-
-          </div>
-
-          <div className="flex gap-3 mx-10 items-center">
-            <Link  className="text-blue-200 hover:text-white"  href={"/"}>Home</Link>
-            <span className="text-gray-500">|</span>
-            <Link className="text-blue-200 hover:text-white" href={"/subnet"}>Subnets</Link>
-           
-            {/* <span className="text-gray-500">|</span>
-            <Link href={"/pending-topic"}>Invitations</Link> */}
-          
-            {!process.env.NEXT_PUBLIC_HIDE_AIRDROP &&   <><span className="text-gray-500">|</span> <Link className="text-blue-200 hover:text-white" href={"/airdrop"}>Airdrop</Link></>}
-            {/* <Link href={"/my-list"}>Validator</Link>
-            <span className="text-gray-500">|</span>
-            <Link href={"/"}>Name Service</Link> */}
+                    <MdNightlight
+                      color="#2F5ED2"
+                      className="!opacity-100"
+                      size={20}
+                    />
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
         </div>
       </header>

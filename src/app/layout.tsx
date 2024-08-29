@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Josefin_Slab, Jost } from "next/font/google";
+import { Inter, Assistant, Jost } from "next/font/google";
 import "./globals.css";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 
@@ -13,11 +13,41 @@ import {
 } from "@/context";
 
 const gFont = Jost({ subsets: ["latin"] });
+const aeonik = localFont({
+  src: [
+    {
+      path: "../fonts/aeonik/AeonikTRIAL-Regular.otf",
+      weight: "400",
+      style: "normal",
+    },
+    // {
+    //   path: "../fonts/aeonik/AeonikTRIAL-Italic.otf",
+    //   weight: "400",
+    //   style: "italic",
+    // },
+    {
+      path: "../fonts/aeonik/AeonikTRIAL-Bold.otf",
+      weight: "700",
+      style: "normal",
+    },
+    {
+      path: "../fonts/aeonik/AeonikTRIAL-BoldItalic.otf",
+      weight: "700",
+      style: "italic",
+    },
+  ],
+  variable: "--font-aeonik",
+});
+const assistant = Assistant({
+  subsets: ["latin"],
+  variable: "--font-assistant",
+});
 // const myFont = localFont({ src: "../fonts/geist/GeistVariableVF.ttf" });
 
 export const metadata: Metadata = {
   title: "mLayer",
-  description: "mLayer is a blockchain optimized for scalable data communication needed to build DePIN and EoT for mobility, energy, monitoring and other real world applications",
+  description:
+    "mLayer is a blockchain optimized for scalable data communication needed to build DePIN and EoT for mobility, energy, monitoring and other real world applications",
 };
 
 export default function RootLayout({
@@ -41,7 +71,10 @@ export default function RootLayout({
           rel="stylesheet"
         ></link>
       </head>
-      <body className={`${gFont.className} `} style={{ height: "100vh" }}>
+      <body
+        className={`${aeonik.className} ${assistant.variable}`}
+        style={{ height: "100vh" }}
+      >
         <ThemeContextProvider>
           <AppContextProvider>
             <AntdRegistry>
