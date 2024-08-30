@@ -9,6 +9,7 @@ import {
   AppContextProvider,
   MetaWrapper,
   ThemeContextProvider,
+  WagmiWrapper,
   WalletContextProvider,
 } from "@/context";
 
@@ -78,9 +79,11 @@ export default function RootLayout({
         <ThemeContextProvider>
           <AppContextProvider>
             <AntdRegistry>
-              <MetaWrapper>
-                <WalletContextProvider>{children}</WalletContextProvider>
-              </MetaWrapper>
+              {/* <MetaWrapper> */}
+                <WagmiWrapper>
+                  <WalletContextProvider>{children}</WalletContextProvider>
+                </WagmiWrapper>
+              {/* </MetaWrapper> */}
             </AntdRegistry>
           </AppContextProvider>
         </ThemeContextProvider>

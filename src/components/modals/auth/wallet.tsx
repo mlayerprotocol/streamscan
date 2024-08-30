@@ -6,6 +6,8 @@ import Image from "next/image";
 import * as stargate from "@cosmjs/stargate";
 import { WalletContext } from "@/context";
 import { CheckCircleFilled } from "@ant-design/icons";
+import { useWeb3Modal } from "@web3modal/wagmi/react";
+import { useAccount, useSignMessage } from "wagmi";
 
 interface WalletConnectProps {
   onSelect?: (type: string, data?: any) => void;
@@ -17,7 +19,22 @@ export const WalletConnect = (props: WalletConnectProps) => {
     loadingWalletConnections,
     initializeKeplr,
     intializeMetamask,
+    intializeWagmi,
   } = useContext(WalletContext);
+  const { open, close } = useWeb3Modal();
+  const { address, isConnecting, isDisconnected } = useAccount();
+  
+
+
+  useEffect(() => {
+    if (address) {
+      intializeWagmi?.();
+    } else {
+      if (isDisconnected) {
+        // initializeKeplr?.();
+      }
+    }
+  }, [address]);
 
   return (
     <motion.div
@@ -51,8 +68,7 @@ export const WalletConnect = (props: WalletConnectProps) => {
           <CheckCircleFilled className="!text-green-500 text-2xl !ml-auto" />
         )}
       </Button>
-      <Button
-       disabled={true}
+      {/* <Button
         onClick={() => {
           intializeMetamask?.();
         }}
@@ -73,6 +89,31 @@ export const WalletConnect = (props: WalletConnectProps) => {
       >
         <span className="">Metamask (coming soon)</span>
         {connectedWallet == "metamask" && (
+          <CheckCircleFilled className="!text-green-500 text-2xl !ml-auto" />
+        )}
+      </Button> */}
+      <Button
+        onClick={() => {
+          open();
+          onSelect?.("", "");
+        }}
+        loading={loadingWalletConnections["wagmi"]}
+        // disabled={connectedWallet == "metamask" || true}
+        shape="round"
+        type="default"
+        className="!flex justify-start items-center"
+        icon={
+          <Image
+            src="/icons/wagmi.png"
+            alt="Vercel Logo"
+            width={20}
+            height={20}
+            priority
+          />
+        }
+      >
+        <span className="">Wagmi (coming soon)</span>
+        {connectedWallet == "wagmi" && (
           <CheckCircleFilled className="!text-green-500 text-2xl !ml-auto" />
         )}
       </Button>
