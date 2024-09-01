@@ -31,7 +31,28 @@ import {
   VALIDATOR_PUBLIC_KEY,
   WALLET_ACCOUNTS_STORAGE_KEY,
 } from "@/utils";
-import { Utils, DataType, Client, ClientPayload, AuthorizeEventType, Authorization, Topic, SubscriberRole, SubscriptionStatus, Address, AuthorizationPrivilege, Subscription, MemberTopicEventType, Subnet, SignatureData, AdminSubnetEventType, AdminTopicEventType, Message, MemberMessageEventType, ChainId } from "@mlayerprotocol/core";
+import {
+  Utils,
+  DataType,
+  Client,
+  ClientPayload,
+  AuthorizeEventType,
+  Authorization,
+  Topic,
+  SubscriberRole,
+  SubscriptionStatus,
+  Address,
+  AuthorizationPrivilege,
+  Subscription,
+  MemberTopicEventType,
+  Subnet,
+  SignatureData,
+  AdminSubnetEventType,
+  AdminTopicEventType,
+  Message,
+  MemberMessageEventType,
+  ChainId,
+} from "@mlayerprotocol/core";
 
 import { notification } from "antd";
 import { RESTProvider } from "@mlayerprotocol/core";
@@ -289,14 +310,13 @@ export const WalletContextProvider = ({
     if (window.keplr) {
       const chainId = chainIds.keplr;
       await window.keplr.disable(chainId);
-      setWalletAccounts({'keplr': []});
+      setWalletAccounts({ keplr: [] });
       setConnectedWallet(undefined);
       connectedStorage?.set(null);
     }
-  }
-  
+  };
+
   const initializeKeplr = async () => {
-   
     if (!window.keplr) {
       notification.error({ message: "Please install keplr extension" });
     } else {
@@ -348,7 +368,9 @@ export const WalletContextProvider = ({
       makeRequest(MIDDLEWARE_HTTP_URLS.connect.url, {
         method: MIDDLEWARE_HTTP_URLS.claim.method,
         body: JSON.stringify({
-          account: Address.fromString(accounts[0].address ?? '').toAddressString(),
+          account: Address.fromString(
+            accounts[0].address ?? ""
+          ).toAddressString(),
         }),
       }).then((b) => {
         setPointToggleGroup((old) => !old);
@@ -431,7 +453,8 @@ export const WalletContextProvider = ({
     getTopicMessages(selectedMessagesTopicId, {});
   }, [selectedMessagesTopicId, toggleGroup3]);
   useEffect(() => {
-    if (!connectedWallet || walletAccounts?.[connectedWallet].length == 0) return;
+    if (!connectedWallet || walletAccounts?.[connectedWallet].length == 0)
+      return;
     getAccountSubnets({
       params: {
         acct: Address.fromString(
@@ -464,7 +487,8 @@ export const WalletContextProvider = ({
   useEffect(() => {}, []);
 
   useEffect(() => {
-    if (!connectedWallet || walletAccounts?.[connectedWallet].length == 0) return;
+    if (!connectedWallet || walletAccounts?.[connectedWallet].length == 0)
+      return;
     if (Object.keys(walletAccounts).length == 0) return;
     getAuthorizations({
       params: {
@@ -699,7 +723,7 @@ export const WalletContextProvider = ({
 
             const event = ev?.data?.event;
             client.resolveEvent({ type: event?.t, id: event?.id }).then((e) => {
-              getAuthorizations({subnet: subnetId});
+              getAuthorizations({ subnet: subnetId });
               setToggleGroup2((old) => !old);
               makeRequest(MIDDLEWARE_HTTP_URLS.claim.url, {
                 method: MIDDLEWARE_HTTP_URLS.claim.method,
@@ -839,12 +863,16 @@ export const WalletContextProvider = ({
       topic.public = isPublic;
       topic.id = id ?? "";
       topic.subnet = selectedSubnetId;
-      console.log("UUIDBYTES", topic.subnet, Utils.uuidToBytes(topic.subnet))
+      console.log("UUIDBYTES", topic.subnet, Utils.uuidToBytes(topic.subnet));
       topic.defaultSubscriberRole = dSubRol;
       const payload: ClientPayload<Topic> = new ClientPayload();
       payload.data = topic;
-      payload.chainId = new ChainId(ML_CHAIN_ID)
-      console.log("CHAINID::", payload.chainId.bytes(), payload.chainId.bytes().toString('hex'))
+      payload.chainId = new ChainId(ML_CHAIN_ID);
+      console.log(
+        "CHAINID::",
+        payload.chainId.bytes(),
+        payload.chainId.bytes().toString("hex")
+      );
       payload.timestamp = Date.now();
       payload.subnet = selectedSubnetId;
       payload.eventType = isUpdate
@@ -967,10 +995,8 @@ export const WalletContextProvider = ({
       //   subscribe.agent = "Bitcoin world";
       //   subscribe.reference = "898989";
 
-
-      const payload: ClientPayload<Subscription> =
-        new ClientPayload();
-      payload.chainId = new ChainId(ML_CHAIN_ID)
+      const payload: ClientPayload<Subscription> = new ClientPayload();
+      payload.chainId = new ChainId(ML_CHAIN_ID);
       payload.data = subscribe;
       payload.subnet = subnetId;
       payload.timestamp = Date.now();
@@ -1109,33 +1135,32 @@ export const WalletContextProvider = ({
       message.topic = topicId;
       message.sender = Address.fromString(account);
       message.data = Buffer.from(messageString);
-      message.dataType = DataType.TXT
-      message.nonce = Date.now()
+      message.dataType = DataType.TXT;
+      message.nonce = Date.now();
       // message.attachments = messagettachments.map((item) => item.asPayload());
       // message.actions = messageActions.map((item) => item.asPayload());
-      
-      const payload: ClientPayload<Message> =
-        new ClientPayload();
-      
-      payload.chainId = new ChainId(ML_CHAIN_ID)
+
+      const payload: ClientPayload<Message> = new ClientPayload();
+
+      payload.chainId = new ChainId(ML_CHAIN_ID);
       payload.data = message;
       payload.timestamp = Date.now();
       payload.eventType = MemberMessageEventType.SendMessageEvent;
       payload.validator = VALIDATOR_PUBLIC_KEY;
       payload.account = Address.fromString(account);
       payload.nonce = 0;
-    
+
       payload.subnet = selectedSubnetId;
       const pb = payload.encodeBytes();
       console.log("HEXDATA", pb.toString("hex"));
-      console.log("PAYLOAOOD", pb)
+      console.log("PAYLOAOOD", pb);
       payload.signature = await Utils.signMessageEcc(pb, agent.privateKey);
-      console.log("Payload::::", payload.data.data)
+      console.log("Payload::::", payload.data.data);
       console.log("Payload", JSON.stringify(payload.asPayload()));
 
       const client = new Client(new RESTProvider(NODE_HTTP));
       const resp: any = await client.createMessage(payload);
-    
+
       const event = resp?.data;
       console.log("AUTHORIZE", "resp", resp, "event", event?.id, event?.t);
       client.resolveEvent({ type: event?.t, id: event?.id }).then((e) => {
@@ -1226,7 +1251,7 @@ export const WalletContextProvider = ({
       subNetwork.meta = JSON.stringify({ name });
       subNetwork.reference = ref;
       subNetwork.status = status;
-      subNetwork.account =  Address.fromString(account)
+      subNetwork.account = Address.fromString(account);
       // subNetwork.owner = Address.fromString(account);
       subNetwork.timestamp = Date.now();
       subNetwork.defaultAuthPrivilege = dAuthPriv;
@@ -1241,8 +1266,7 @@ export const WalletContextProvider = ({
         identifier: `${subNetwork.reference}`,
         hash: `${hash}`,
       }).replace(/\\s+/g, "");
-    console.log("SUBNETSIGNATURE", message)
-
+      console.log("SUBNETSIGNATURE", message);
 
       if (connectedWallet == "keplr") {
         const signatureResp = await window.keplr.signArbitrary(
@@ -1269,7 +1293,7 @@ export const WalletContextProvider = ({
 
       const payload: ClientPayload<Subnet> = new ClientPayload();
       payload.data = subNetwork;
-      payload.chainId = new ChainId(ML_CHAIN_ID)
+      payload.chainId = new ChainId(ML_CHAIN_ID);
       payload.timestamp = Date.now();
       if (update) {
         if (selectedSubnetId == null) {
@@ -1429,7 +1453,6 @@ export const WalletContextProvider = ({
         pointsDetail,
         subscriberTopicList,
         recordTopicList,
-        
       }}
     >
       {children}
@@ -1458,25 +1481,22 @@ export const MetaWrapper = ({ children }: { children: ReactNode }) => {
 };
 
 export const WagmiWrapper = ({ children }: { children: ReactNode }) => {
-  if (typeof window !== "undefined") {
-    const queryClient = new QueryClient();
+  const queryClient = new QueryClient();
 
-    // 3. Create modal
-    createWeb3Modal({
-      wagmiConfig: wagmiConfig,
-      projectId: wagmiProjectId,
-      // enableAnalytics: true, // Optional - defaults to your Cloud configuration
-      // enableOnramp: true, // Optional - false as default
-    });
-    return (
-      <>
-        <WagmiProvider config={wagmiConfig}>
-          <QueryClientProvider client={queryClient}>
-            {children}
-          </QueryClientProvider>
-        </WagmiProvider>
-      </>
-    );
-  }
-  return <>{children}</>;
+  // 3. Create modal
+  createWeb3Modal({
+    wagmiConfig: wagmiConfig,
+    projectId: wagmiProjectId,
+    // enableAnalytics: true, // Optional - defaults to your Cloud configuration
+    // enableOnramp: true, // Optional - false as default
+  });
+  return (
+    <>
+      <WagmiProvider config={wagmiConfig}>
+        <QueryClientProvider client={queryClient}>
+          {children}
+        </QueryClientProvider>
+      </WagmiProvider>
+    </>
+  );
 };
