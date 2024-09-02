@@ -68,8 +68,7 @@ import { SubscriberListModel } from "@/model/subscribers";
 import { useAccount, useSignMessage, WagmiProvider } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { wagmiConfig, wagmiProjectId } from "../Config";
-import { resolve } from "path";
-import { rejects } from "assert";
+import { LeaderboardPointListModel } from "@/model/leaderboard";
 
 // import { Authorization } from "@mlayerprotocol/core/src/entities";
 // const { Authorization } = Entities;
@@ -104,6 +103,7 @@ interface WalletContextValues {
   mainStatsData?: MainStatsModel;
   messagesList?: MessageListModel;
   pointsList?: PointListModel;
+  leaderboardPointsList?: LeaderboardPointListModel;
   pointsDetail?: PointDetailModel;
   subnetListModelList?: SubnetListModel;
   accountTopicList?: TopicListModel;
@@ -282,6 +282,8 @@ export const WalletContextProvider = ({
   const [mainStatsData, setMainStatsData] = useState<MainStatsModel>();
   const [messagesList, setMessagesList] = useState<MessageListModel>();
   const [pointsList, setPointsList] = useState<PointListModel>();
+  const [leaderboardPointsList, setLeaderboardPointsList] =
+    useState<LeaderboardPointListModel>();
   const [pointsDetail, setPointsDetail] = useState<PointDetailModel>();
   const [authenticationList, setAuthenticationList] =
     useState<AuthenticationListModel>();
@@ -442,6 +444,21 @@ export const WalletContextProvider = ({
   }, [toggleGroupStats]);
 
   useEffect(() => {
+    makeRequest(`${MIDDLEWARE_HTTP_URLS.leaderBoard.url}`, {
+      method: MIDDLEWARE_HTTP_URLS.account.method,
+    })
+      .then((b) => b?.json())
+      .then((resp) => {
+        setLeaderboardPointsList(resp);
+        // console.log({
+        //   leaderBoard: MIDDLEWARE_HTTP_URLS.leaderBoard.url,
+        //   resp: resp.data,
+        // });
+      })
+      .catch((e) => notification.error({ message: e }));
+  }, []);
+
+  useEffect(() => {
     const subnet = (subnetListModelList?.data ?? []).find(
       (opt) => opt.id == selectedSubnetId
     );
@@ -557,6 +574,7 @@ export const WalletContextProvider = ({
         console.log({ resp: resp.data });
       })
       .catch((e) => notification.error({ message: e }));
+
     makeRequest(`${MIDDLEWARE_HTTP_URLS.account.url}/did:${account}`, {
       method: MIDDLEWARE_HTTP_URLS.account.method,
     })
@@ -1450,6 +1468,7 @@ export const WalletContextProvider = ({
         selectedMessagesTopicId,
         messagesList,
         pointsList,
+        leaderboardPointsList,
         pointsDetail,
         subscriberTopicList,
         recordTopicList,

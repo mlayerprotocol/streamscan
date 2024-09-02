@@ -6,6 +6,7 @@ import {
   MIDDLEWARE_HTTP_URLS,
   displayVariants,
   makeRequest,
+  shorternAddress,
 } from "@/utils";
 import React, {
   Fragment,
@@ -29,6 +30,7 @@ import { ColumnsType } from "antd/es/table";
 import { BsBadge3D } from "react-icons/bs";
 import Image from "next/image";
 import { MdMenu } from "react-icons/md";
+import { LeaderboardData } from "@/model/leaderboard";
 interface AirDropv2Props {
   onSuccess?: (values: any) => void;
   handleCreateAccount?: () => void;
@@ -47,6 +49,7 @@ export const AirDropv2 = (props: AirDropv2Props) => {
   const [toggleFocus, setToggleFocus] = useState(false);
   const [loaders, setLoaders] = useState<Record<string, boolean>>({});
   const {
+    leaderboardPointsList,
     pointsList,
     pointsDetail,
     walletAccounts,
@@ -446,18 +449,7 @@ export const AirDropv2 = (props: AirDropv2Props) => {
               <Table
                 // bordered
                 className="rounded-lg"
-                dataSource={[
-                  {
-                    rank: "01",
-                    public_key: "0x9c***6c03",
-                    points: "562,728",
-                  },
-                  {
-                    rank: "02",
-                    public_key: "0x9c***6c03",
-                    points: "76,738",
-                  },
-                ]}
+                dataSource={leaderboardPointsList?.data ?? []}
                 columns={columns}
                 loading={loaders["getBlockStats"]}
               />
@@ -531,20 +523,29 @@ const ACTIVITIES = [
   },
 ];
 
-const columns: ColumnsType<any> = [
+const columns: ColumnsType<LeaderboardData> = [
   {
     title: "Rank",
     dataIndex: "rank",
     key: "Rank",
+    render(value, record, index) {
+      return `Rank ${index + 1}`;
+    },
   },
   {
     title: "Public Key",
     dataIndex: "public_key",
     key: "Public Key",
+    render(value, record, index) {
+      return shorternAddress(record.walletAddress);
+    },
   },
   {
     title: "Points",
     dataIndex: "points",
     key: "Points",
+    render(value, record, index) {
+      return record.totalPoints;
+    },
   },
 ];
