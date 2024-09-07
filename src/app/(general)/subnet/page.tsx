@@ -33,10 +33,10 @@ const SubnetPage = () => {
     <div className="flex flex-col gap-4 min-h-[70vh] my-16 md:my-20 mx-5 md:mx-10">
       <div className="flex gap-4 items-center mb-12 flex-wrap">
         <div className="flex gap-2">
-          <span className=" dark:text-white text-sm">Subnets</span>
+          <span className=" dark:text-white text-bold text-sm">Subnets</span>
           <HeroIcons.InformationCircleIcon className="h-[16px] dark:!text-white " />
         </div>
-        <span className=" dark:text-white text-sm bg-secondaryBg p-3 max-w-[415px]">
+        <span className=" dark:text-grey text-xs bg-secondaryBg p-3 max-w-[515px]">
           Subnets allow you separate projects into dedicated environments.
           Create a subnet for each project you build on mLayer.{" "}
           <Link target="_blank" href={INFO_LINKS.subnetInfo}>

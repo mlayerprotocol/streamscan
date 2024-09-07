@@ -544,7 +544,6 @@ export const WalletContextProvider = ({
       .catch((e) => notification.error({ message: e }));
   }, [connectedWallet, pointToggleGroup]);
   const ganerateAuthorizationMessage = async (
-    validatorPublicKey: string,
     account: AddressData,
     agent: AddressData,
     days: number = 30,
@@ -576,55 +575,40 @@ export const WalletContextProvider = ({
     const encoded = authority.encodeBytes();
     // console.log("ID::::", { authority, encoded });
 
-    const hash = Utils.sha256Hash(encoded).toString("base64");
-
-    const message = JSON.stringify({
-      action: `AuthorizeAgent`,
-      network: ML_CHAIN_ID,
-      identifier: `${Address.fromString(authority.agent).address}`,
-      hash: `${hash}`,
-    }).replace(/\\s+/g, "");
-    console.log("Hash string", message);
-    return {
-      message,
-      authority,
-    };
+    
+    return authority
   };
 
-  const connectToClient = async (
-    authSig: string,
-    type: string,
-    authority: Authorization,
-    validatorPublicKey: string,
-    account: AddressData,
-    agent: AddressData
-  ) => {
-    authority.signatureData = new SignatureData(
-      type as any,
-      account.publicKey,
-      authSig
-    );
+  // const authorize = async (
+  //   authSig: string,
+  //   type: string,
+  //   authority: Authorization,
+  //   validatorPublicKey: string,
+  //   account: AddressData,
+  //   payload: ClientPayload<Authorization>
+  // ) => {
+   
 
-    // console.log("Grant", authority.asPayload());
+  //   // console.log("Grant", authority.asPayload());
 
-    const payload: ClientPayload<Authorization> = new ClientPayload();
-    payload.data = authority;
-    payload.timestamp = Date.now();
-    payload.eventType = AuthorizeEventType.AuthorizeEvent;
-    payload.validator = validatorPublicKey;
-    const pb = payload.encodeBytes();
-    payload.signature = Utils.signMessageEcc(pb, agent.privateKey);
-    // console.log({ p: payload.asPayload() });
-    // console.log("Payload", JSON.stringify(payload.asPayload()));
+  //   // payload.signature = Utils.signMessageEcc(pb, agent.privateKey);
+  //   // console.log({ p: payload.asPayload() });
+  //   // console.log("Payload", JSON.stringify(payload.asPayload()));
 
-    const client = new Client(new RESTProvider(NODE_HTTP));
-    const auth = await client.authorize(payload);
-    if (auth.error) {
-      notification.error({ message: auth.error + "" });
-    }
-    return auth;
-    // console.log("AUTHORIZE", auth, "rr", auth.error);
-  };
+  //   authority.signatureData = new SignatureData(
+  //     type as any,
+  //     account.publicKey,
+  //     authSig
+  //   );
+
+  //   const client = new Client(new RESTProvider(NODE_HTTP));
+  //   const auth = await client.authorize(payload);
+  //   if (auth.error) {
+  //     notification.error({ message: auth.error + "" });
+  //   }
+  //   return auth;
+  //   // console.log("AUTHORIZE", auth, "rr", auth.error);
+  // };
 
   const authorizeAgent = async (
     agent: AddressData,
@@ -636,6 +620,7 @@ export const WalletContextProvider = ({
       notification.error({ message: "No wallet connected" });
       return;
     }
+    console.log("ACCOUNTS::::", walletAccounts)
     const account = walletAccounts[connectedWallet][0];
     if (account == null) {
       notification.error({ message: "No account found" });
@@ -643,7 +628,6 @@ export const WalletContextProvider = ({
     }
     setLoaders((old) => ({ ...old, authorizeAgent: true }));
     await ganerateAuthorizationMessage(
-      String(VALIDATOR_PUBLIC_KEY),
       {
         address: account,
         publicKey: account,
@@ -654,46 +638,53 @@ export const WalletContextProvider = ({
       privilege,
       subnetId
     )
-      .then(async (messageObj) => {
-        console.log({ messageObj });
+      .then(async (authority) => {
+        console.log({ authority });
         if (!window.keplr) {
           notification.error({ message: "Please install keplr extension" });
           return;
         }
 
-        let signatureData: string;
-        let address: string;
-        let type: string;
+        const payload: ClientPayload<Authorization> = new ClientPayload();
+        payload.data = authority;
+        payload.timestamp = Date.now();
+        payload.eventType = AuthorizeEventType.AuthorizeEvent;
+        payload.validator = String(VALIDATOR_PUBLIC_KEY);
+        const pb = payload.encodeBytes();
 
-        if (connectedWallet == "keplr") {
-          const signature = await window.keplr.signArbitrary(
-            chainIds[connectedWallet],
-            account,
-            messageObj.message
-          );
+        const hash = Utils.keccak256Hash(pb).toString("base64");
 
-          signatureData = signature.signature;
-          address = signature.pub_key.value;
-          type = signature.pub_key.type;
-        } else {
-          const signatureRespEth = await signEth(messageObj.message);
-
-          signatureData = signatureRespEth.data ?? "";
-          address = signatureRespEth.variables.account;
-          type = "eth";
-        }
-        await connectToClient(
-          signatureData,
-          type,
-          messageObj.authority,
-          String(VALIDATOR_PUBLIC_KEY),
-          {
-            address: account,
-            publicKey: address,
-            privateKey: "",
-          },
-          agent
-        )
+    const message = JSON.stringify({
+      action: `AuthorizeAgent`,
+      network: ML_CHAIN_ID,
+      identifier: `${Address.fromString(authority.agent).address}`,
+      hash: `${hash}`,
+    }).replace(/\\s+/g, "");
+        
+    if (connectedWallet == "keplr") {
+      const signatureResp = await window.keplr.signArbitrary(
+        chainIds[connectedWallet],
+        account,
+        message
+      );
+      authority.signatureData = new SignatureData(
+        signatureResp.pub_key.type as any,
+        signatureResp.pub_key.value,
+        signatureResp.signature
+      );
+    } else {
+      // const msgHash = Utils.keccak256Hash(Buffer.from(message));
+      const signatureRespEth = await signEth(message);
+      authority.signatureData = new SignatureData(
+        "eth",
+        signatureRespEth.variables.account,
+        signatureRespEth.data ?? ""
+      );
+    }
+        
+       
+    const client = new Client(new RESTProvider(NODE_HTTP));
+    client.authorize(payload)
           .then((ev: any) => {
             const client = new Client(new RESTProvider(NODE_HTTP));
 
@@ -1230,41 +1221,6 @@ export const WalletContextProvider = ({
       // subNetwork.owner = Address.fromString(account);
       subNetwork.timestamp = Date.now();
       subNetwork.defaultAuthPrivilege = dAuthPriv;
-
-      const encoded = subNetwork.encodeBytes();
-      // console.log("ID::::", { authority, encoded });
-
-      const hash = Utils.sha256Hash(encoded).toString("base64");
-      const message = JSON.stringify({
-        action: `CreateSubnet`,
-        network: ML_CHAIN_ID,
-        identifier: `${subNetwork.reference}`,
-        hash: `${hash}`,
-      }).replace(/\\s+/g, "");
-    console.log("SUBNETSIGNATURE", message)
-
-
-      if (connectedWallet == "keplr") {
-        const signatureResp = await window.keplr.signArbitrary(
-          chainIds[connectedWallet],
-          account,
-          message
-        );
-        subNetwork.signatureData = new SignatureData(
-          signatureResp.pub_key.type as any,
-          signatureResp.pub_key.value,
-          signatureResp.signature
-        );
-      } else {
-        // const msgHash = Utils.keccak256Hash(Buffer.from(message));
-        const signatureRespEth = await signEth(message);
-        subNetwork.signatureData = new SignatureData(
-          "eth",
-          signatureRespEth.variables.account,
-          signatureRespEth.data ?? ""
-        );
-      }
-
       subNetwork.account = Address.fromString(account);
 
       const payload: ClientPayload<Subnet> = new ClientPayload();
@@ -1291,6 +1247,38 @@ export const WalletContextProvider = ({
       const pb = payload.encodeBytes();
       console.log("HEXDATA", pb.toString("hex"));
       // payload.signature = await Utils.signMessageEcc(pb, agent.privateKey);
+      // const encoded = subNetwork.encodeBytes();
+      // console.log("ID::::", { authority, encoded });
+
+      const hash = Utils.keccak256Hash(pb).toString("base64");
+      const message = JSON.stringify({
+        action: `CreateSubnet`,
+        network: ML_CHAIN_ID,
+        identifier: `${subNetwork.reference}`,
+        hash: `${hash}`,
+      }).replace(/\\s+/g, "");
+    console.log("SUBNETSIGNATURE", message)
+      if (connectedWallet == "keplr") {
+        const signatureResp = await window.keplr.signArbitrary(
+          chainIds[connectedWallet],
+          account,
+          message
+        );
+        subNetwork.signatureData = new SignatureData(
+          signatureResp.pub_key.type as any,
+          signatureResp.pub_key.value,
+          signatureResp.signature
+        );
+      } else {
+        // const msgHash = Utils.keccak256Hash(Buffer.from(message));
+        const signatureRespEth = await signEth(message);
+        subNetwork.signatureData = new SignatureData(
+          "eth",
+          signatureRespEth.variables.account,
+          signatureRespEth.data ?? ""
+        );
+      }
+      payload.data = subNetwork;
       console.log("Payload", JSON.stringify(payload.asPayload()));
 
       const client = new Client(new RESTProvider(NODE_HTTP));

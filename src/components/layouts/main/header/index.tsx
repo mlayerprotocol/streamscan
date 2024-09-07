@@ -117,8 +117,8 @@ export const AppHeader = (props: AppHeaderProps) => {
           priority
         /> */}
           <div className="w-full md:w-auto flex gap-3 md:gap-4 items-center !text-xs !text-white bg-mainLightColor slant h-[50px] px-5 md:px-10">
-            <span>MSG PRICE: $0.0001</span>
-            <span>MSG PRICE: 0.002MSG (~$0.00002)</span>
+            <span>MLT PRICE: $0.0001</span>
+            <span>MSG PRICE: 0.002MLT (~$0.00002)</span>
           </div>
 
           <div className=" hidden md:flex ml-auto items-center">
@@ -135,14 +135,14 @@ export const AppHeader = (props: AppHeaderProps) => {
             <div className="flex items-center gap-2">
               <Image
                 src="/logo.png"
-                alt="Vercel Logo"
-                className="bg-cover mt-2"
+                alt="mLayer"
+                className="bg-cover mt-0"
                 width={50}
                 height={50}
                 priority
               />{" "}
               <span className="text-2xl font-bold font-assistant bg:text-white">
-                Mlstudio
+                ml<span className="text-white">Studio</span>
               </span>
             </div>
           </a>

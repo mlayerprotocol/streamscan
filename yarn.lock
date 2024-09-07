@@ -1099,10 +1099,10 @@
     semver "^7.5.4"
     uuid "^9.0.1"
 
-"@mlayerprotocol/core@^1.2.3":
-  version "1.2.3"
-  resolved "https://registry.yarnpkg.com/@mlayerprotocol/core/-/core-1.2.3.tgz#544bdf66e954f0acef5198a864f00dc6e1d48177"
-  integrity sha512-TO6P8hZWdGUFGWid9C1N485wXghEFv5pZZHGBh5KoaJtV1dE1otYd8D5JBrVIVKo3gcOw4FRalpxxGUoMJB+bA==
+"@mlayerprotocol/core@^1.2.5":
+  version "1.2.5"
+  resolved "https://registry.yarnpkg.com/@mlayerprotocol/core/-/core-1.2.5.tgz#fdad51da935c9ea46fb2f910ccfd8242b3983fac"
+  integrity sha512-eeGAxfMpMr3d+bfah05gfCp1t6dmM0/1G/CK2GIGiBYKl2nnKCxYXsWmnVV++9209VYRLL7T37up+Ri9a4Mp8g==
   dependencies:
     "@cosmjs/crypto" "^0.32.3"
     axios "^1.6.5"

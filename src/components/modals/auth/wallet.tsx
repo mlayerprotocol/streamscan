@@ -104,7 +104,7 @@ export const WalletConnect = (props: WalletConnectProps) => {
         className="!flex justify-start items-center"
         icon={
           <Image
-            src="/icons/wagmi.png"
+            src="/icons/base.svg"
             alt="Vercel Logo"
             width={20}
             height={20}
@@ -112,7 +112,7 @@ export const WalletConnect = (props: WalletConnectProps) => {
           />
         }
       >
-        <span className="">Wagmi (coming soon)</span>
+        <span className="">Base Network</span>
         {connectedWallet == "wagmi" && (
           <CheckCircleFilled className="!text-green-500 text-2xl !ml-auto" />
         )}

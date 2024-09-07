@@ -32,7 +32,7 @@ enum KeyOptionTypes {
 export const NewAgent = (props: NewAgentProps) => {
   const { generateAgent, agents, updateAgents } = useContext(WalletContext);
   const [selectedOption, setSelectedOption] = useState<KeyOptionTypes>(
-    KeyOptionTypes.Upload
+    KeyOptionTypes.GenerateNew
   );
   const [createdAddress, setCreatedAddress] = useState<AddressData>();
   const [showAuthSection, setShowAuthSection] = useState(false);
@@ -58,10 +58,11 @@ export const NewAgent = (props: NewAgentProps) => {
         <div className="mb-8">
           {!showAuthSection && (
             <Radio.Group onChange={onChange} value={selectedOption}>
-              <Radio value={KeyOptionTypes.Upload}>Import Private Key</Radio>
-              <Radio value={KeyOptionTypes.GenerateNew}>
+               <Radio value={KeyOptionTypes.GenerateNew}>
                 Generate New Agent Keys
               </Radio>
+              <Radio value={KeyOptionTypes.Upload}>Import Private Key</Radio>
+             
             </Radio.Group>
           )}
           {showAuthSection && (

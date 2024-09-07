@@ -116,7 +116,7 @@ const WalletPage = () => {
               {ethers.formatEther(
                 String(selectedSubnet?.balance?.toString() ?? "0")
               )}{" "}
-              $MSG
+              $MLT
             </span>
           </div>
           <Dropdown

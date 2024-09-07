@@ -137,7 +137,7 @@ export const SubscribedV2Topics = (props: SubscribedV2TopicsProps) => {
       //   key: "subscribers",
       // },
       // {
-      //   title: "MSG Consumed",
+      //   title: "MLT Consumed",
       //   dataIndex: "bal",
       //   key: "bal",
       // },

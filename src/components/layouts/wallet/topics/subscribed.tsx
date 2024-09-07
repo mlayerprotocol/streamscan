@@ -98,7 +98,7 @@ export const SubscribedTopics = (props: SubscribedTopicsProps) => {
       //   key: "subscribers",
       // },
       {
-        title: "MSG Consumed",
+        title: "MLT Consumed",
         dataIndex: "bal",
         key: "bal",
       },

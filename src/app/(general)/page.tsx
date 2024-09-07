@@ -95,7 +95,7 @@ const DashboardPage = () => {
             title="Total Tranx Volume"
             amount={`${currencyFormat(
               mainStatsData?.data.message_cost ?? 0
-            )} MSG`}
+            )} MLT`}
             // date="2h"
             offset="~$1,212"
             icon={
