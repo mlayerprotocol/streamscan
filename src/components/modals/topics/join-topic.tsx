@@ -61,6 +61,7 @@ export const JoinTopic = (props: JoinTopicProps) => {
         >
           <Form
             {...formLayout}
+            layout="vertical"
             className="flex flex-col"
             name="basic"
             form={form}
@@ -134,7 +135,7 @@ export const JoinTopic = (props: JoinTopicProps) => {
               className="w-full mt-[28px] self-end"
               shape="round"
             >
-              <span className="text-black">Join</span>
+              <span className="">Join</span>
             </Button>
           </Form>
         </motion.div>

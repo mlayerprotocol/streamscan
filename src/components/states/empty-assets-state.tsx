@@ -40,7 +40,7 @@ export const EmptyAssetState = (props: EmptyAssetStateProps) => {
         You don’t have any comic published
       </span>
       <Button type="primary" shape="round">
-        <span className="text-black">Publish Comic</span>
+        <span className="">Publish Comic</span>
       </Button>
     </div>
   );

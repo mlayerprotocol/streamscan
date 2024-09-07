@@ -124,7 +124,7 @@ export const PrivateKey = (props: PrivateKeyProps) => {
               className="w-full mt-[28px] self-end"
               shape="round"
             >
-              <span className="text-black">Import Key</span>
+              <span className="">Import Key</span>
             </Button>
           </Form>
         </motion.div>

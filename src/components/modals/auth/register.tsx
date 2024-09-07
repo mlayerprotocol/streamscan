@@ -84,7 +84,7 @@ export const RegisterAuth = (props: RegisterAuthProps) => {
           shape="round"
           loading={registerProps.isLoading}
         >
-          <span className="text-black">Register</span>
+          <span className="">Register</span>
         </Button>
         <span className=" mt-3 text-gray-500 text-center">
           Already have an account?{" "}

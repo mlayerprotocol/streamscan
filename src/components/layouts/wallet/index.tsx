@@ -13,6 +13,7 @@ import { Settings } from "./settings";
 import { WalletContext } from "@/context";
 import { Smartlets } from "./smartlet";
 import { Tokens } from "./token";
+import { SubnetAside } from "./sidebar";
 
 const { Content, Sider } = Layout;
 
@@ -86,7 +87,7 @@ export const WalletMainLayout = (props: WalletMainLayoutProps) => {
     //   onClick: () => {
     //     router.push(`/subnet/${selectedSubnetId}/stake`, { scroll: false });
     //   },
-   // },
+    // },
     // {
     //   key: "smartlet",
     //   icon: <HeroIcons.CogIcon className="h-[20px]" />,
@@ -105,17 +106,24 @@ export const WalletMainLayout = (props: WalletMainLayoutProps) => {
     },
   ];
   return (
-    <Layout>
-      <Sider width={200} className="hidden lg:block">
+    <div className="grid grid-cols-12">
+      <div className="hidden lg:block col-span-3">
+        <SubnetAside />
+      </div>
+      {/* <Sider width={200} className="hidden col-span-3 lg:block">
         <Menu
           mode="inline"
           defaultSelectedKeys={["agents"]}
           selectedKeys={[tab as string]}
-          style={{ height: "100%", borderRight: 0 }}
+          style={{
+            height: "100%",
+            borderRight: 0,
+            background: "var(--m-secondary-bg-color)",
+          }}
           items={tabItems}
         />
-      </Sider>
-      <Layout style={{ padding: "0 24px 24px" }}>
+      </Sider> */}
+      <div className="col-span-12 lg:col-span-9">
         <Content style={{}}>
           {"agents" == tab && <Agents />}
           {"topics" == tab && <Topics />}
@@ -126,7 +134,7 @@ export const WalletMainLayout = (props: WalletMainLayoutProps) => {
           {/* {"tokens" == tab && <Tokens />} */}
           {/* {"airdrop" == tab && <AirDrop />} */}
         </Content>
-      </Layout>
-    </Layout>
+      </div>
+    </div>
   );
 };

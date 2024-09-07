@@ -30,7 +30,7 @@ export const SocialAuth = (props: SocialAuthProps) => {
           />
         }
       >
-        <span className="text-black">Continue with Google</span>
+        <span className="">Continue with Google</span>
       </Button>
       <Button
         shape="round"
@@ -46,7 +46,7 @@ export const SocialAuth = (props: SocialAuthProps) => {
           />
         }
       >
-        <span className="text-black">Continue with Facebook</span>
+        <span className="">Continue with Facebook</span>
       </Button>
       <Button
         shape="round"
@@ -62,7 +62,7 @@ export const SocialAuth = (props: SocialAuthProps) => {
           />
         }
       >
-        <span className="text-black">Continue with Apple</span>
+        <span className="">Continue with Apple</span>
       </Button>
 
       <Button
@@ -79,7 +79,7 @@ export const SocialAuth = (props: SocialAuthProps) => {
           />
         }
       >
-        <span className="text-black">Continue with X</span>
+        <span className="">Continue with X</span>
       </Button>
       <Button
         onClick={() => {
@@ -98,7 +98,7 @@ export const SocialAuth = (props: SocialAuthProps) => {
           />
         }
       >
-        <span className="text-black">Continue with Email</span>
+        <span className="">Continue with Email</span>
       </Button>
 
       <Button
@@ -115,7 +115,7 @@ export const SocialAuth = (props: SocialAuthProps) => {
           />
         }
       >
-        <span className="text-black">Back to Reading</span>
+        <span className="">Back to Reading</span>
       </Button>
     </motion.div>
   );

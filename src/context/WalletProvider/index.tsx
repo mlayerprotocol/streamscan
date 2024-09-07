@@ -10,6 +10,9 @@ import {
 } from "react";
 import * as stargate from "@cosmjs/stargate";
 import { MetaMaskProvider, useSDK } from "@metamask/sdk-react";
+
+import { createWeb3Modal } from "@web3modal/wagmi/react";
+
 import {
   CONNECTED_WALLET_STORAGE_KEY,
   KEYPAIR_STORAGE_KEY,
@@ -20,6 +23,7 @@ import {
   ML_ACCOUNT_DID_STRING,
   ML_ADDRESS_PREFIX,
   ML_AGENT_DID_STRING,
+  ML_CHAIN_ID,
   NODE_HTTP,
   SELECTED_AGENT_STORAGE_KEY,
   SELECTED_SUBNET_STORAGE_KEY,
@@ -27,9 +31,10 @@ import {
   VALIDATOR_PUBLIC_KEY,
   WALLET_ACCOUNTS_STORAGE_KEY,
 } from "@/utils";
-import { Utils, Client, ClientPayload, AuthorizeEventType, Authorization, Topic, SubscriberRole, SubscriptionStatus, Address, AuthorizationPrivilege, Subscription, MemberTopicEventType, Subnet, SignatureData, AdminSubnetEventType, AdminTopicEventType, Message, MemberMessageEventType } from "@mlayerprotocol/core";
+import { Utils, DataType, Client, ClientPayload, AuthorizeEventType, Authorization, Topic, SubscriberRole, SubscriptionStatus, Address, AuthorizationPrivilege, Subscription, MemberTopicEventType, Subnet, SignatureData, AdminSubnetEventType, AdminTopicEventType, Message, MemberMessageEventType, ChainId } from "@mlayerprotocol/core";
+
 import { notification } from "antd";
-import { RESTProvider } from "@mlayerprotocol/core/src";
+import { RESTProvider } from "@mlayerprotocol/core";
 import { TopicListModel } from "@/model/topic";
 import { AuthenticationListModel } from "@/model/authentications/list";
 import { BlockStatsListModel } from "@/model/block-stats";
@@ -39,6 +44,11 @@ import { SubnetData, SubnetListModel } from "@/model/subnets";
 import { PointListModel } from "@/model/points";
 import { PointDetailModel } from "@/model/points/detail";
 import { SubscriberListModel } from "@/model/subscribers";
+import { useAccount, useSignMessage, WagmiProvider } from "wagmi";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { wagmiConfig, wagmiProjectId } from "../Config";
+import { resolve } from "path";
+import { rejects } from "assert";
 
 // import { Authorization } from "@mlayerprotocol/core/src/entities";
 // const { Authorization } = Entities;
@@ -47,6 +57,7 @@ interface WalletContextValues {
   initialLoading: boolean;
   initializeKeplr?: () => Promise<void>;
   intializeMetamask?: () => Promise<void>;
+  intializeWagmi?: () => Promise<void>;
   generateAgent?: (asNew?: boolean) => Promise<AddressData | undefined>;
   updateAgents?: (newKps: AddressData[]) => Promise<void>;
   generateLocalPrivKeys?: (
@@ -125,7 +136,6 @@ interface WalletContextValues {
       dAuthPriv: AuthorizationPrivilege;
       update?: boolean;
     }
-   
   ) => Promise<void>;
   setSelectedMessagesTopicId?: Dispatch<SetStateAction<string | undefined>>;
   setSelectedSubnetId?: Dispatch<SetStateAction<string | undefined>>;
@@ -204,6 +214,8 @@ export const WalletContextProvider = ({
 }: {
   children: ReactNode;
 }) => {
+  const { address: wagmiAddress } = useAccount();
+
   const [walletAccounts, setWalletAccounts] = useState<
     Record<string, string[]>
   >({});
@@ -252,6 +264,7 @@ export const WalletContextProvider = ({
   const [pointsDetail, setPointsDetail] = useState<PointDetailModel>();
   const [authenticationList, setAuthenticationList] =
     useState<AuthenticationListModel>();
+  const { signMessage } = useSignMessage();
 
   const connectedStorage = useMemo(
     () => new Storage(CONNECTED_WALLET_STORAGE_KEY),
@@ -347,18 +360,38 @@ export const WalletContextProvider = ({
       setLoadingWalletConnections((old) => {
         return { ...old, metamask: true };
       });
-      const accounts: any = await sdk?.connect();
-      console.log({ e: "intializeMetamask", chainId, connected, accounts });
+      // const accounts: any = await sdk?.connect();
+      // console.log({ e: "intializeMetamask", chainId, connected, accounts });
 
-      setWalletAccounts((old) => {
-        return { ...old, metamask: accounts };
-      });
+      // setWalletAccounts((old) => {
+      //   return { ...old, metamask: accounts };
+      // });
       setConnectedWallet("metamask");
     } catch (err) {
       console.warn("failed to connect..", err);
     }
     setLoadingWalletConnections((old) => {
       return { ...old, metamask: false };
+    });
+  };
+
+  const intializeWagmi = async () => {
+    try {
+      setLoadingWalletConnections((old) => {
+        return { ...old, wagmi: true };
+      });
+      // const accounts: any = await sdk?.connect();
+      // console.log({ e: "intializeMetamask", chainId, connected, accounts });
+
+      setWalletAccounts((old) => {
+        return { ...old, wagmi: [wagmiAddress as string] };
+      });
+      setConnectedWallet("wagmi");
+    } catch (err) {
+      console.warn("failed to connect..", err);
+    }
+    setLoadingWalletConnections((old) => {
+      return { ...old, wagmi: false };
     });
   };
 
@@ -511,7 +544,6 @@ export const WalletContextProvider = ({
       .catch((e) => notification.error({ message: e }));
   }, [connectedWallet, pointToggleGroup]);
   const ganerateAuthorizationMessage = async (
-    validatorPublicKey: string,
     account: AddressData,
     agent: AddressData,
     days: number = 30,
@@ -543,56 +575,40 @@ export const WalletContextProvider = ({
     const encoded = authority.encodeBytes();
     // console.log("ID::::", { authority, encoded });
 
-    const hash = Utils.sha256Hash(encoded).toString("base64");
-
-    const message = JSON.stringify({
-      action: `AuthorizeAgent`,
-      network: ML_ADDRESS_PREFIX,
-      identifier: `${Address.fromString(authority.agent).address}`,
-      hash: `${hash}`,
-    }).replace(/\\s+/g, "");
-    console.log("Hash string", message);
-    return {
-      message,
-      authority,
-    };
+    
+    return authority
   };
 
-  const connectToClient = async (
-    authSig: string,
-    type: string,
-    authority: Authorization,
-    validatorPublicKey: string,
-    account: AddressData,
-    agent: AddressData
-  ) => {
-    authority.signatureData = new SignatureData(
-      type as any,
-      account.publicKey,
-      authSig
-    );
+  // const authorize = async (
+  //   authSig: string,
+  //   type: string,
+  //   authority: Authorization,
+  //   validatorPublicKey: string,
+  //   account: AddressData,
+  //   payload: ClientPayload<Authorization>
+  // ) => {
+   
 
-    // console.log("Grant", authority.asPayload());
+  //   // console.log("Grant", authority.asPayload());
 
-    const payload: ClientPayload<Authorization> =
-      new ClientPayload();
-    payload.data = authority;
-    payload.timestamp = Date.now();
-    payload.eventType = AuthorizeEventType.AuthorizeEvent;
-    payload.validator = validatorPublicKey;
-    const pb = payload.encodeBytes();
-    payload.signature = Utils.signMessageEcc(pb, agent.privateKey);
-    // console.log({ p: payload.asPayload() });
-    // console.log("Payload", JSON.stringify(payload.asPayload()));
+  //   // payload.signature = Utils.signMessageEcc(pb, agent.privateKey);
+  //   // console.log({ p: payload.asPayload() });
+  //   // console.log("Payload", JSON.stringify(payload.asPayload()));
 
-    const client = new Client(new RESTProvider(NODE_HTTP));
-    const auth = await client.authorize(payload);
-    if (auth.error) {
-      notification.error({ message: auth.error + "" });
-    }
-    return auth;
-    // console.log("AUTHORIZE", auth, "rr", auth.error);
-  };
+  //   authority.signatureData = new SignatureData(
+  //     type as any,
+  //     account.publicKey,
+  //     authSig
+  //   );
+
+  //   const client = new Client(new RESTProvider(NODE_HTTP));
+  //   const auth = await client.authorize(payload);
+  //   if (auth.error) {
+  //     notification.error({ message: auth.error + "" });
+  //   }
+  //   return auth;
+  //   // console.log("AUTHORIZE", auth, "rr", auth.error);
+  // };
 
   const authorizeAgent = async (
     agent: AddressData,
@@ -604,6 +620,7 @@ export const WalletContextProvider = ({
       notification.error({ message: "No wallet connected" });
       return;
     }
+    console.log("ACCOUNTS::::", walletAccounts)
     const account = walletAccounts[connectedWallet][0];
     if (account == null) {
       notification.error({ message: "No account found" });
@@ -611,7 +628,6 @@ export const WalletContextProvider = ({
     }
     setLoaders((old) => ({ ...old, authorizeAgent: true }));
     await ganerateAuthorizationMessage(
-      String(VALIDATOR_PUBLIC_KEY),
       {
         address: account,
         publicKey: account,
@@ -622,36 +638,59 @@ export const WalletContextProvider = ({
       privilege,
       subnetId
     )
-      .then(async (messageObj) => {
-        console.log({ messageObj });
+      .then(async (authority) => {
+        console.log({ authority });
         if (!window.keplr) {
           notification.error({ message: "Please install keplr extension" });
           return;
         }
 
-        const signature = await window.keplr.signArbitrary(
-          chainIds[connectedWallet],
-          account,
-          messageObj.message
-        );
-        await connectToClient(
-          signature.signature,
-          signature.pub_key.type,
-          messageObj.authority,
-          String(VALIDATOR_PUBLIC_KEY),
-          {
-            address: account,
-            publicKey: signature.pub_key.value,
-            privateKey: "",
-          },
-          agent
-        )
+        const payload: ClientPayload<Authorization> = new ClientPayload();
+        payload.data = authority;
+        payload.timestamp = Date.now();
+        payload.eventType = AuthorizeEventType.AuthorizeEvent;
+        payload.validator = String(VALIDATOR_PUBLIC_KEY);
+        const pb = payload.encodeBytes();
+
+        const hash = Utils.keccak256Hash(pb).toString("base64");
+
+    const message = JSON.stringify({
+      action: `AuthorizeAgent`,
+      network: ML_CHAIN_ID,
+      identifier: `${Address.fromString(authority.agent).address}`,
+      hash: `${hash}`,
+    }).replace(/\\s+/g, "");
+        
+    if (connectedWallet == "keplr") {
+      const signatureResp = await window.keplr.signArbitrary(
+        chainIds[connectedWallet],
+        account,
+        message
+      );
+      authority.signatureData = new SignatureData(
+        signatureResp.pub_key.type as any,
+        signatureResp.pub_key.value,
+        signatureResp.signature
+      );
+    } else {
+      // const msgHash = Utils.keccak256Hash(Buffer.from(message));
+      const signatureRespEth = await signEth(message);
+      authority.signatureData = new SignatureData(
+        "eth",
+        signatureRespEth.variables.account,
+        signatureRespEth.data ?? ""
+      );
+    }
+        
+       
+    const client = new Client(new RESTProvider(NODE_HTTP));
+    client.authorize(payload)
           .then((ev: any) => {
             const client = new Client(new RESTProvider(NODE_HTTP));
 
             const event = ev?.data?.event;
             client.resolveEvent({ type: event?.t, id: event?.id }).then((e) => {
-              getTopics();
+              getAuthorizations({subnet: subnetId});
               setToggleGroup2((old) => !old);
               makeRequest(MIDDLEWARE_HTTP_URLS.claim.url, {
                 method: MIDDLEWARE_HTTP_URLS.claim.method,
@@ -791,10 +830,12 @@ export const WalletContextProvider = ({
       topic.public = isPublic;
       topic.id = id ?? "";
       topic.subnet = selectedSubnetId;
+      console.log("UUIDBYTES", topic.subnet, Utils.uuidToBytes(topic.subnet))
       topic.defaultSubscriberRole = dSubRol;
-      const payload: ClientPayload<Topic> =
-        new ClientPayload();
+      const payload: ClientPayload<Topic> = new ClientPayload();
       payload.data = topic;
+      payload.chainId = new ChainId(ML_CHAIN_ID)
+      console.log("CHAINID::", payload.chainId.bytes(), payload.chainId.bytes().toString('hex'))
       payload.timestamp = Date.now();
       payload.subnet = selectedSubnetId;
       payload.eventType = isUpdate
@@ -881,13 +922,13 @@ export const WalletContextProvider = ({
       topicId,
       sub,
       status,
-      rol
+      rol,
     }: {
       subnetId: string;
       topicId: string;
       sub?: string;
-        status?: SubscriptionStatus;
-        rol: SubscriberRole;
+      status?: SubscriptionStatus;
+      rol: SubscriberRole;
     }
   ) => {
     if (connectedWallet == null) {
@@ -908,7 +949,7 @@ export const WalletContextProvider = ({
       //   validator.publicKey,
       //   Utils.toAddress(Buffer.from(validator.publicKey, 'hex'))
       // );
-      console.log('STATUSS', status, rol)
+      console.log("STATUSS", status, rol);
       subscribe.status = status ?? SubscriptionStatus.Invited;
       subscribe.role = rol;
       subscribe.subnet = subnetId;
@@ -917,8 +958,10 @@ export const WalletContextProvider = ({
       //   subscribe.agent = "Bitcoin world";
       //   subscribe.reference = "898989";
 
+
       const payload: ClientPayload<Subscription> =
         new ClientPayload();
+      payload.chainId = new ChainId(ML_CHAIN_ID)
       payload.data = subscribe;
       payload.subnet = subnetId;
       payload.timestamp = Date.now();
@@ -1054,29 +1097,36 @@ export const WalletContextProvider = ({
 
       // messagettachments.push(messageAttachment);
 
-      message.topicId = topicId;
+      message.topic = topicId;
       message.sender = Address.fromString(account);
       message.data = Buffer.from(messageString);
+      message.dataType = DataType.TXT
+      message.nonce = Date.now()
       // message.attachments = messagettachments.map((item) => item.asPayload());
       // message.actions = messageActions.map((item) => item.asPayload());
-
+      
       const payload: ClientPayload<Message> =
         new ClientPayload();
+      
+      payload.chainId = new ChainId(ML_CHAIN_ID)
       payload.data = message;
       payload.timestamp = Date.now();
       payload.eventType = MemberMessageEventType.SendMessageEvent;
       payload.validator = VALIDATOR_PUBLIC_KEY;
       payload.account = Address.fromString(account);
       payload.nonce = 0;
+    
       payload.subnet = selectedSubnetId;
       const pb = payload.encodeBytes();
       console.log("HEXDATA", pb.toString("hex"));
+      console.log("PAYLOAOOD", pb)
       payload.signature = await Utils.signMessageEcc(pb, agent.privateKey);
+      console.log("Payload::::", payload.data.data)
       console.log("Payload", JSON.stringify(payload.asPayload()));
 
       const client = new Client(new RESTProvider(NODE_HTTP));
       const resp: any = await client.createMessage(payload);
-
+    
       const event = resp?.data;
       console.log("AUTHORIZE", "resp", resp, "event", event?.id, event?.t);
       client.resolveEvent({ type: event?.t, id: event?.id }).then((e) => {
@@ -1098,9 +1148,41 @@ export const WalletContextProvider = ({
     setLoaders((old) => ({ ...old, sendMessage: false }));
   };
 
+  const signEth: (message: string | { raw: `0x${string}` }) => Promise<{
+    data?: string;
+    error?: string;
+    variables: any;
+    context: any;
+  }> = async (message: string | { raw: `0x${string}` }) => {
+    return new Promise<{
+      data?: string;
+      error?: string;
+      variables: any;
+      context: any;
+    }>((resolve, reject) => {
+      signMessage(
+        { message: message },
+        {
+          onSuccess(data, variables, context) {
+            resolve({ data: data, variables, context });
+          },
+          onError(error, variables, context) {
+            reject({ error, variables, context });
+          },
+        }
+      );
+    });
+  };
+
   const createSubnet = async (
     // agent: AddressData,
-    {name, ref, status, dAuthPriv, update}: {
+    {
+      name,
+      ref,
+      status,
+      dAuthPriv,
+      update,
+    }: {
       name: string;
       ref: string;
       status: number;
@@ -1135,37 +1217,15 @@ export const WalletContextProvider = ({
       subNetwork.meta = JSON.stringify({ name });
       subNetwork.reference = ref;
       subNetwork.status = status;
-      subNetwork.owner = Address.fromString(account);
+      subNetwork.account =  Address.fromString(account)
+      // subNetwork.owner = Address.fromString(account);
       subNetwork.timestamp = Date.now();
       subNetwork.defaultAuthPrivilege = dAuthPriv;
-
-      const encoded = subNetwork.encodeBytes();
-      // console.log("ID::::", { authority, encoded });
-
-      const hash = Utils.sha256Hash(encoded).toString("base64");
-      const message = JSON.stringify({
-        action: `CreateSubnet`,
-        network: ML_ADDRESS_PREFIX,
-        identifier: `${subNetwork.reference}`,
-        hash: `${hash}`,
-      }).replace(/\\s+/g, "");
-
-      const signatureResp = await window.keplr.signArbitrary(
-        chainIds[connectedWallet],
-        account,
-        message
-      );
-      subNetwork.signatureData = new SignatureData(
-        signatureResp.pub_key.type as any,
-        signatureResp.pub_key.value,
-        signatureResp.signature
-      );
       subNetwork.account = Address.fromString(account);
 
-      const payload: ClientPayload<Subnet> =
-        new ClientPayload();
-
+      const payload: ClientPayload<Subnet> = new ClientPayload();
       payload.data = subNetwork;
+      payload.chainId = new ChainId(ML_CHAIN_ID)
       payload.timestamp = Date.now();
       if (update) {
         if (selectedSubnetId == null) {
@@ -1187,18 +1247,50 @@ export const WalletContextProvider = ({
       const pb = payload.encodeBytes();
       console.log("HEXDATA", pb.toString("hex"));
       // payload.signature = await Utils.signMessageEcc(pb, agent.privateKey);
+      // const encoded = subNetwork.encodeBytes();
+      // console.log("ID::::", { authority, encoded });
+
+      const hash = Utils.keccak256Hash(pb).toString("base64");
+      const message = JSON.stringify({
+        action: `CreateSubnet`,
+        network: ML_CHAIN_ID,
+        identifier: `${subNetwork.reference}`,
+        hash: `${hash}`,
+      }).replace(/\\s+/g, "");
+    console.log("SUBNETSIGNATURE", message)
+      if (connectedWallet == "keplr") {
+        const signatureResp = await window.keplr.signArbitrary(
+          chainIds[connectedWallet],
+          account,
+          message
+        );
+        subNetwork.signatureData = new SignatureData(
+          signatureResp.pub_key.type as any,
+          signatureResp.pub_key.value,
+          signatureResp.signature
+        );
+      } else {
+        // const msgHash = Utils.keccak256Hash(Buffer.from(message));
+        const signatureRespEth = await signEth(message);
+        subNetwork.signatureData = new SignatureData(
+          "eth",
+          signatureRespEth.variables.account,
+          signatureRespEth.data ?? ""
+        );
+      }
+      payload.data = subNetwork;
       console.log("Payload", JSON.stringify(payload.asPayload()));
 
       const client = new Client(new RESTProvider(NODE_HTTP));
       const resp: any = await client.createSubnet(payload);
 
       const event = resp?.data?.event;
-      console.log("AUTHORIZE", "resp", resp, "event", event?.id, event?.t);
+      console.log("Subnet", "resp", resp, "event", event?.id, event?.t);
       client.resolveEvent({ type: event?.t, id: event?.id }).then((e) => {
         setToggleGroup4((old) => !old);
       });
     } catch (e: any) {
-      console.log("AUTHORIZE error", e);
+      console.log("Subnet error", e);
       notification.error({ message: e?.response?.data?.error + "" });
     }
     setLoaders((old) => ({ ...old, createSubnet: false }));
@@ -1283,6 +1375,7 @@ export const WalletContextProvider = ({
         loaders,
         initializeKeplr,
         intializeMetamask,
+        intializeWagmi,
         authorizeAgent,
         generateAgent,
         updateAgents,
@@ -1347,6 +1440,30 @@ export const MetaWrapper = ({ children }: { children: ReactNode }) => {
       >
         {children}
       </MetaMaskProvider>
+    );
+  }
+  return <>{children}</>;
+};
+
+export const WagmiWrapper = ({ children }: { children: ReactNode }) => {
+  if (typeof window !== "undefined") {
+    const queryClient = new QueryClient();
+
+    // 3. Create modal
+    createWeb3Modal({
+      wagmiConfig: wagmiConfig,
+      projectId: wagmiProjectId,
+      // enableAnalytics: true, // Optional - defaults to your Cloud configuration
+      // enableOnramp: true, // Optional - false as default
+    });
+    return (
+      <>
+        <WagmiProvider config={wagmiConfig}>
+          <QueryClientProvider client={queryClient}>
+            {children}
+          </QueryClientProvider>
+        </WagmiProvider>
+      </>
     );
   }
   return <>{children}</>;

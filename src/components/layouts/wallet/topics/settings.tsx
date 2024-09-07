@@ -112,7 +112,7 @@ export const TopicSetting = (props: TopicSettingsProps) => {
                 className=" mt-[28px] self-end"
                 shape="round"
               >
-                <span className="text-black">Update</span>
+                <span className="">Update</span>
               </Button>
             </Form>
     </motion.div>

@@ -1,5 +1,5 @@
 "use client";
-import { INFO_LINKS,  displayVariants, shorternAddress } from "@/utils";
+import { INFO_LINKS, displayVariants, shorternAddress } from "@/utils";
 import * as HeroIcons from "@heroicons/react/24/solid";
 import React, { useContext, useMemo, useState } from "react";
 import { motion } from "framer-motion";
@@ -43,11 +43,15 @@ export const Agents = (props: AgentsProps) => {
           <i>Not Authorized</i>
         ),
 
-        expires: kp.authData ? ((kp.authData?.du ?? 0) == 0 ? 'Never':(
-          moment(
-            new Date((kp.authData?.ts ?? 0) + (kp.authData?.du ?? 0))
-          ).fromNow()
-        )) : (
+        expires: kp.authData ? (
+          (kp.authData?.du ?? 0) == 0 ? (
+            "Never"
+          ) : (
+            moment(
+              new Date((kp.authData?.ts ?? 0) + (kp.authData?.du ?? 0))
+            ).fromNow()
+          )
+        ) : (
           <i>Not Authorized</i>
         ),
       } as any;
@@ -92,7 +96,6 @@ export const Agents = (props: AgentsProps) => {
               notification.open({ message: "Key Copied" });
             }}
             type="link"
-            
             shape="round"
           >
             <div className="flex gap-2">
@@ -114,7 +117,7 @@ export const Agents = (props: AgentsProps) => {
       key: "expires",
     },
     {
-      title: "",
+      title: "Action",
       dataIndex: "address",
       key: "action",
       render: (text, record) => {
@@ -135,7 +138,7 @@ export const Agents = (props: AgentsProps) => {
 
   return (
     <motion.div
-      className="inline-flex w-full flex-col gap-6 py-8"
+      className="inline-flex w-full flex-col gap-6 py-10 px-7"
       variants={displayVariants}
       initial={"hidden"}
       animate={"show"}
@@ -145,44 +148,40 @@ export const Agents = (props: AgentsProps) => {
       }}
       // transition={{ duration: 1, delay: 1 }}
     >
-      <div className="flex">
-       <HeroIcons.InformationCircleIcon  className="w-[32px]"/> 
-      <span className="text-xs text-gray-500 ml-10">
-     Agents act on behalf of Accounts on the
-        mLayer network. This is important for security and flexibility. For example, a compromised agent can quickly be
-          deauthorized to prevent further attack. <a href={INFO_LINKS.agentInfo} >Learn more...</a>
-        </span>
+      <div className="flex gap-4 items-center flex-wrap">
+        <div className="flex gap-2 items-center">
+          <span className=" dark:text-white text-sm">Agents</span>
+          <HeroIcons.InformationCircleIcon className="h-[16px] dark:!text-white " />
         </div>
-      <div className="flex gap-4 justify-end">
-        {/* <Button
-          onClick={() => {
-            setShowModal((old) => !old);
-          }}
-          loading={loaders["authorizeAgent"]}
-          className="self-end"
-          ghost
-          type="primary"
-          shape="round"
-        >
-          <span>Authorize Agent</span>
-        </Button> */}
-
+        <span className="dark:text-white text-sm bg-secondaryBg p-3 max-w-[415px]">
+          Agents act on behalf of Accounts on the mLayer network. This is
+          important for security and flexibility. For example, a compromised
+          agent can quickly be deauthorized to prevent further attack.{" "}
+          <a href={INFO_LINKS.agentInfo}>Learn more...</a>
+        </span>
         <Button
           onClick={() => {
             //
             // generateAgent?.();
             setShowNewAgentModal((old) => !old);
           }}
-          className=""
+          className="ml-auto"
           ghost
           type="primary"
           shape="round"
         >
-          {/* <HeroIcons.PlusCircleIcon className="h-[20px]" /> */}
-          Add Agent
+          <div className="flex gap-2 items-center">
+            <HeroIcons.PlusIcon className="h-[20px]" />
+            Add Agent
+          </div>
         </Button>
       </div>
-      <Table dataSource={dataSource} columns={columns} />
+
+      <Table
+        dataSource={dataSource}
+        columns={columns}
+        // bordered
+      />
       <AuthorizeAgent
         updateAddressData={updateAddressData}
         addressData={authAddress}

@@ -92,6 +92,7 @@ export const AuthorizeAgent = (props: AuthorizeAgentProps) => {
         >
           <Form
             className="flex flex-col"
+            layout="vertical"
             name="basic"
             {...formLayout}
             form={form}
@@ -114,7 +115,7 @@ export const AuthorizeAgent = (props: AuthorizeAgentProps) => {
             autoComplete="off"
           >
             <Form.Item
-              label="Agent Address:"
+              label="Agent Address"
               name="address"
               rules={[
                 { required: true, message: "Please input select an address!" },
@@ -139,7 +140,7 @@ export const AuthorizeAgent = (props: AuthorizeAgentProps) => {
             </Form.Item>
 
             <Form.Item
-              label="Duration:"
+              label="Duration"
               name="duration"
               rules={[{ required: true, message: "Please input a duration!" }]}
             >
@@ -150,7 +151,7 @@ export const AuthorizeAgent = (props: AuthorizeAgentProps) => {
             </Form.Item>
 
             <Form.Item
-              label="Privilege:"
+              label="Privilege"
               name="privi"
               rules={[{ required: true, message: "Please select a privilege!" }]}
             >
@@ -177,7 +178,7 @@ export const AuthorizeAgent = (props: AuthorizeAgentProps) => {
               className="w-full mt-[28px] self-end"
               shape="round"
             >
-              <span className="text-black">{updateAddressData?'Update':'Authorize'}</span>
+              <span className="">{updateAddressData?'Update':'Authorize'}</span>
             </Button>
           </Form>
         </motion.div>
