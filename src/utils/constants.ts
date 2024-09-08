@@ -100,3 +100,4 @@ export const MIDDLEWARE_HTTP_URLS = {
     },
   },
 };
+
