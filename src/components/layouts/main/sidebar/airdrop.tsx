@@ -23,7 +23,7 @@ export const AirdropAside = (props: AirdropAsideProps) => {
               index == selectedScreen
                 ? "bg-mainLightColor"
                 : "bg-[var(--m-background-color)]"
-            } py-4 min-h-24 px-3 rounded-lg flex flex-col gap-4`}
+            } py-4 min-h-24 px-3 rounded-lg flex flex-col gap-4 cursor-pointer`}
           >
             <span className="dark:text-white font-bold text-sm">
               {detail.title}
