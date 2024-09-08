@@ -28,6 +28,7 @@ import * as HeroIcons from "@heroicons/react/24/solid";
 const MotionButton = motion(Button);
 
 interface AppHeaderProps {
+  headerText?: string;
   setShowMobileMenu: React.Dispatch<React.SetStateAction<boolean>>;
   showMobileMenu: boolean;
   setShowAuthenticationModal: React.Dispatch<React.SetStateAction<boolean>>;
@@ -35,6 +36,7 @@ interface AppHeaderProps {
 }
 export const AppHeader = (props: AppHeaderProps) => {
   const {
+    headerText = "Mlstudio",
     showMobileMenu,
     setShowMobileMenu,
     showAuthenticationModal,
@@ -142,7 +144,7 @@ export const AppHeader = (props: AppHeaderProps) => {
                 priority
               />{" "}
               <span className="text-2xl font-bold font-assistant bg:text-white">
-                ml<span className="text-white">Studio</span>
+                {headerText}
               </span>
             </div>
           </a>

@@ -6,6 +6,7 @@ import { AntdRegistry } from "@ant-design/nextjs-registry";
 import localFont from "next/font/local";
 
 import {
+  AirDropContextProvider,
   AppContextProvider,
   MetaWrapper,
   ThemeContextProvider,
@@ -77,15 +78,17 @@ export default function RootLayout({
         style={{ height: "100vh" }}
       >
         <ThemeContextProvider>
-          <AppContextProvider>
-            <AntdRegistry>
-              {/* <MetaWrapper> */}
+          <AirDropContextProvider>
+            <AppContextProvider>
+              <AntdRegistry>
+                {/* <MetaWrapper> */}
                 <WagmiWrapper>
                   <WalletContextProvider>{children}</WalletContextProvider>
                 </WagmiWrapper>
-              {/* </MetaWrapper> */}
-            </AntdRegistry>
-          </AppContextProvider>
+                {/* </MetaWrapper> */}
+              </AntdRegistry>
+            </AppContextProvider>
+          </AirDropContextProvider>
         </ThemeContextProvider>
       </body>
     </html>
