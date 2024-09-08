@@ -16,12 +16,7 @@ import * as HeroIcons from "@heroicons/react/24/solid";
 
 import { AnimatePresence, motion } from "framer-motion";
 import { useForm } from "antd/es/form/Form";
-import {
-
-  displayVariants,
-  formLayout,
-  shorternAddress,
-} from "@/utils";
+import { displayVariants, formLayout, shorternAddress } from "@/utils";
 import { WalletContext } from "@/context";
 import { Utils } from "@mlayerprotocol/core";
 
@@ -37,7 +32,7 @@ enum KeyOptionTypes {
 export const NewAgent = (props: NewAgentProps) => {
   const { generateAgent, agents, updateAgents } = useContext(WalletContext);
   const [selectedOption, setSelectedOption] = useState<KeyOptionTypes>(
-    KeyOptionTypes.Upload
+    KeyOptionTypes.GenerateNew
   );
   const [createdAddress, setCreatedAddress] = useState<AddressData>();
   const [showAuthSection, setShowAuthSection] = useState(false);
@@ -63,20 +58,24 @@ export const NewAgent = (props: NewAgentProps) => {
         <div className="mb-8">
           {!showAuthSection && (
             <Radio.Group onChange={onChange} value={selectedOption}>
+               <Radio value={KeyOptionTypes.GenerateNew}>
+                Generate New Agent Keys
+              </Radio>
               <Radio value={KeyOptionTypes.Upload}>Import Private Key</Radio>
-              <Radio value={KeyOptionTypes.GenerateNew}>Generate New Agent Keys</Radio>
+             
             </Radio.Group>
           )}
           {showAuthSection && (
             <div className="flex gap-2">
-            <HeroIcons.ArrowLeftIcon
-              onClick={() => {
-                setShowAuthSection(false);
-              }}
-              className="h-[20px]"
-            /> <Typography.Title level={5}> New Agent Key Pair</Typography.Title>
-              </div>
-          )} 
+              <HeroIcons.ArrowLeftIcon
+                onClick={() => {
+                  setShowAuthSection(false);
+                }}
+                className="h-[20px]"
+              />{" "}
+              <Typography.Title level={5}> New Agent Key Pair</Typography.Title>
+            </div>
+          )}
         </div>
         <AnimatePresence>
           {!showAuthSection && (
@@ -97,6 +96,7 @@ export const NewAgent = (props: NewAgentProps) => {
                     className="flex flex-col"
                     name="basic"
                     {...formLayout}
+                    layout="vertical"
                     form={form}
                     onFinish={(data) => {
                       const privateKey: string = data["privateKey"];
@@ -133,7 +133,7 @@ export const NewAgent = (props: NewAgentProps) => {
                       className="w-full mt-[28px] self-end"
                       shape="round"
                     >
-                      <span className="text-black">Import Key</span>
+                      <span className="">Import Key</span>
                     </Button>
                   </Form>
                 </motion.div>
@@ -162,7 +162,7 @@ export const NewAgent = (props: NewAgentProps) => {
                     className="w-full mt-[28px] self-end"
                     shape="round"
                   >
-                    <span className="text-black">Generate New Key</span>
+                    <span className="">Generate New Key</span>
                   </Button>
                 </motion.div>
               )}
@@ -180,19 +180,28 @@ export const NewAgent = (props: NewAgentProps) => {
               }}
               // transition={{ duration: 1, delay: 1 }}
             >
-              <span className="text-gray-500">Agent Address: </span><span> {createdAddress?.address}</span>
-              <br/><span  className="text-gray-500">Private Key: </span><Button
-            onClick={() => {
-              navigator.clipboard.writeText(String(createdAddress?.privateKey));
-              notification.open({ message: "Copied to clipboard" });
-            }}
-            type="text"
-          
-          >
-            <div className="flex gap-2">
-            <span>{shorternAddress(String(createdAddress?.privateKey))} </span> <HeroIcons.DocumentDuplicateIcon className="h-[20px]" />
-            </div>
-          </Button>
+              <span className="font-bold dark:text-white">Agent Address: </span>
+              <br />
+              <span> {createdAddress?.address}</span>
+              <br />
+              <br />
+              <span className="font-bold dark:text-white">Private Key: </span>
+              <br />
+              <span
+                onClick={() => {
+                  navigator.clipboard.writeText(
+                    String(createdAddress?.privateKey)
+                  );
+                  notification.open({ message: "Copied to clipboard" });
+                }}
+              >
+                <div className="flex gap-2">
+                  <span>
+                    {shorternAddress(String(createdAddress?.privateKey))}{" "}
+                  </span>{" "}
+                  <HeroIcons.DocumentDuplicateIcon className="h-[20px] !text-[#2F5ED2]" />
+                </div>
+              </span>
               <Button
                 type="primary"
                 onClick={() => {
@@ -205,7 +214,7 @@ export const NewAgent = (props: NewAgentProps) => {
                 className="w-full mt-[28px] self-end"
                 shape="round"
               >
-                <span className="text-black">Authorize this Agent Keys</span>
+                <span className="">Authorize this Agent Keys</span>
               </Button>
             </motion.div>
           )}

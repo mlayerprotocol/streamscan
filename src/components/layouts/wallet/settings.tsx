@@ -36,8 +36,7 @@ export const Settings = (props: SettingsProps) => {
       (opt) => opt.id == selectedSubnetId
     );
     const meta = metaToObject(selectedSubnet?.meta) ?? {};
-   
-    
+
     form.setFieldsValue({
       n: meta.name,
       ref: selectedSubnet?.ref,
@@ -57,7 +56,7 @@ export const Settings = (props: SettingsProps) => {
       }}
       // transition={{ duration: 1, delay: 1 }}
     >
-      <div className="flex flex-col my-8">
+      <div className="flex flex-col my-16 mx-5 xl:mx-72">
         <motion.div
           className="inline-block w-full"
           variants={displayVariants}
@@ -70,8 +69,9 @@ export const Settings = (props: SettingsProps) => {
           // transition={{ duration: 1, delay: 1 }}
         >
           <Form
-            {...{ ...formLayout, wrapperCol: { span: 12 }} }
+            {...{ ...formLayout }}
             className="flex flex-col"
+            layout="vertical"
             name="basic"
             form={form}
             initialValues={{}}
@@ -79,8 +79,14 @@ export const Settings = (props: SettingsProps) => {
               const name: string = data["n"];
               const ref: string = data["ref"];
               const status: number = data["status"];
-              const dAuthPriv: AuthorizationPrivilege = data['dAuthPriv'];
-              createSubnet?.({ name, dAuthPriv, ref: ref.trim(), status, update: true});
+              const dAuthPriv: AuthorizationPrivilege = data["dAuthPriv"];
+              createSubnet?.({
+                name,
+                dAuthPriv,
+                ref: ref.trim(),
+                status,
+                update: true,
+              });
               console.log({ data });
               form.setFieldsValue({});
             }}
@@ -108,9 +114,7 @@ export const Settings = (props: SettingsProps) => {
             <Form.Item
               label={`Reference Id: `}
               name="ref"
-              rules={[
-                { required: true, message: "Reference Id is required" },
-              ]}
+              rules={[{ required: true, message: "Reference Id is required" }]}
             >
               <Input placeholder="e.g. unique id or code" />
             </Form.Item>
@@ -129,16 +133,21 @@ export const Settings = (props: SettingsProps) => {
                 { required: true, message: "Please select an auth privilege!" },
               ]}
             >
-              <Select defaultValue={AuthorizationPrivilege.Standard} >
-                {Object.keys(AuthorizationPrivilege).filter(d=>isNaN(parseInt(d))).map((val, index) => {
-                  return (
-                    <Select.Option key={index} value={(AuthorizationPrivilege as any)[String(val)]}>
-                      {val}
-                    </Select.Option>
-                  );
-                })}
+              <Select defaultValue={AuthorizationPrivilege.Standard}>
+                {Object.keys(AuthorizationPrivilege)
+                  .filter((d) => isNaN(parseInt(d)))
+                  .map((val, index) => {
+                    return (
+                      <Select.Option
+                        key={index}
+                        value={(AuthorizationPrivilege as any)[String(val)]}
+                      >
+                        {val}
+                      </Select.Option>
+                    );
+                  })}
               </Select>
-            </Form.Item>     
+            </Form.Item>
 
             <Form.Item
               label="Status:"
@@ -162,10 +171,10 @@ export const Settings = (props: SettingsProps) => {
               loading={loaders["createSubnet"]}
               type="primary"
               htmlType="submit"
-              className=" mt-[28px] self-center"
+              className=" mt-[28px] w-full"
               shape="round"
             >
-              <span className="text-black">Update</span>
+              <span className="">Update Settings</span>
             </Button>
           </Form>
         </motion.div>

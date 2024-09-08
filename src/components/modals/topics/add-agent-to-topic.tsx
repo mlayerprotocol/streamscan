@@ -179,7 +179,7 @@ export const AddAgentToTopic = (props: AddAgentToTopicProps) => {
               className="w-full mt-[28px] self-end"
               shape="round"
             >
-              <span className="text-black">Subscribe</span>
+              <span className="">Subscribe</span>
             </Button>
           </Form>
         </motion.div>

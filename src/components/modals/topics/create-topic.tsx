@@ -83,6 +83,7 @@ export const CreateTopic = (props: CreateTopicProps) => {
           <Form
             {...formLayout}
             className="flex flex-col"
+            layout="vertical"
             name="basic"
             form={form}
             initialValues={{ dSubRol: Entities.SubscriberRole.Writer, address: selectedAgentObj?.address, ...topicData }}
@@ -189,7 +190,7 @@ export const CreateTopic = (props: CreateTopicProps) => {
               className="w-full mt-[28px] self-end"
               shape="round"
             >
-              <span className="text-black">
+              <span className="">
                 {topicData ? "Update" : "Create"}
               </span>
             </Button>

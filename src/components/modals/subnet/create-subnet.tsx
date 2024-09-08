@@ -71,6 +71,7 @@ export const CreateSubnet = (props: CreateSubnetProps) => {
         >
           <Form
             {...formLayout}
+            layout="vertical"
             className="flex flex-col"
             name="basic"
             form={form}
@@ -161,7 +162,7 @@ export const CreateSubnet = (props: CreateSubnetProps) => {
               className="w-full mt-[28px] self-end"
               shape="round"
             >
-              <span className="text-black">Create Subnet</span>
+              <span className="">Create Subnet</span>
             </Button>
             
      

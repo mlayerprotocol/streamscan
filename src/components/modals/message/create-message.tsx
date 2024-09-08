@@ -66,6 +66,7 @@ export const CreateMessage = (props: CreateMessageProps) => {
         >
           <Form
             {...formLayout}
+            layout="vertical"
             className="flex flex-col"
             name="basic"
             form={form}
@@ -139,7 +140,7 @@ export const CreateMessage = (props: CreateMessageProps) => {
               className="w-full mt-[28px] self-end"
               shape="round"
             >
-              <span className="text-black">Send Message</span>
+              <span className="">Send Message</span>
             </Button>
           </Form>
         </motion.div>
