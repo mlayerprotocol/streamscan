@@ -137,7 +137,7 @@ export const TopicAgents = (props: TopicAgentsProps) => {
         <HeroIcons.InformationCircleIcon className="w-[32px]" />
         <span className="text-xs text-gray-500 ml-10">
           Subscribers are accounts or devices that can read from and publish messages to topics.{' '}
-          <a href={INFO_LINKS.subscribers}>Learn more...</a>
+          <a href={INFO_LINKS.subscribers}  target="_blank">Learn more...</a>
         </span>
       </Space>
       <div className="flex gap-4 justify-end">

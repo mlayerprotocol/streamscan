@@ -157,7 +157,7 @@ export const Agents = (props: AgentsProps) => {
           Agents act on behalf of Accounts on the mLayer network. This is
           important for security and flexibility. For example, a compromised
           agent can quickly be deauthorized to prevent further attack.{" "}
-          <a href={INFO_LINKS.agentInfo}>Learn more...</a>
+          <a target="_blank" href={INFO_LINKS.agentInfo}>Learn more...</a>
         </span>
         <Button
           onClick={() => {

@@ -102,10 +102,11 @@ export const Topics = (props: TopicsProps) => {
       {!selectedTopic && (
         <div className="flex flex-col">
           <div className="flex gap-4">
-            {tabs.map((tab) => {
+            {tabs.map((tab, index) => {
               const active = activeTab == tab.key;
               return (
                 <Button
+                  key={`${tab.key}`}
                   onClick={() => {
                     setActiveTab(tab.key);
                   }}

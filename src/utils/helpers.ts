@@ -34,10 +34,10 @@ export function waitFor(ms: number, value: any) {
   return new Promise((resolve) => setTimeout(resolve, ms, value));
 }
 
-export function currencyFormat(num: number, currency: string = "$") {
-  return `${currency}${num
+export function currencyFormat(num: number | bigint, currency: string = '$') {
+  return `${currency}${parseFloat(String(num))
     .toFixed(2)
-    .replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,")}`;
+    .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}`;
 }
 
 export function metaToObject(value?: string): Record<string, any> | undefined {

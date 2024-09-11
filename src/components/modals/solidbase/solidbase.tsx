@@ -70,7 +70,7 @@ export const GoToSolidBase = (props: GoToSolidBaseProps) => {
           <div>
             <Space direction="vertical"  className="w-full justify-center">
             <Space direction="horizontal" className="w-full justify-center">
-                <Image preview={false} src="/logo.png"  className="!w-20" /> <HeroIcons.ArrowsRightLeftIcon className="w-5" /> <Image  className="!w-20" preview={false} src="/solidbase.png" />
+                <Image alt="" preview={false} src="/logo.png"  className="!w-20" /> <HeroIcons.ArrowsRightLeftIcon className="w-5" /> <Image  alt=""  className="!w-20" preview={false} src="/solidbase.png" />
             </Space>
 
               <div className="flex text-lg w-full justify-center text-center">MLayers uses SOLIDBASE service to track users social activity points</div>
