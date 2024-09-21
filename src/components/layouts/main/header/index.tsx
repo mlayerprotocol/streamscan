@@ -36,7 +36,7 @@ interface AppHeaderProps {
 }
 export const AppHeader = (props: AppHeaderProps) => {
   const {
-    headerText = "Mlstudio",
+    headerText = "mlStudio",
     showMobileMenu,
     setShowMobileMenu,
     showAuthenticationModal,
