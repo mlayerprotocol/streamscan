@@ -23,7 +23,7 @@ export const AirdropMobileAside = (props: AirdropMobileAsideProps) => {
           onClick={() => setShowMobileMenu?.((old) => !old)}
         ></div>
         <div className="bg-secondaryBg px-7 py-20 flex flex-col h-full col-span-2 gap-6">
-          {tabsDetails.map((detail, index) => {
+          {tabsDetails?.map((detail, index) => {
             return (
               <div
                 onClick={() => {
@@ -37,10 +37,10 @@ export const AirdropMobileAside = (props: AirdropMobileAsideProps) => {
                 } py-4 min-h-24 px-3 rounded-lg flex flex-col gap-4`}
               >
                 <span className="dark:text-white font-bold text-sm">
-                  {detail.title}
+                {detail.categoryName}
                 </span>
                 <span className="dark:text-white text-xs">
-                  {detail.subTitle}
+                  <span className="dark:text-white text-xs">{`Points Earned - ${detail.pointsEarned} out of ${detail.totalPoints}`}</span>
                 </span>
               </div>
             );
