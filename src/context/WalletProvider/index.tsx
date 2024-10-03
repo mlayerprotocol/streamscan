@@ -52,6 +52,7 @@ import {
   Message,
   MemberMessageEventType,
   ChainId,
+  Device,
 }  from "@mlayerprotocol/core";
 
 import { notification } from "antd";
@@ -69,6 +70,7 @@ import { useAccount, useSignMessage, WagmiProvider } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { wagmiConfig, wagmiProjectId } from "../Config";
 import { LeaderboardPointListModel } from "@/model/leaderboard";
+import { PointByCategoryModel } from "@/model/points/by-category";
 
 // import { Authorization } from "@mlayerprotocol/core/src/entities";
 // const { Authorization } = Entities;
@@ -103,6 +105,7 @@ interface WalletContextValues {
   mainStatsData?: MainStatsModel;
   messagesList?: MessageListModel;
   pointsList?: PointListModel;
+  pointsCategoryList?: PointByCategoryModel;
   leaderboardPointsList?: LeaderboardPointListModel;
   pointsDetail?: PointDetailModel;
   subnetListModelList?: SubnetListModel;
@@ -282,6 +285,8 @@ export const WalletContextProvider = ({
   const [mainStatsData, setMainStatsData] = useState<MainStatsModel>();
   const [messagesList, setMessagesList] = useState<MessageListModel>();
   const [pointsList, setPointsList] = useState<PointListModel>();
+  const [pointsCategoryList, setPointsCategoryList] =
+    useState<PointByCategoryModel>();
   const [leaderboardPointsList, setLeaderboardPointsList] =
     useState<LeaderboardPointListModel>();
   const [pointsDetail, setPointsDetail] = useState<PointDetailModel>();
@@ -574,6 +579,20 @@ export const WalletContextProvider = ({
         console.log({ resp: resp.data });
       })
       .catch((e) => notification.error({ message: e }));
+    makeRequest(
+      `${MIDDLEWARE_HTTP_URLS.account.url}/${Address.fromString(
+        account
+      ).toAddressString()}/points-by-category`,
+      {
+        method: MIDDLEWARE_HTTP_URLS.account.method,
+      }
+    )
+      .then((b) => b?.json())
+      .then((resp) => {
+        setPointsCategoryList(resp);
+        console.log({ resp: resp.data });
+      })
+      .catch((e) => notification.error({ message: e }));
 
     makeRequest(`${MIDDLEWARE_HTTP_URLS.account.url}/did:${account}`, {
       method: MIDDLEWARE_HTTP_URLS.account.method,
@@ -606,7 +625,7 @@ export const WalletContextProvider = ({
     //   Utils.toAddress(Buffer.from(validatorPublicKey, "hex"))
     // );
     authority.account = Address.fromString(account.publicKey);
-    authority.agent = agent.address;
+    authority.agent = Device.fromString(agent.address);
     authority.grantor = Address.fromString(account.publicKey);
     authority.timestamp = Date.now();
     authority.topicIds = "*";
@@ -617,8 +636,7 @@ export const WalletContextProvider = ({
     const encoded = authority.encodeBytes();
     // console.log("ID::::", { authority, encoded });
 
-    
-    return authority
+    return authority;
   };
 
   // const authorize = async (
@@ -629,7 +647,6 @@ export const WalletContextProvider = ({
   //   account: AddressData,
   //   payload: ClientPayload<Authorization>
   // ) => {
-   
 
   //   // console.log("Grant", authority.asPayload());
 
@@ -662,7 +679,7 @@ export const WalletContextProvider = ({
       notification.error({ message: "No wallet connected" });
       return;
     }
-    console.log("ACCOUNTS::::", walletAccounts)
+    console.log("ACCOUNTS::::", walletAccounts);
     const account = walletAccounts[connectedWallet][0];
     if (account == null) {
       notification.error({ message: "No account found" });
@@ -695,10 +712,11 @@ export const WalletContextProvider = ({
         const pb = payload.encodeBytes();
 
         const hash = Utils.keccak256Hash(pb).toString("base64");
+
     const message = JSON.stringify({
       entity: `Authorization`,
       network: ML_CHAIN_ID,
-      identifier: `${Address.fromString(authority.agent).address}`,
+      identifier: `${authority.agent.address}`,
       hash: `${hash}`,
     }).replace(/\\s+/g, "");
         
@@ -1123,23 +1141,6 @@ export const WalletContextProvider = ({
     setLoaders((old) => ({ ...old, sendMessage: true }));
     try {
       const message: Message = new Message();
-      // const messageAction = new MessageAction();
-      // const messageAttachment = new MessageAttachment();
-      const messageActions = [];
-      const messagettachments = [];
-
-      // messageAction.contract = "";
-      // messageAction.abi = "";
-      // messageAction.action = "";
-      // messageAction.parameters = [""];
-
-      // messageActions.push(messageAction);
-
-      // messageAttachment.cid = "";
-      // messageAttachment.hash = "";
-
-      // messagettachments.push(messageAttachment);
-
       message.topic = topicId;
       message.sender = Address.fromString(account);
       message.data = Buffer.from(messageString);
@@ -1461,6 +1462,7 @@ export const WalletContextProvider = ({
         selectedMessagesTopicId,
         messagesList,
         pointsList,
+        pointsCategoryList,
         leaderboardPointsList,
         pointsDetail,
         subscriberTopicList,
