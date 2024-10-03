@@ -21,7 +21,7 @@ import {
   AuthorizationPrivilege,
   SubscriptionStatus,
 } from "@mlayerprotocol/core/src/entities";
-import { Entities } from "@mlayerprotocol/core";
+import { Entities }  from "@mlayerprotocol/core";
 import Link from "next/link";
 const status = SubscriptionStatus.Invited;
 interface PendingTopicsProps {

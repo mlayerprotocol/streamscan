@@ -52,10 +52,10 @@ import {
   Message,
   MemberMessageEventType,
   ChainId,
-} from "@mlayerprotocol/core";
+}  from "@mlayerprotocol/core";
 
 import { notification } from "antd";
-import { RESTProvider } from "@mlayerprotocol/core";
+import { RESTProvider }  from "@mlayerprotocol/core";
 import { TopicListModel } from "@/model/topic";
 import { AuthenticationListModel } from "@/model/authentications/list";
 import { BlockStatsListModel } from "@/model/block-stats";
@@ -695,9 +695,8 @@ export const WalletContextProvider = ({
         const pb = payload.encodeBytes();
 
         const hash = Utils.keccak256Hash(pb).toString("base64");
-
     const message = JSON.stringify({
-      action: `AuthorizeAgent`,
+      entity: `Authorization`,
       network: ML_CHAIN_ID,
       identifier: `${Address.fromString(authority.agent).address}`,
       hash: `${hash}`,
@@ -1295,14 +1294,15 @@ export const WalletContextProvider = ({
 
       const hash = Utils.keccak256Hash(pb).toString("base64");
       const message = JSON.stringify({
-        action: `CreateSubnet`,
+        entity: `Subnet`,
         network: ML_CHAIN_ID,
         identifier: `${subNetwork.reference}`,
         hash: `${hash}`,
       }).replace(/\\s+/g, "");
-    console.log("SUBNETSIGNATURE", message)
+      console.log("SUBNETSIGNATURE", message)
+      let signatureResp: any;
       if (connectedWallet == "keplr") {
-        const signatureResp = await window.keplr.signArbitrary(
+        signatureResp = await window.keplr.signArbitrary(
           chainIds[connectedWallet],
           account,
           message
@@ -1314,13 +1314,17 @@ export const WalletContextProvider = ({
         );
       } else {
         // const msgHash = Utils.keccak256Hash(Buffer.from(message));
-        const signatureRespEth = await signEth(message);
+        signatureResp = await signEth(message);
+        
         subNetwork.signatureData = new SignatureData(
           "eth",
-          signatureRespEth.variables.account,
-          signatureRespEth.data ?? ""
+          signatureResp.variables.account,
+          signatureResp.data ?? ""
         );
       }
+ 
+      
+      if (!signatureResp) return
       payload.data = subNetwork;
       console.log("Payload", JSON.stringify(payload.asPayload()));
 

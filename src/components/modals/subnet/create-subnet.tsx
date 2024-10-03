@@ -16,7 +16,7 @@ import { motion } from "framer-motion";
 import { useForm } from "antd/es/form/Form";
 import { displayVariants, formLayout, shorternAddress } from "@/utils";
 import { WalletContext } from "@/context";
-import { AuthorizationPrivilege, Entities } from "@mlayerprotocol/core";
+import { AuthorizationPrivilege, Entities }  from "@mlayerprotocol/core";
 
 interface CreateSubnetProps {
   isModalOpen?: boolean;

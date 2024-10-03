@@ -7,7 +7,7 @@ import { Button, Table, TableProps, notification } from "antd";
 import { AuthorizeAgent, NewAgent, PrivateKey } from "@/components";
 import { WalletContext } from "@/context";
 import moment from "moment";
-import { Entities } from "@mlayerprotocol/core";
+import { Entities }  from "@mlayerprotocol/core";
 
 interface AgentsProps {
   onSuccess?: (values: any) => void;
