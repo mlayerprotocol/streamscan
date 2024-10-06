@@ -733,7 +733,7 @@ export const WalletContextProvider = ({
       );
     } else {
       // const msgHash = Utils.keccak256Hash(Buffer.from(message));
-      const signatureRespEth = await signEth(message);
+      const signatureRespEth = await signEth(message, account);
       authority.signatureData = new SignatureData(
         "eth",
         signatureRespEth.variables.account,
@@ -1191,12 +1191,12 @@ export const WalletContextProvider = ({
     setLoaders((old) => ({ ...old, sendMessage: false }));
   };
 
-  const signEth: (message: string | { raw: `0x${string}` }) => Promise<{
+  const signEth: (message: string | { raw: `0x${string}` }, signer: string) => Promise<{
     data?: string;
     error?: string;
     variables: any;
     context: any;
-  }> = async (message: string | { raw: `0x${string}` }) => {
+  }> = async (message: string | { raw: `0x${string}` }, signer: any) => {
     return new Promise<{
       data?: string;
       error?: string;
@@ -1204,7 +1204,7 @@ export const WalletContextProvider = ({
       context: any;
     }>((resolve, reject) => {
       signMessage(
-        { message: message },
+        { account: signer, message: message },
         {
           onSuccess(data, variables, context) {
             resolve({ data: data, variables, context });
@@ -1315,7 +1315,7 @@ export const WalletContextProvider = ({
         );
       } else {
         // const msgHash = Utils.keccak256Hash(Buffer.from(message));
-        signatureResp = await signEth(message);
+        signatureResp = await signEth(message, account);
         
         subNetwork.signatureData = new SignatureData(
           "eth",
