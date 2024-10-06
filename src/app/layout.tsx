@@ -78,17 +78,18 @@ export default function RootLayout({
         style={{ height: "100vh" }}
       >
         <ThemeContextProvider>
-          <AirDropContextProvider>
-            <AppContextProvider>
-              <AntdRegistry>
-                {/* <MetaWrapper> */}
-                <WagmiWrapper>
-                  <WalletContextProvider>{children}</WalletContextProvider>
-                </WagmiWrapper>
-                {/* </MetaWrapper> */}
-              </AntdRegistry>
-            </AppContextProvider>
-          </AirDropContextProvider>
+          <AppContextProvider>
+            <AntdRegistry>
+              {/* <MetaWrapper> */}
+              <WagmiWrapper>
+                <WalletContextProvider>
+                  {" "}
+                  <AirDropContextProvider> {children} </AirDropContextProvider>
+                </WalletContextProvider>
+              </WagmiWrapper>
+              {/* </MetaWrapper> */}
+            </AntdRegistry>
+          </AppContextProvider>
         </ThemeContextProvider>
       </body>
     </html>

@@ -69,6 +69,7 @@ import { useAccount, useSignMessage, WagmiProvider } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { wagmiConfig, wagmiProjectId } from "../Config";
 import { LeaderboardPointListModel } from "@/model/leaderboard";
+import { PointByCategoryModel } from "@/model/points/by-category";
 
 // import { Authorization } from "@mlayerprotocol/core/src/entities";
 // const { Authorization } = Entities;
@@ -85,7 +86,7 @@ interface WalletContextValues {
     address?: string,
     privateKey?: string
   ) => Promise<void>;
-  walletAccounts: Record<string, string[]>;
+  walletAccounts: Record<string, (string | undefined)[]>;
   loadingWalletConnections: Record<string, boolean>;
   walletConnectionState: Record<string, boolean>;
   connectedWallet?: string;
@@ -103,6 +104,7 @@ interface WalletContextValues {
   mainStatsData?: MainStatsModel;
   messagesList?: MessageListModel;
   pointsList?: PointListModel;
+  pointsCategoryList?: PointByCategoryModel;
   leaderboardPointsList?: LeaderboardPointListModel;
   pointsDetail?: PointDetailModel;
   subnetListModelList?: SubnetListModel;
@@ -238,7 +240,7 @@ export const WalletContextProvider = ({
   const { address: wagmiAddress } = useAccount();
 
   const [walletAccounts, setWalletAccounts] = useState<
-    Record<string, string[]>
+    Record<string, (string | undefined)[]>
   >({});
   const [loadingWalletConnections, setLoadingWalletConnections] = useState<
     Record<string, boolean>
@@ -282,6 +284,8 @@ export const WalletContextProvider = ({
   const [mainStatsData, setMainStatsData] = useState<MainStatsModel>();
   const [messagesList, setMessagesList] = useState<MessageListModel>();
   const [pointsList, setPointsList] = useState<PointListModel>();
+  const [pointsCategoryList, setPointsCategoryList] =
+    useState<PointByCategoryModel>();
   const [leaderboardPointsList, setLeaderboardPointsList] =
     useState<LeaderboardPointListModel>();
   const [pointsDetail, setPointsDetail] = useState<PointDetailModel>();
@@ -307,6 +311,16 @@ export const WalletContextProvider = ({
     () => new Storage(SELECTED_SUBNET_STORAGE_KEY),
     []
   );
+
+  useEffect(() => {
+    console.log({ wagmiAddresswagmiAddresswagmiAddress: wagmiAddress });
+    if (!wagmiAddress) {
+      setWalletAccounts({ wagmi: [] });
+    }
+    setWalletAccounts((old) => {
+      return { ...old, wagmi: [wagmiAddress] };
+    });
+  }, [wagmiAddress]);
 
   const disconnectKeplr = async () => {
     if (window.keplr) {
@@ -475,7 +489,7 @@ export const WalletContextProvider = ({
     getAccountSubnets({
       params: {
         acct: Address.fromString(
-          walletAccounts[connectedWallet]?.[0]
+          walletAccounts[connectedWallet]?.[0] ?? ""
         ).toAddressString(),
       },
     });
@@ -510,7 +524,7 @@ export const WalletContextProvider = ({
     getAuthorizations({
       params: {
         acct: Address.fromString(
-          walletAccounts[connectedWallet]?.[0]
+          walletAccounts[connectedWallet]?.[0] ?? ""
         ).toAddressString(),
       },
     });
@@ -523,7 +537,7 @@ export const WalletContextProvider = ({
     getAccountSubscriptions({
       params: {
         acct: Address.fromString(
-          walletAccounts[connectedWallet]?.[0]
+          walletAccounts[connectedWallet]?.[0] ?? ""
         ).toAddressString(),
         snet: selectedSubnetId,
       },
@@ -574,6 +588,20 @@ export const WalletContextProvider = ({
         console.log({ resp: resp.data });
       })
       .catch((e) => notification.error({ message: e }));
+    makeRequest(
+      `${MIDDLEWARE_HTTP_URLS.account.url}/${Address.fromString(
+        account
+      ).toAddressString()}/points-by-category`,
+      {
+        method: MIDDLEWARE_HTTP_URLS.account.method,
+      }
+    )
+      .then((b) => b?.json())
+      .then((resp) => {
+        setPointsCategoryList(resp);
+        console.log({ resp: resp.data });
+      })
+      .catch((e) => notification.error({ message: e }));
 
     makeRequest(`${MIDDLEWARE_HTTP_URLS.account.url}/did:${account}`, {
       method: MIDDLEWARE_HTTP_URLS.account.method,
@@ -617,8 +645,7 @@ export const WalletContextProvider = ({
     const encoded = authority.encodeBytes();
     // console.log("ID::::", { authority, encoded });
 
-    
-    return authority
+    return authority;
   };
 
   // const authorize = async (
@@ -629,7 +656,6 @@ export const WalletContextProvider = ({
   //   account: AddressData,
   //   payload: ClientPayload<Authorization>
   // ) => {
-   
 
   //   // console.log("Grant", authority.asPayload());
 
@@ -662,7 +688,7 @@ export const WalletContextProvider = ({
       notification.error({ message: "No wallet connected" });
       return;
     }
-    console.log("ACCOUNTS::::", walletAccounts)
+    console.log("ACCOUNTS::::", walletAccounts);
     const account = walletAccounts[connectedWallet][0];
     if (account == null) {
       notification.error({ message: "No account found" });
@@ -696,37 +722,37 @@ export const WalletContextProvider = ({
 
         const hash = Utils.keccak256Hash(pb).toString("base64");
 
-    const message = JSON.stringify({
-      action: `AuthorizeAgent`,
-      network: ML_CHAIN_ID,
-      identifier: `${Address.fromString(authority.agent).address}`,
-      hash: `${hash}`,
-    }).replace(/\\s+/g, "");
-        
-    if (connectedWallet == "keplr") {
-      const signatureResp = await window.keplr.signArbitrary(
-        chainIds[connectedWallet],
-        account,
-        message
-      );
-      authority.signatureData = new SignatureData(
-        signatureResp.pub_key.type as any,
-        signatureResp.pub_key.value,
-        signatureResp.signature
-      );
-    } else {
-      // const msgHash = Utils.keccak256Hash(Buffer.from(message));
-      const signatureRespEth = await signEth(message);
-      authority.signatureData = new SignatureData(
-        "eth",
-        signatureRespEth.variables.account,
-        signatureRespEth.data ?? ""
-      );
-    }
-        
-       
-    const client = new Client(new RESTProvider(NODE_HTTP));
-    client.authorize(payload)
+        const message = JSON.stringify({
+          action: `AuthorizeAgent`,
+          network: ML_CHAIN_ID,
+          identifier: `${Address.fromString(authority.agent).address}`,
+          hash: `${hash}`,
+        }).replace(/\\s+/g, "");
+
+        if (connectedWallet == "keplr") {
+          const signatureResp = await window.keplr.signArbitrary(
+            chainIds[connectedWallet],
+            account,
+            message
+          );
+          authority.signatureData = new SignatureData(
+            signatureResp.pub_key.type as any,
+            signatureResp.pub_key.value,
+            signatureResp.signature
+          );
+        } else {
+          // const msgHash = Utils.keccak256Hash(Buffer.from(message));
+          const signatureRespEth = await signEth(message);
+          authority.signatureData = new SignatureData(
+            "eth",
+            signatureRespEth.variables.account,
+            signatureRespEth.data ?? ""
+          );
+        }
+
+        const client = new Client(new RESTProvider(NODE_HTTP));
+        client
+          .authorize(payload)
           .then((ev: any) => {
             const client = new Client(new RESTProvider(NODE_HTTP));
 
@@ -1300,7 +1326,7 @@ export const WalletContextProvider = ({
         identifier: `${subNetwork.reference}`,
         hash: `${hash}`,
       }).replace(/\\s+/g, "");
-    console.log("SUBNETSIGNATURE", message)
+      console.log("SUBNETSIGNATURE", message);
       if (connectedWallet == "keplr") {
         const signatureResp = await window.keplr.signArbitrary(
           chainIds[connectedWallet],
@@ -1457,6 +1483,7 @@ export const WalletContextProvider = ({
         selectedMessagesTopicId,
         messagesList,
         pointsList,
+        pointsCategoryList,
         leaderboardPointsList,
         pointsDetail,
         subscriberTopicList,

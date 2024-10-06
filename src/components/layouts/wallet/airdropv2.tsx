@@ -50,7 +50,8 @@ export const AirDropv2 = (props: AirDropv2Props) => {
   const [loaders, setLoaders] = useState<Record<string, boolean>>({});
   const {
     leaderboardPointsList,
-    pointsList,
+    // pointsList,
+    pointsCategoryList,
     pointsDetail,
     walletAccounts,
     connectedWallet,
@@ -58,6 +59,13 @@ export const AirDropv2 = (props: AirDropv2Props) => {
   } = useContext(WalletContext);
   const { selectedScreen, tabsDetails, setShowMobileMenu } =
     useContext(AirDropContext);
+
+  // const tabsDetails = useMemo(() => {
+  //   return pointsCategoryList?.data.map(
+  //     (pointByCategory) => pointByCategory.meta
+  //   );
+  // }, [pointsCategoryList]);
+
   const activites = useMemo(() => {
     // return (pointsList?.data ?? []).map((point) => ({
     //   title: point.activityName,
@@ -65,18 +73,22 @@ export const AirDropv2 = (props: AirDropv2Props) => {
     //   amount: point.points,
     //   actionText: "Get referral link",
     // }));
-    const _points = pointsList?.data ?? [];
+    const _points = pointsCategoryList?.data ?? [];
+    const _activities = _points.map((el) => el.activities).flat();
     return ACTIVITIES.map((activity) => {
-      const _pt = _points.find((e) => e.activityName == activity.title);
+      const _pt = _activities
+        ?.flat()
+        .find((e) => e.activityName == activity.title);
       return {
         ...activity,
         title: activity.title,
         point: `${_pt?.points ?? "..."} points`,
         amount: _pt?.claimStatus?.[0]?.points ?? "...",
         _pt,
+        meta: _points.find((e) => e.meta.index === _pt?.category.index),
       };
     });
-  }, [pointsList]);
+  }, [pointsCategoryList]);
 
   useEffect(() => {
     const referrer = searchParams.get("referrer");
@@ -96,7 +108,7 @@ export const AirDropv2 = (props: AirDropv2Props) => {
       });
     }
   }, [searchParams, connectedWallet]);
-  console.log({ pointsList });
+  console.log({ pointsCategoryList });
 
   useEffect(() => {
     console.log({ document });
@@ -304,54 +316,59 @@ export const AirDropv2 = (props: AirDropv2Props) => {
         showCheck = true;
       }
 
-      return (
-        <Fragment key={i}>
-          <div className="flex items-center gap-2">
-            <div className="flex flex-col w-1/2">
-              <span className="text-lg dark:text-white flex gap-2 items-center">
-                <span>{e.title}</span>
-                {showCheck && (
-                  <HeroIcons.CheckCircleIcon className="h-[20px] !text-green-500" />
-                )}
-              </span>
-              <span>
-                {e.actionText && (
+      return {
+        meta: e.meta,
+        component: (
+          <Fragment key={i}>
+            <div className="flex items-center gap-2">
+              <div className="flex flex-col w-1/2">
+                <span className="text-lg dark:text-white flex gap-2 items-center">
+                  <span>{e.title}</span>
+                  {showCheck && (
+                    <HeroIcons.CheckCircleIcon className="h-[20px] !text-green-500" />
+                  )}
+                </span>
+                <span>
+                  {e.actionText && (
+                    <span
+                      onClick={() => {
+                        handleAction(e as any, pointsDetail);
+                      }}
+                      className="text-sm text-blue-500 cursor-pointer"
+                    >
+                      {loaders[e.title] ? (
+                        <Spin />
+                      ) : (
+                        renderSubtext(e as any, pointsDetail)
+                      )}
+                    </span>
+                  )}{" "}
                   <span
                     onClick={() => {
-                      handleAction(e as any, pointsDetail);
+                      handleAction(e as any, pointsDetail, {
+                        alwaysConnect: true,
+                      });
                     }}
-                    className="text-sm text-blue-500 cursor-pointer"
+                    className="text-sm text-green-500 cursor-pointer"
                   >
                     {loaders[e.title] ? (
                       <Spin />
                     ) : (
-                      renderSubtext(e as any, pointsDetail)
+                      renderUserName(e as any, pointsDetail)
                     )}
                   </span>
-                )}{" "}
-                <span
-                  onClick={() => {
-                    handleAction(e as any, pointsDetail, {
-                      alwaysConnect: true,
-                    });
-                  }}
-                  className="text-sm text-green-500 cursor-pointer"
-                >
-                  {loaders[e.title] ? (
-                    <Spin />
-                  ) : (
-                    renderUserName(e as any, pointsDetail)
-                  )}
                 </span>
+              </div>
+              <span className="dark:text-white">{`${e.point}${
+                e._pt?.unit ? ` per ${e._pt?.unit}` : ""
+              }`}</span>
+              <span className="dark:text-white text-2xl ml-auto">
+                {e.amount}
               </span>
             </div>
-            <span className="dark:text-white">{`${e.point}${
-              e._pt?.unit ? ` per ${e._pt?.unit}` : ""
-            }`}</span>
-            <span className="dark:text-white text-2xl ml-auto">{e.amount}</span>
-          </div>
-        </Fragment>
-      );
+          </Fragment>
+        ),
+      };
     });
   }, [activites]);
   return (
@@ -398,7 +415,7 @@ export const AirDropv2 = (props: AirDropv2Props) => {
 
         <div className="flex flex-wrap justify-center lg:grid grid-cols-12 gap-14">
           <div className="lg:col-span-8">
-            {tabsDetails.map((el, index) => {
+            {tabsDetails?.map((el, index) => {
               if (selectedScreen != index) {
                 return <></>;
               }
@@ -417,13 +434,13 @@ export const AirDropv2 = (props: AirDropv2Props) => {
                   key={index}
                 >
                   {activitiesComponents
-                    .slice(el.startIndex, el.endIndex)
-                    .map((detail, indexY) => {
+                    .filter(({ meta }) => meta?.meta.index == el.index)
+                    .map(({ component }, indexY) => {
                       return (
                         <Fragment key={indexY}>
                           <div className="p-6">Step {indexY + 1}</div>
                           <div className="p-8 bg-secondaryBg mb-5">
-                            {detail}
+                            {component}
                           </div>
                         </Fragment>
                       );

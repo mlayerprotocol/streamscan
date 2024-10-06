@@ -49,7 +49,8 @@ export const WalletConnect = (props: WalletConnectProps) => {
           initializeKeplr?.();
         }}
         loading={loadingWalletConnections["keplr"]}
-        disabled={connectedWallet == "keplr"}
+        // disabled={connectedWallet == "keplr"}
+        disabled
         shape="round"
         type="default"
         className="!flex justify-start items-center"
