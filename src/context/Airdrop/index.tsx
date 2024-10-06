@@ -61,7 +61,7 @@ export const AirDropContextProvider = ({
   // ];
 
   const tabsDetails = useMemo(() => {
-    return pointsCategoryList?.data.map(
+    return pointsCategoryList?.data?.map(
       (pointByCategory) => pointByCategory.meta
     );
   }, [pointsCategoryList]);
