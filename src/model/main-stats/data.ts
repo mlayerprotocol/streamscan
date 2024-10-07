@@ -10,8 +10,8 @@ export interface Meta {
 }
 
 export interface MainData {
-  accounts: number;
-  topic_balance: number;
-  messages: number;
-  message_cost: number;
+  accounts: number | bigint;
+  topic_balance: number | bigint;
+  messages: number | bigint;
+  message_cost: number | bigint;
 }

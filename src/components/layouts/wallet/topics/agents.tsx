@@ -13,7 +13,7 @@ import { AuthorizeAgent, JoinTopic, NewAgent, PrivateKey } from "@/components";
 import { WalletContext } from "@/context";
 import moment from "moment";
 import { AddAgentToTopic } from "@/components/modals/topics/add-agent-to-topic";
-import { Entities } from "@mlayerprotocol/core";
+import { Entities }  from "@mlayerprotocol/core";
 import { SubscriberData, SubscriberListModel } from "@/model/subscribers";
 
 interface TopicAgentsProps {

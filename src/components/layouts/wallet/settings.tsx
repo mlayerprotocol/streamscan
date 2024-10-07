@@ -10,7 +10,7 @@ import { motion } from "framer-motion";
 import { useForm } from "antd/es/form/Form";
 import { WalletContext } from "@/context";
 import { Button, Form, Input, Select, notification } from "antd";
-import { AuthorizationPrivilege } from "@mlayerprotocol/core";
+import { AuthorizationPrivilege }  from "@mlayerprotocol/core";
 interface SettingsProps {
   onSuccess?: (values: any) => void;
   handleCreateAccount?: () => void;

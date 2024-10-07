@@ -32,7 +32,7 @@ export const TopicSetting = (props: TopicSettingsProps) => {
     [walletAccounts, connectedWallet]
   );
  
-  const  accountAsAddress = Address.fromString(account).toAddressString()
+  const  accountAsAddress = Address.fromString(account as string).toAddressString()
   const topic = useMemo(() => {
     if (!selectedMessagesTopicId && (accountTopicList?.data ?? []).length > 0) {
       setTimeout(() => {

@@ -15,7 +15,7 @@ import { motion } from "framer-motion";
 import { useForm } from "antd/es/form/Form";
 import { displayVariants, formLayout, shorternAddress } from "@/utils";
 import { WalletContext } from "@/context";
-import { SubscriptionStatus, SubscriberRole } from "@mlayerprotocol/core";
+import { SubscriptionStatus, SubscriberRole }  from "@mlayerprotocol/core";
 
 interface AddAgentToTopicProps {
   topicId?: string;

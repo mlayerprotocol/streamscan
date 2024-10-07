@@ -12,6 +12,7 @@ import {
 import { currencyFormat } from "@/utils";
 import { ColumnsType } from "antd/es/table";
 import { BlockStat } from "@/model/block-stats";
+import { ethers } from "ethers";
 
 const columns: ColumnsType<BlockStat> = [
   {
@@ -82,8 +83,8 @@ const DashboardPage = () => {
         <Card className="col-span-12 md:col-span-6 lg:col-span-3">
           <HomeStatCardTwo
             title="TVL"
-            amount={`${mainStatsData?.data.topic_balance || 0} MSG`}
-            offset={`${currencyFormat(1232345)}`}
+            amount={`${mainStatsData?.data.topic_balance || 0} MLT`}
+            offset={`${currencyFormat(0)}`}
             icon={
               <HeroIcons.BarsArrowUpIcon className="h-[18px] !text-[#AEB9E1] " />
             }
@@ -93,8 +94,8 @@ const DashboardPage = () => {
         <Card className="col-span-12 md:col-span-6 lg:col-span-3">
           <HomeStatCardTwo
             title="Total Tranx Volume"
-            amount={`${currencyFormat(
-              mainStatsData?.data.message_cost ?? 0
+            amount={`${ethers.formatEther(
+             String(mainStatsData?.data.message_cost ?? 0)
             )} MLT`}
             // date="2h"
             offset="~$1,212"

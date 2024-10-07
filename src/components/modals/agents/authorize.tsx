@@ -12,7 +12,7 @@ import {
 } from "@/utils";
 import { WalletContext } from "@/context";
 import moment from "moment";
-import { AuthorizationPrivilege, Entities } from "@mlayerprotocol/core";
+import { AuthorizationPrivilege, Entities }  from "@mlayerprotocol/core";
 
 interface AuthorizeAgentProps {
   updateAddressData?: AddressData;

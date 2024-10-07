@@ -21,7 +21,7 @@ import {
   AuthorizationPrivilege,
   SubscriptionStatus,
 } from "@mlayerprotocol/core/src/entities";
-import { Entities } from "@mlayerprotocol/core";
+import { Entities }  from "@mlayerprotocol/core";
 import Link from "next/link";
 const status = SubscriptionStatus.Invited;
 interface PendingTopicsProps {
@@ -73,7 +73,7 @@ export const PendingTopics = (props: PendingTopicsProps) => {
     if (!connectedWallet) return;
     const params: Record<string, any> = {
       sub: Address.fromString(
-        walletAccounts[connectedWallet]?.[0]
+        String(walletAccounts[connectedWallet]?.[0])
       ).toAddressString(),
       status,
     };

@@ -18,7 +18,7 @@ import {
   shorternAddress,
 } from "@/utils";
 import { WalletContext } from "@/context";
-import { Utils } from "@mlayerprotocol/core";
+import { Utils }  from "@mlayerprotocol/core";
 
 interface PrivateKeyProps {
   addressData: AddressData;

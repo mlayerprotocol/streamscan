@@ -46,11 +46,36 @@ export const WalletConnect = (props: WalletConnectProps) => {
     >
       <Button
         onClick={() => {
+          open();
+          onSelect?.("", "");
+        }}
+        loading={loadingWalletConnections["wagmi"]}
+        // disabled={connectedWallet == "metamask" || true}
+        shape="round"
+        type="default"
+        className="!flex justify-start items-center"
+        icon={
+          <Image
+            src="/icons/base.svg"
+            alt="Vercel Logo"
+            width={20}
+            height={20}
+            priority
+          />
+        }
+      >
+        <span className="">Base Network</span>
+        {connectedWallet == "wagmi" && (
+          <CheckCircleFilled className="!text-green-500 text-2xl !ml-auto" />
+        )}
+      </Button>
+      <Button
+        onClick={() => {
           initializeKeplr?.();
         }}
         loading={loadingWalletConnections["keplr"]}
         // disabled={connectedWallet == "keplr"}
-        disabled
+        disabled={true}
         shape="round"
         type="default"
         className="!flex justify-start items-center"
@@ -64,7 +89,7 @@ export const WalletConnect = (props: WalletConnectProps) => {
           />
         }
       >
-        <span className="">Keplr</span>
+        <span className="">Mlayer Chain (coming soon)</span>
         {connectedWallet == "keplr" && (
           <CheckCircleFilled className="!text-green-500 text-2xl !ml-auto" />
         )}
@@ -93,31 +118,7 @@ export const WalletConnect = (props: WalletConnectProps) => {
           <CheckCircleFilled className="!text-green-500 text-2xl !ml-auto" />
         )}
       </Button> */}
-      <Button
-        onClick={() => {
-          open();
-          onSelect?.("", "");
-        }}
-        loading={loadingWalletConnections["wagmi"]}
-        // disabled={connectedWallet == "metamask" || true}
-        shape="round"
-        type="default"
-        className="!flex justify-start items-center"
-        icon={
-          <Image
-            src="/icons/base.svg"
-            alt="Vercel Logo"
-            width={20}
-            height={20}
-            priority
-          />
-        }
-      >
-        <span className="">Base Network</span>
-        {connectedWallet == "wagmi" && (
-          <CheckCircleFilled className="!text-green-500 text-2xl !ml-auto" />
-        )}
-      </Button>
+      
     </motion.div>
   );
 };

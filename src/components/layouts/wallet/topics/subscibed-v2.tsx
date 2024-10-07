@@ -17,7 +17,7 @@ import { WalletContext } from "@/context";
 import { TopicData, TopicListModel } from "@/model/topic";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Address, SubscriptionStatus } from "@mlayerprotocol/core/src/entities";
-import { Entities } from "@mlayerprotocol/core";
+import { Entities }  from "@mlayerprotocol/core";
 const status = SubscriptionStatus.Subscribed;
 interface SubscribedV2TopicsProps {
   onSuccess?: (values: any) => void;
@@ -68,7 +68,7 @@ export const SubscribedV2Topics = (props: SubscribedV2TopicsProps) => {
     getRecordTopicV2?.(status, {
       params: {
         sub: Address.fromString(
-          walletAccounts[connectedWallet]?.[0]
+          walletAccounts[connectedWallet]?.[0] as string
         ).toAddressString(),
         status,
         snet: selectedSubnetId,

@@ -29,7 +29,7 @@ import {
 import { WalletContext } from "@/context";
 import { TopicData } from "@/model/topic";
 import { InformationCircleIcon } from "@heroicons/react/24/solid";
-import { Entities } from "@mlayerprotocol/core";
+import { Entities }  from "@mlayerprotocol/core";
 import { IconMap } from "antd/es/result";
 
 interface GoToSolidBaseProps {

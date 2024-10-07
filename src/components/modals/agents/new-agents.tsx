@@ -18,7 +18,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useForm } from "antd/es/form/Form";
 import { displayVariants, formLayout, shorternAddress } from "@/utils";
 import { WalletContext } from "@/context";
-import { Utils } from "@mlayerprotocol/core";
+import { Utils }  from "@mlayerprotocol/core";
 
 interface NewAgentProps {
   isModalOpen?: boolean;

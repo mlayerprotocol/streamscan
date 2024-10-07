@@ -99,7 +99,7 @@ export const AirDropv2 = (props: AirDropv2Props) => {
         method: MIDDLEWARE_HTTP_URLS.claim.method,
         body: JSON.stringify({
           account: Address.fromString(
-            walletAccounts[connectedWallet]?.[0]
+            String(walletAccounts[connectedWallet]?.[0])
           ).toAddressString(),
           referredBy: referrer,
         }),
