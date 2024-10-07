@@ -89,7 +89,7 @@ export const SubnetAppAsideMobile = (props: SubnetAppAsideMobileProps) => {
             <span>Topics</span>
           </Link>
 
-          {!process.env.NEXT_PUBLIC_HIDE_AIRDROP && (
+         
             <Link
               className={`${
                 pathname.indexOf(`/subnet/${selectedSubnetId}/settings`) == 0
@@ -101,7 +101,7 @@ export const SubnetAppAsideMobile = (props: SubnetAppAsideMobileProps) => {
               <HeroIcons.Cog8ToothIcon className="h-[20px]" />
               <span>Settings</span>
             </Link>
-          )}
+         
         </div>
         <div
           className="h-full col-span-1 "
