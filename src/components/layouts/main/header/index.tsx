@@ -105,7 +105,7 @@ export const AppHeader = (props: AppHeaderProps) => {
       onClick: handleLogout,
     },
   ]);
-
+  console.log({ walletAccounts, connectedWallet });
   return (
     <>
       <header className="sticky top-0 flex flex-col  backdrop-blur-xl z-50 items-end ">
@@ -191,7 +191,7 @@ export const AppHeader = (props: AppHeaderProps) => {
               placeholder="Search by Account, Agent, Event Hash"
             />
 
-            {!connectedWallet && (
+            {!(connectedWallet && walletAccounts[connectedWallet]?.[0]) && (
               <MotionButton
                 type="primary"
                 shape="round"
@@ -209,7 +209,7 @@ export const AppHeader = (props: AppHeaderProps) => {
               </MotionButton>
             )}
 
-            {connectedWallet && (
+            {connectedWallet && walletAccounts[connectedWallet]?.[0] && (
               <Dropdown
                 menu={{ items: userProfileItem }}
                 placement="bottomLeft"

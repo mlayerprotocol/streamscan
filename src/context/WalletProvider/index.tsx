@@ -87,7 +87,7 @@ interface WalletContextValues {
     address?: string,
     privateKey?: string
   ) => Promise<void>;
-  walletAccounts: Record<string, string[]>;
+  walletAccounts: Record<string, (string | undefined)[]>;
   loadingWalletConnections: Record<string, boolean>;
   walletConnectionState: Record<string, boolean>;
   connectedWallet?: string;
@@ -241,7 +241,7 @@ export const WalletContextProvider = ({
   const { address: wagmiAddress } = useAccount();
 
   const [walletAccounts, setWalletAccounts] = useState<
-    Record<string, string[]>
+    Record<string, (string | undefined)[]>
   >({});
   const [loadingWalletConnections, setLoadingWalletConnections] = useState<
     Record<string, boolean>
@@ -312,6 +312,16 @@ export const WalletContextProvider = ({
     () => new Storage(SELECTED_SUBNET_STORAGE_KEY),
     []
   );
+
+  useEffect(() => {
+    console.log({ wagmiAddresswagmiAddresswagmiAddress: wagmiAddress });
+    if (!wagmiAddress) {
+      setWalletAccounts({ wagmi: [] });
+    }
+    setWalletAccounts((old) => {
+      return { ...old, wagmi: [wagmiAddress] };
+    });
+  }, [wagmiAddress]);
 
   const disconnectKeplr = async () => {
     if (window.keplr) {
@@ -480,7 +490,7 @@ export const WalletContextProvider = ({
     getAccountSubnets({
       params: {
         acct: Address.fromString(
-          walletAccounts[connectedWallet]?.[0]
+          walletAccounts[connectedWallet]?.[0] ?? ""
         ).toAddressString(),
       },
     });
@@ -515,7 +525,7 @@ export const WalletContextProvider = ({
     getAuthorizations({
       params: {
         acct: Address.fromString(
-          walletAccounts[connectedWallet]?.[0]
+          walletAccounts[connectedWallet]?.[0] ?? ""
         ).toAddressString(),
       },
     });
@@ -528,7 +538,7 @@ export const WalletContextProvider = ({
     getAccountSubscriptions({
       params: {
         acct: Address.fromString(
-          walletAccounts[connectedWallet]?.[0]
+          walletAccounts[connectedWallet]?.[0] ?? ""
         ).toAddressString(),
         snet: selectedSubnetId,
       },
