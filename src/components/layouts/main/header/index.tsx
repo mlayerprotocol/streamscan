@@ -36,7 +36,7 @@ interface AppHeaderProps {
 }
 export const AppHeader = (props: AppHeaderProps) => {
   const {
-    headerText = "mlStudio",
+    headerText = "STUDIO",
     showMobileMenu,
     setShowMobileMenu,
     showAuthenticationModal,
@@ -139,8 +139,8 @@ export const AppHeader = (props: AppHeaderProps) => {
                 src="/logo.png"
                 alt="mLayer"
                 className="bg-cover mt-0"
-                width={50}
-                height={50}
+                width={40}
+                height={40}
                 priority
               />{" "}
               <span className="text-2xl font-bold font-assistant bg:text-white">

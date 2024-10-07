@@ -73,7 +73,7 @@ export const PendingTopics = (props: PendingTopicsProps) => {
     if (!connectedWallet) return;
     const params: Record<string, any> = {
       sub: Address.fromString(
-        walletAccounts[connectedWallet]?.[0]
+        String(walletAccounts[connectedWallet]?.[0])
       ).toAddressString(),
       status,
     };

@@ -68,7 +68,7 @@ export const SubscribedV2Topics = (props: SubscribedV2TopicsProps) => {
     getRecordTopicV2?.(status, {
       params: {
         sub: Address.fromString(
-          walletAccounts[connectedWallet]?.[0]
+          walletAccounts[connectedWallet]?.[0] as string
         ).toAddressString(),
         status,
         snet: selectedSubnetId,

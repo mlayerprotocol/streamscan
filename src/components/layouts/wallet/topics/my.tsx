@@ -63,11 +63,10 @@ export const MyTopics = (props: MyTopicsProps) => {
     [walletAccounts, connectedWallet]
   );
   const dataSource = useMemo(() => {
-    console.log("TOPICICCS--->", { accountTopicList });
     return (accountTopicList?.data ?? []).filter(
       (item) =>
         item.snet == selectedSubnetId &&
-        item.acct == Address.fromString(account).toAddressString()
+        item.acct == Address.fromString(String(account)).toAddressString()
     );
   }, [accountTopicList, account]);
   const agent = useMemo(() => {

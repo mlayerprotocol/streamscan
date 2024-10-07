@@ -58,7 +58,7 @@ export const SubscribedTopics = (props: SubscribedTopicsProps) => {
   );
   const dataSource = useMemo(() => {
     return (accountTopicList?.data ?? []).filter(
-      (item) => item.acct != Address.fromString(account).toAddressString()
+      (item) => item.acct != Address.fromString(account ?? '').toAddressString()
     );
   }, [accountTopicList, account]);
 

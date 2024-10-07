@@ -31,7 +31,7 @@ export const Messages = (props: MessagesProps) => {
     () => walletAccounts[connectedWallet ?? ""]?.[0],
     [walletAccounts, connectedWallet]
   );
-  const  accountAsAddress = Address.fromString(account).toAddressString()
+  const  accountAsAddress = Address.fromString(account as string).toAddressString()
   const topic = useMemo(() => {
     if (!selectedMessagesTopicId && (accountTopicList?.data ?? []).length > 0) {
       setTimeout(() => {
