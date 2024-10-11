@@ -508,12 +508,10 @@ export const WalletContextProvider = ({
       return;
     getAccountSubnets({
       params: {
-        acct: Address.fromString(
-          walletAccounts[connectedWallet]?.[0] ?? ""
-        ).toAddressString(),
+        acct: Address.fromString((walletAccounts[connectedWallet]?.[0] ?? "")).toAddressString(),
       },
     });
-  }, [connectedWallet, toggleGroup4, walletAccounts);
+  }, [connectedWallet, toggleGroup4, walletAccounts]);
 
   useEffect(() => {
     if (connectedWallet) connectedStorage?.set(connectedWallet);
