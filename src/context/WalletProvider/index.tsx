@@ -538,7 +538,7 @@ export const WalletContextProvider = ({
   useEffect(() => {}, []);
 
   useEffect(() => {
-    if (!connectedWallet || walletAccounts?.[connectedWallet].length == 0)
+    if (!connectedWallet || walletAccounts?.[connectedWallet].length == 0 || !walletAccounts[connectedWallet]?.[0])
       return;
     if (Object.keys(walletAccounts).length == 0) return;
     getAuthorizations({
@@ -1551,28 +1551,28 @@ export const MetaWrapper = ({ children }: { children: ReactNode }) => {
 export const WagmiWrapper = ({ children }: { children: ReactNode }) => {
   const queryClient = new QueryClient();
 
- const web3ModalConfig = defaultWagmiConfig({
-    metadata,
-    chains: chains,
-    projectId: wagmiProjectId,
-    ssr: true,
-    storage: createStorage({
-      storage: cookieStorage,
-    }),
-  });
+//  const web3ModalConfig = defaultWagmiConfig({
+//     metadata,
+//     chains: chains,
+//     projectId: wagmiProjectId,
+//     ssr: true,
+//     storage: createStorage({
+//       storage: cookieStorage,
+//     }),
+//   });
   
 
   // 3. Create modal
   createWeb3Modal({
     metadata,
-    wagmiConfig: web3ModalConfig,
+    wagmiConfig: wagmiConfig,
     projectId: wagmiProjectId,
     // enableAnalytics: true, // Optional - defaults to your Cloud configuration
     // enableOnramp: true, // Optional - false as default
   });
   return (
     <>
-      <WagmiProvider config={web3ModalConfig}>
+      <WagmiProvider config={wagmiConfig}>
         <QueryClientProvider client={queryClient}>
           {children}
         </QueryClientProvider>

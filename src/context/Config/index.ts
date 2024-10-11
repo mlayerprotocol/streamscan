@@ -20,7 +20,7 @@ export const wagmiConfig = createConfig({
   chains,
   //  projectId: wagmiProjectId,
   // metadata,
-  ssr: true,
+  ssr: false,
   storage: createStorage({
     storage: cookieStorage,
   }),

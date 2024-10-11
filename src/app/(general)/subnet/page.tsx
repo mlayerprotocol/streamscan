@@ -32,6 +32,7 @@ const SubnetPage = () => {
     loaders,
   } = useContext(WalletContext);
   return (
+    <>
     <ConnectWalletGuard>
     <div className="flex flex-col gap-4 min-h-[70vh] my-16 md:my-20 mx-5 md:mx-10">
       <div className="flex gap-4 items-center mb-12 flex-wrap">
@@ -130,6 +131,7 @@ const SubnetPage = () => {
       </div>
       </div>
       </ConnectWalletGuard>
+      </>
   );
 };
 

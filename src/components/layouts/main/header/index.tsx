@@ -66,7 +66,7 @@ export const AppHeader = (props: AppHeaderProps) => {
     disconnectKeplr?.();
     disconnect();
   };
-
+console.log({connectedWallet, accounts: walletAccounts})
   let userProfileItem: MenuProps["items"] = [
     {
       key: "2",
@@ -109,7 +109,6 @@ export const AppHeader = (props: AppHeaderProps) => {
       onClick: handleLogout,
     },
   ]);
-  console.log({ walletAccounts, connectedWallet });
   return (
     <>
       <header className="sticky top-0 flex flex-col  backdrop-blur-xl z-50 items-end ">
