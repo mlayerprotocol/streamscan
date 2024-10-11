@@ -513,7 +513,7 @@ export const WalletContextProvider = ({
         ).toAddressString(),
       },
     });
-  }, [connectedWallet, toggleGroup4]);
+  }, [connectedWallet, toggleGroup4, walletAccounts);
 
   useEffect(() => {
     if (connectedWallet) connectedStorage?.set(connectedWallet);
@@ -1116,7 +1116,6 @@ export const WalletContextProvider = ({
       if ((respond as any)?.error) {
         notification.error({ message: (respond as any)?.error + "" });
       }
-      console.log("RSPONESSS--->", respond);
       respond.data = Array.isArray(respond.data)
         ? respond.data
         : [respond.data];
