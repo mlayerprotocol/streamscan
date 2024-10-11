@@ -11,7 +11,7 @@ import {
 import * as stargate from "@cosmjs/stargate";
 import { MetaMaskProvider, useSDK } from "@metamask/sdk-react";
 
-import { createWeb3Modal } from "@web3modal/wagmi/react";
+import { createWeb3Modal, defaultWagmiConfig } from "@web3modal/wagmi/react";
 
 import {
   CONNECTED_WALLET_STORAGE_KEY,
@@ -66,9 +66,9 @@ import { SubnetData, SubnetListModel } from "@/model/subnets";
 import { PointListModel } from "@/model/points";
 import { PointDetailModel } from "@/model/points/detail";
 import { SubscriberListModel } from "@/model/subscribers";
-import { useAccount, useSignMessage, WagmiProvider } from "wagmi";
+import { cookieStorage, createStorage, useAccount, useSignMessage, WagmiProvider } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { wagmiConfig, wagmiProjectId } from "../Config";
+import { chains, metadata, wagmiConfig, wagmiProjectId } from "../Config";
 import { LeaderboardPointListModel } from "@/model/leaderboard";
 import { PointByCategoryModel } from "@/model/points/by-category";
 import { useParams } from 'next/navigation'
@@ -1551,16 +1551,28 @@ export const MetaWrapper = ({ children }: { children: ReactNode }) => {
 export const WagmiWrapper = ({ children }: { children: ReactNode }) => {
   const queryClient = new QueryClient();
 
+ const web3ModalConfig = defaultWagmiConfig({
+    metadata,
+    chains: chains,
+    projectId: wagmiProjectId,
+    ssr: true,
+    storage: createStorage({
+      storage: cookieStorage,
+    }),
+  });
+  
+
   // 3. Create modal
   createWeb3Modal({
-    wagmiConfig: wagmiConfig,
+    metadata,
+    wagmiConfig: web3ModalConfig,
     projectId: wagmiProjectId,
     // enableAnalytics: true, // Optional - defaults to your Cloud configuration
     // enableOnramp: true, // Optional - false as default
   });
   return (
     <>
-      <WagmiProvider config={wagmiConfig}>
+      <WagmiProvider config={web3ModalConfig}>
         <QueryClientProvider client={queryClient}>
           {children}
         </QueryClientProvider>

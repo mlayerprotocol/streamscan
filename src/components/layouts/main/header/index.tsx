@@ -91,14 +91,14 @@ export const AppHeader = (props: AppHeaderProps) => {
     });
   }
   userProfileItem = userProfileItem.concat([
-    {
-      icon: <HeroIcons.Cog8ToothIcon className="ml-2 h-[20px]" />,
-      label: <span className="font-medium text-base ml-2">Switch Wallet</span>,
-      key: "3",
-      onClick: () => {
-        setShowAuthenticationModal((old) => !old);
-      },
-    },
+    // {
+    //   icon: <HeroIcons.Cog8ToothIcon className="ml-2 h-[20px]" />,
+    //   label: <span className="font-medium text-base ml-2">Switch Wallet</span>,
+    //   key: "3",
+    //   onClick: () => {
+    //     setShowAuthenticationModal((old) => !old);
+    //   },
+    // },
     {
       label: (
         <span className="font-medium text-base ml-2 text-[#FDA29B]">
