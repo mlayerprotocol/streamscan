@@ -504,7 +504,7 @@ export const WalletContextProvider = ({
     getTopicMessages(selectedMessagesTopicId, {});
   }, [selectedMessagesTopicId, toggleGroup3]);
   useEffect(() => {
-    if (!connectedWallet || walletAccounts?.[connectedWallet].length == 0)
+    if (!connectedWallet ||  !walletAccounts[connectedWallet]?.[0])
       return;
     getAccountSubnets({
       params: {
